@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install pytest
+        run: python -m pip install --upgrade pip pytest
+      - name: Run the full suite
+        # No install step, mirroring genesis law G11: conftest.py wires
+        # packages/*/src onto sys.path. The suite pins the golden genesis
+        # hashes and the two named invariants (no admin key in the kernel;
+        # upgrade path is Proposal + Ballot only).
+        run: pytest -q

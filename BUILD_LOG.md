@@ -115,6 +115,44 @@ and `attack_forged_adminkey_tx` (the attack labels `helm_override_tx` /
 was left covering the sim package rather than exempted — a real override
 identifier sneaking into sim code should still turn it red.
 
+## Phase 3 — node + CLI (`packages/chronarch-node`, `packages/chronarch-cli`)
+
+The SimWorld loop wired to real transports.
+
+- **Consensus ledger vs boot chain.** Each node's *boot* chain diverges by
+  construction — the S5 announce ring carries the node's own id — so it can
+  never be the replicated log. Phase 3 introduces a separate **consensus
+  ledger** that starts from the identical Ring 0 on every node; the leader
+  seals slot rings + headers into it and gossips them, and followers re-seal
+  identically. A gossiped ring whose recomputed hash ≠ the claimed hash is
+  rejected as a fork (tampering is detectable), so convergence is verified,
+  not trusted.
+- **Abstract-PoST slot leader** (`leader.py`): a deterministic,
+  space-proportional, peer-verifiable lottery — a hash of the slot folded
+  over the cumulative space table, gated by the prestress floors. No
+  randomness, no stake or PoQ weight in the draw (G2/G10), no invented
+  40/40/20.
+- **Gossip** of headers / rings / challenges over an `InProcessBus`
+  (deterministic, for the cluster and tests) and a real line-JSON **TCP**
+  transport (`RpcServer` / `rpc_call`) so a node runs as an actual process.
+- **Eight RPC verbs** — init, seal, verify, pin, challenge, propose, ballot,
+  health — each routing through the frozen machinery. `seal` validates every
+  ring (an `admin_key` body is rejected by the schema screen); there is no
+  verb that activates a faculty, edits history, or bypasses admission/Council.
+  A `submit_tx` verb is exposed too, so the CLI can prove override rejection
+  end to end.
+- **CLI**: `chronarch serve` runs a node process, `chronarch cluster` runs
+  the in-process demo, and the RPC verbs drive a running node over TCP.
+
+**Result: 32 new node/CLI tests (133 total green). No node test proved a
+hole**, so genesis hashes, admission, Council, and Hearth are untouched —
+verified by git diff. The node is not a bypass: an illegal proposal ratified
+via the `propose`/`ballot` verbs is still ruled invalid and slashed (G16),
+and a forged gossip ring is rejected fleet-wide.
+
+**CI**: `.github/workflows/ci.yml` runs `pytest -q` on every push and PR to
+`main` (Python 3.11 and 3.12), no install step (G11).
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

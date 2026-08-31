@@ -1,4 +1,4 @@
-"""chronarch-cli: skeleton (Phase 3).
+"""chronarch-cli: operator surface for a Chronarch node (Phase 3)."""
+from .main import build_parser, main
 
-Placeholder package — populated in a later phase per ARCHITECTURE.md.
-"""
+__all__ = ["build_parser", "main"]

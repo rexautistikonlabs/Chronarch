@@ -4,6 +4,9 @@ version = "0.0.1"
 description = "Chronarch cli package"
 requires-python = ">=3.11"
 
+[project.scripts]
+chronarch = "chronarch_cli.main:main"
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
