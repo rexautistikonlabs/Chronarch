@@ -21,6 +21,7 @@ The only legal path to enact a MAJOR change:
 from __future__ import annotations
 
 import copy
+import re
 
 from chronarch_spec import chash, validate
 from chronarch_spec.constants import (
@@ -70,23 +71,60 @@ _ILLEGAL_PATTERNS = (
 )
 
 
+# Patterns are matched verbatim and, when long enough to be unambiguous,
+# with separators stripped — so `genesis_law_g1`, `genesislaw.g1` or a
+# nested {"apply": {"genesis_law.g1": ...}} cannot spell past the check.
+_STRIP_RE = re.compile(r"[^a-z0-9]+")
+_NORMALIZED_ILLEGAL = tuple(
+    (pattern, _STRIP_RE.sub("", pattern) if len(_STRIP_RE.sub("", pattern)) >= 6 else None, why)
+    for pattern, why in _ILLEGAL_PATTERNS
+)
+
+
+def _pattern_in(pattern: str, text: str) -> bool:
+    """Substring match with a digit boundary for digit-ending patterns, so
+    `genesis_law.g1` never matches a legitimate `genesis_law.g14` (G14..G18
+    are amendable via M1; only G1..G13 are beyond any vote, G16)."""
+    start = 0
+    while True:
+        i = text.find(pattern, start)
+        if i < 0:
+            return False
+        j = i + len(pattern)
+        if not (pattern[-1].isdigit() and j < len(text) and text[j].isdigit()):
+            return True
+        start = i + 1
+
+
+def _iter_change_strings(value):
+    """Every string reachable in a change value: keys and leaves, any depth."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for key, inner in value.items():
+            yield str(key)
+            yield from _iter_change_strings(inner)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            yield from _iter_change_strings(item)
+
+
 def check_legality(proposal: dict) -> None:
     """Raise IllegalProposalError if the proposal violates G1..G13.
 
     Schema validation has already screened forbidden key tokens (admin_key,
     helm_override, ...) recursively — a proposal carrying one never gets
-    this far. This check covers semantic violations.
+    this far. This check covers semantic violations, at least as strictly
+    as the K18 key screen: normalized matching, all nesting depths.
     """
     for path, value in proposal["changes"].items():
-        lowered = str(path).lower()
-        for pattern, why in _ILLEGAL_PATTERNS:
-            if pattern in lowered:
-                raise IllegalProposalError(f"{path!r}: {why}")
-        if isinstance(value, str):
-            lowered_value = value.lower()
-            for pattern, why in _ILLEGAL_PATTERNS:
-                if pattern in lowered_value:
-                    raise IllegalProposalError(f"{path!r} value: {why}")
+        for text in (str(path), *_iter_change_strings(value)):
+            lowered = text.lower()
+            normalized = _STRIP_RE.sub("", lowered)
+            for pattern, bare, why in _NORMALIZED_ILLEGAL:
+                if _pattern_in(pattern, lowered) or (
+                        bare is not None and _pattern_in(bare, normalized)):
+                    raise IllegalProposalError(f"{path!r}: {why}")
 
     if proposal["major_class"] == "M5":
         # Widening the gym is votable ONLY within Chronarch classes (G12).
@@ -186,15 +224,18 @@ class CouncilState:
         if seat in entry["ballots"]:
             # Double vote: slash and refuse (slash backing, COUNCIL.md).
             identity = self._seats[seat]["identity"]
-            seized = self._hearth.slash(identity, reason="double ballot", slot=slot)
-            self.slash_log.append({"identity": identity, "reason": "double_ballot",
-                                   "seized": seized, "slot": slot})
+            seized = self._slash(identity, reason="double_ballot", slot=slot)
             chain.seal_scar("I10", f"double ballot from seat {seat}", [],
                             author="council", slot=slot)
             raise CouncilError(f"double ballot from {seat!r} — slashed")
         if ballot["bond_weight_chronons"] != snapshot[seat]:
             raise CouncilError("ballot weight does not match eligibility snapshot")
         entry["ballots"][seat] = copy.deepcopy(ballot)
+        # Lien the voter's hearth position until this proposal tallies, so a
+        # slashing-backed vote cannot be escaped by unbonding inside the
+        # voting window (G14).
+        self._hearth.add_lien(self._seats[seat]["identity"],
+                              f"ballot:{ballot['proposal_id']}")
         chain.seal("ballot", {"ballot": copy.deepcopy(ballot)},
                    author=self._seats[seat]["identity"], slot=slot)
 
@@ -230,12 +271,7 @@ class CouncilState:
                 outcome = "invalid"
                 for ballot in yes:
                     identity = self._seats[ballot["seat"]]["identity"]
-                    seized = self._hearth.slash(
-                        identity, reason=f"yes on illegal proposal: {exc}", slot=slot)
-                    self.slash_log.append({
-                        "identity": identity, "reason": "illegal_ratification",
-                        "seized": seized, "slot": slot,
-                    })
+                    self._slash(identity, reason="illegal_ratification", slot=slot)
                 chain.seal_scar(
                     "I8",
                     f"illegal ratification attempt on {proposal_id}: {exc}",
@@ -255,10 +291,27 @@ class CouncilState:
                                  yes_seat_count, eligible_seat_count,
                                  activation_slot)
 
+    def _slash(self, identity: str, *, reason: str, slot: int) -> int:
+        """Slash with a complete record even for edge states. A position the
+        hearth no longer holds (or already slashed) seizes 0 — the tally must
+        finish and the scar must seal regardless (G16 is not wedgeable)."""
+        from chronarch_hearth import HearthError
+        try:
+            seized = self._hearth.slash(identity, reason=reason, slot=slot)
+        except HearthError:
+            seized = 0
+        self.slash_log.append({"identity": identity, "reason": reason,
+                               "seized": seized, "slot": slot})
+        return seized
+
     def _seal_result(self, entry, proposal_id, outcome, chain, slot,
                      yes_weight, eligible_weight, yes_seats, eligible_seats,
                      activation_slot):
         entry["status"] = outcome
+        # The vote is settled: release every voter's ballot lien.
+        for seat in entry["ballots"]:
+            self._hearth.clear_lien(self._seats[seat]["identity"],
+                                    f"ballot:{proposal_id}")
         result = {
             "proposal_id": proposal_id,
             "outcome": outcome,

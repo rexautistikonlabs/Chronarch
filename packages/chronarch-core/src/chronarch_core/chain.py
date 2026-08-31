@@ -113,6 +113,14 @@ class Timechain:
     # -- verify ----------------------------------------------------------------
     def verify_full(self) -> bool:
         """Walk the whole chain. Any mutation, insertion or deletion fails."""
+        if len(self._rings) != len(self._hashes):
+            # A desync between the parallel arrays would otherwise leave the
+            # longer tail unverified (zip stops at the shorter list) while
+            # head_hash reported a hash covering no real ring.
+            raise ChainError(
+                f"ring/hash array desync: {len(self._rings)} rings vs "
+                f"{len(self._hashes)} hashes"
+            )
         prev_hash = ""
         for height, (ring, stored_hash) in enumerate(zip(self._rings, self._hashes)):
             validate("Ring", ring)

@@ -41,6 +41,11 @@ def salience_multiplier_bps(raw_bps: int) -> int:
 class HearthState:
     def __init__(self) -> None:
         self._positions: dict[str, dict] = {}
+        # Vote liens: identity -> set of open obligations (e.g. un-tallied
+        # ballots). A position cannot release while a lien is open, so a
+        # slashing-backed vote (G14) cannot be escaped by unbonding inside
+        # the voting window.
+        self._liens: dict[str, set] = {}
         self.treasury_chronons = 0
         # Sim AMM inventory (Chronos <-> AXON simulated quote, MVP).
         self.lp_chronos = 0
@@ -83,6 +88,15 @@ class HearthState:
             raise HearthError(
                 f"unbond delay not elapsed ({slot} < {requested + UNBOND_DELAY_SLOTS})"
             )
+        if self._liens.get(identity):
+            raise HearthError(
+                f"open vote liens {sorted(self._liens[identity])}: the slash "
+                "must be able to land before the bond leaves (G14)"
+            )
+        if position["quarantined"]:
+            raise HearthError(
+                "quarantined position cannot release until the quarantine lifts"
+            )
         # A slashed position lost its bond leg to the treasury; the liquidity
         # leg still unwinds — slashing punishes judgment abuse, it does not
         # confiscate liquidity (G13).
@@ -103,6 +117,21 @@ class HearthState:
 
     def quarantine(self, identity: str) -> None:
         self._require(identity)["quarantined"] = True
+
+    def lift_quarantine(self, identity: str) -> None:
+        self._require(identity)["quarantined"] = False
+
+    # -- vote liens (G14: slashes must be able to land) -------------------------
+    def add_lien(self, identity: str, tag: str) -> None:
+        self._require(identity)
+        self._liens.setdefault(identity, set()).add(tag)
+
+    def clear_lien(self, identity: str, tag: str) -> None:
+        liens = self._liens.get(identity)
+        if liens is not None:
+            liens.discard(tag)
+            if not liens:
+                del self._liens[identity]
 
     # -- queries ---------------------------------------------------------------
     def _require(self, identity: str) -> dict:
@@ -135,7 +164,14 @@ class HearthState:
         return True
 
     def solvency(self) -> dict:
-        """I9 instrumentation: liabilities vs inventory."""
+        """I9 instrumentation: inventory must cover liabilities.
+
+        Liabilities are what open positions can reclaim (bond + liquidity
+        legs); inventory is the LP pool plus held bond legs. In a healthy
+        state the two are equal to the chronon; any divergence (an LP path
+        that moved lp_chronos without a matching position change) reports
+        insolvent and is an I9 nervous event.
+        """
         liabilities = sum(
             p["bond_leg_chronons"] + p["liquidity_leg_chronons"]
             for p in self._positions.values()
@@ -146,7 +182,7 @@ class HearthState:
         return {
             "liabilities_chronons": liabilities,
             "inventory_chronons": inventory,
-            "solvent": inventory >= self.lp_chronos,
+            "solvent": inventory >= liabilities,
             "treasury_chronons": self.treasury_chronons,
         }
 

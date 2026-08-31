@@ -54,9 +54,51 @@ over convenience.
   drills by design.
 - **License:** MIT (already present in the repository, owner's choice).
 
+## Adversarial review round 1 (six lenses, refuters per finding)
+
+Confirmed and fixed:
+
+- **`verify_full` array-desync blind spot.** The ring and hash arrays were
+  only zipped; a one-array desync left the tail unverified while `head_hash`
+  reported a hash covering no real ring. Now a length mismatch is a
+  `ChainError`.
+- **Slash-escape via unbond.** A yes-voter could `request_unbond` and
+  `release` inside the 128-slot voting window (delay is 32) and dodge the
+  G16 slash — "slashing-backed vote" was escapable. Fixed with **ballot
+  liens**: casting a ballot liens the Hearth position; release is refused
+  until the tally clears it. Slash loops are also defensive now: a
+  vanished/pre-slashed position seizes 0 and is logged, so a tally can
+  never wedge half-slashed with the I8 scar unsealed.
+- **Solvency tautology.** `solvent` compared inventory to a term of itself
+  and could never be False; it now compares inventory to liabilities.
+- **`check_legality` normalization gap.** G16 matching was raw-substring on
+  top-level paths only; `genesis_law_g1`, `genesislaw.g1`, or a nested
+  `{"apply": {...}}` slipped past. Now normalized like the K18 screen and
+  recursive over nested values — with a digit boundary so `genesis_law.g14`
+  (M1-amendable) never false-matches `genesis_law.g1`.
+- **Quarantine did not block release**; it does now (`lift_quarantine`
+  added), matching HEARTH.md.
+- **Spec-code drift**: NERVOUS.md's transmission column now quotes the
+  code's `ADJACENCY` verbatim; COUNCIL.md's state diagram gained the
+  `Tally -> Expired` edge (the brief lists approve|reject|expire as tally
+  outcomes).
+
+Reviewed and left as-is (refuted on threat-model scope): `CAS.withhold` and
+`FacultyRegistry.hibernate` are local-process operations with no tx/ring
+path — withholding your own disk is always physically possible; the
+protocol's defense is challenge/detection, not API prevention.
+`faculty_code_hash` deliberately omits `status`: the hash names code
+identity, the registry is the authority on lifecycle state.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
 - Witness rule beyond 3-of-5 (K11) once real networking exists (Phase 3).
 - Real PoST plot format + VDF clock (Phase 4/6, Chia-family research fork).
 - AXON counter-asset design for the Hearth AMM beyond the simulated quote.
+- Governance for `hibernate` (a MINOR change today with no usage-accounting
+  check that the faculty is actually "unused"; hibernation of a
+  protocol-path faculty fails closed, but cadence rules belong in Phase 3).
+- Council seat registration currently trusts self-asserted pinset size and
+  challenge-pass recency; Phase 3 nodes must derive both from sealed
+  PinSet rings and ChallengeResults.

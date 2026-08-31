@@ -94,6 +94,7 @@ stateDiagram-v2
     Voting --> Tally: window closes
     Tally --> Approved: 2/3 eligible bond weight\nAND > 1/2 eligible seats
     Tally --> Rejected: thresholds not met
+    Tally --> Expired: window closed\nwith no ballots cast
     Proposed --> Expired: no valid tally\nwithin the window
     Gym --> Expired: no valid tally\nwithin the window
     Approved --> Active: genesis-legal, activates at\nH >= tally slot + 32
