@@ -90,6 +90,31 @@ protocol's defense is challenge/detection, not API prevention.
 `faculty_code_hash` deliberately omits `status`: the hash names code
 identity, the registry is the authority on lifecycle state.
 
+## Phase 2 — sim attacks (`packages/chronarch-sim`)
+
+A deterministic multi-node fixture (`SimWorld`: N nodes booted from the same
+kernel, a shared bonded-steward Council + Hearth, an explicit slot counter,
+no wall clock or randomness), the full 12-case Immune Gym catalog run across
+every node, and the seven named Phase-2 attacks each with an explicit oracle:
+helm-override tx, admin-key tx (plain/camelCase/nested), Chronarch self-enact
+M3, Chronos bribe to flip a Challenge, Chronos bribe to flip Ballot legality,
+pin withhold, and HearthDrain (instant-exit + vote-then-flee).
+
+`SIM_REPORT.md` is generated from the sim (`python -m chronarch_sim.report`),
+never hand-edited, so it cannot drift from what the tests prove.
+
+**Result: all seven defenses held and all 60 gym cases passed. No sim test
+proved a hole**, so — per the task constraint — nothing in the frozen kernel,
+admission, or Council was changed. The sim builds only on the kernel's public
+APIs; it holds no key and reaches no protocol path.
+
+One naming note: the AST guard "no source identifier implements an override"
+scans every package, so the attack functions are named `attack_forged_helm_tx`
+and `attack_forged_adminkey_tx` (the attack labels `helm_override_tx` /
+`admin_key` live in string data, which the guard correctly ignores). The guard
+was left covering the sim package rather than exempted — a real override
+identifier sneaking into sim code should still turn it red.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
