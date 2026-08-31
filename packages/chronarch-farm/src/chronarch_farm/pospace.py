@@ -52,9 +52,14 @@ def _quality(plot_id: str, challenge: str, proof_bytes: str) -> str:
     return hash_bytes(data)
 
 
-def make_pospace(plot_id: str, challenge: str, space_units: int) -> dict:
+def make_pospace(plot_id: str, challenge: str, space_units: int,
+                 filter_prefix_bits: int = 0) -> dict:
     """Grind a valid ProofOfSpace for (plot_id, challenge) at the farmer's
-    space. Deterministic nonce walk from 0."""
+    space. Deterministic nonce walk from 0.
+
+    `filter_prefix_bits` (Phase 7, default 0 = Phase-6 behavior) also requires
+    the quality to carry that many leading zero bits (the plot filter). With
+    the default 0 this is identical to Phase 6."""
     if space_units <= 0:
         raise PlotError("cannot make a pospace for zero space")
     difficulty = difficulty_from_space_units(space_units)
@@ -63,14 +68,21 @@ def make_pospace(plot_id: str, challenge: str, space_units: int) -> dict:
         proof_bytes = format(nonce, "x")
         quality = _quality(plot_id, challenge, proof_bytes)
         if int(quality, 16) < difficulty:
-            return {
-                "challenge": challenge,
-                "plot_id": plot_id,
-                "proof_bytes": proof_bytes,
-                "quality_string": quality,
-            }
+            if filter_prefix_bits <= 0 or _leading_zero_bits(quality) >= filter_prefix_bits:
+                return {
+                    "challenge": challenge,
+                    "plot_id": plot_id,
+                    "proof_bytes": proof_bytes,
+                    "quality_string": quality,
+                }
         nonce += 1
-    raise PlotError("pospace grind exhausted (difficulty too hard for stand-in)")
+    raise PlotError("pospace grind exhausted (difficulty/filter too hard for stand-in)")
+
+
+def _leading_zero_bits(hex_hash: str) -> int:
+    value = int(hex_hash, 16)
+    total_bits = len(hex_hash) * 4
+    return total_bits - value.bit_length() if value else total_bits
 
 
 def verify_pospace(pospace: dict, space_units: int) -> dict:

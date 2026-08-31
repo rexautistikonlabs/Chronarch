@@ -1,5 +1,11 @@
 # PHASE6_POST.md — Chia-Family Body: Real, Stand-In, and the Phase-7 Line
 
+> **Phase 7 note.** The Phase-6 local stand-in described here remains the
+> **default backend**. Phase 7 *wraps* it with an infused challenge chain, a
+> plot filter, and a sequential-time VDF, and adds an optional real-tables
+> backend seam — see [PHASE7_POST.md](PHASE7_POST.md). None of that changes
+> the lottery or the frozen signatures below.
+
 Phase 6 replaces the farm's plot-proof **verification body** with a
 real-enough, deterministic local Proof-of-Space verifier, and adds the
 Chia-family body fields to a node-level SlotHeader. It does **not** vendor

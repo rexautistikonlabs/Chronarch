@@ -92,6 +92,7 @@ class Node:
         from .slotheader import commitment_for_node
         self.plot_commitment = commitment_for_node(identity, self.cas)
         self.last_slot_header: dict | None = None
+        self.slot_headers: list[dict] = []  # the infusion chain, in order
 
     # -- prestress / eligibility -------------------------------------------
     def bond_chronons(self, identity: str | None = None) -> int:
@@ -171,8 +172,9 @@ class Node:
         slot_header = build_slot_header(
             slot=slot, leader=leader, commitment=self.plot_commitment,
             space_units=self.space_table.get(leader, self.space_units),
-            prev_header_hash=self.last_header_hash)
+            prev_slot_header=self.last_slot_header)  # infusion chain
         self.last_slot_header = slot_header
+        self.slot_headers.append(slot_header)
         self._accept_header(header)
         return [
             # SlotHeader first: a follower verifies the proof before applying
@@ -207,11 +209,15 @@ class Node:
         from .slotheader import verify_slot_header
         slot_header = msg["slot_header"]
         leader = msg.get("leader", slot_header.get("leader"))
+        # Verify against THIS follower's prev slot header — the infusion chain
+        # is recomputed, so a forged infused_challenge is rejected.
         result = verify_slot_header(
-            slot_header, space_units=self.space_table.get(leader, 0))
+            slot_header, space_units=self.space_table.get(leader, 0),
+            prev_slot_header=self.last_slot_header)
         if not result["ok"]:
-            raise NodeError(f"slot rejected: pospace {result['error_code']}")
+            raise NodeError(f"slot rejected: {result['error_code']}")
         self.last_slot_header = slot_header
+        self.slot_headers.append(slot_header)
 
     def _apply_ring(self, msg: dict) -> None:
         # Apply only the next ring in order; re-seal it identically and check

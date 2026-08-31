@@ -112,12 +112,20 @@ def test_cluster_converges_with_pospace_attached():
     cluster = Cluster(n_nodes=4)
     cluster.run_slots(6)
     assert cluster.converged() and cluster.all_verify()
-    # Every leader-produced slot carried a verifiable SlotHeader.
+    # Every leader-produced slot carried a verifiable SlotHeader, and the
+    # whole infusion chain re-verifies against its predecessors.
     for node in cluster.nodes.values():
-        if node.last_slot_header is not None:
-            leader = node.last_slot_header["leader"]
-            assert verify_slot_header(node.last_slot_header,
-                                      space_units=cluster.space_table[leader])["ok"]
+        prev = None
+        for sh in node.slot_headers:
+            leader = sh["leader"]
+            result = verify_slot_header(sh, space_units=cluster.space_table[leader],
+                                        prev_slot_header=prev)
+            assert result["ok"], result
+            prev = sh
+    # All nodes agree on the identical slot-header chain (converged infusion).
+    chains = {tuple(sh["infused_challenge"] for sh in n.slot_headers)
+              for n in cluster.nodes.values()}
+    assert len(chains) == 1
 
 
 # ------------------------------------------------ vdf ignored by the lottery --

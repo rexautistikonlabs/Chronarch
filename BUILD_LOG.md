@@ -295,6 +295,47 @@ kernel, admission, Council, Hearth, or the agent silo/hat layer changed.
 13 new tests (204 total green). Frozen files untouched (git diff proof);
 K18 AST scan clean.
 
+## Phase 7 — Chia-family time and infusion (research fork)
+
+Wraps the Phase-6 local PoSpace stand-in (still the default backend) with an
+infused challenge chain, a plot filter, and a sequential-time VDF, plus an
+optional real-tables backend seam. Additive: the lottery is untouched
+(equal units still elect identical leaders), and `verify_plot_proof` /
+`verify_pospace` signatures are unchanged.
+
+- `chronarch_farm.infusion`: `infuse_challenge` (slot n challenge =
+  SHA256(domain‖prev_quality‖prev_challenge‖slot)), `genesis_challenge` for
+  slot 0, `plot_filter_ok` (>= `FILTER_PREFIX_BITS` leading zero bits, fail
+  closed), and a `SequentialVDF` (H∘H∘…∘H, pinned iteration bound).
+- `chronarch_farm.pospace.make_pospace` gained an additive
+  `filter_prefix_bits` param (default 0 = Phase-6 behavior).
+- `chronarch_farm.chiapos_backend`: `active_backend()` returns the Phase-6
+  stand-in unless `CHRONARCH_CHIAPOS=1` AND `chiapos` imports; a pip extra,
+  never a CI dependency; chiapos tests use `pytest.importorskip`.
+- `chronarch_node.slotheader`: SlotHeader += `infused_challenge`,
+  `prev_quality`, `plot_filter_ok`, and a SequentialVDF `vdf`. Followers
+  recompute the infusion against their own predecessor and reject a mismatch,
+  a filter failure, a bad ProofOfSpace, or a bad VDF. The node keeps the full
+  slot-header chain.
+
+### Rejected (kept rejected)
+
+- **Chia submodule / vendored tree** — no. Optional `chiapos` pip extra only;
+  no git submodule, no multi-hundred-MB vendor.
+- **VDF-as-vote** — no. The SequentialVDF is a required header artifact but
+  never changes the elected leader (tested: identical winners with/without
+  it). It does not vote.
+- **Wall-clock slots** — no. Slots stay discrete; the VDF proves sequential
+  work, not elapsed time.
+- **Stake-in-draw** — no. The election stays space-weighted +
+  prestress-gated; infusion/filter/VDF are per-slot gates on the
+  already-elected leader (G2/G10).
+- **Plots-as-DB** — still no. A plot stores space proofs only.
+
+14 new tests + 1 chiapos test skipped without the extra (218 total green,
+204 pre-existing still pass with zero extra deps). Frozen files untouched
+(git diff proof); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

@@ -1,8 +1,14 @@
 [project]
 name = "chronarch-farm"
 version = "0.0.1"
-description = "Chronarch farm package: dual-farm plot lane, abstract-to-plot adapter (Phase 4)"
+description = "Chronarch farm package: dual-farm plot lane, abstract-to-plot adapter, PoSpace/VDF research fork"
 requires-python = ">=3.11"
+
+# Optional real-tables backend. NEVER required — the full suite runs on the
+# Phase-6 local stand-in with zero extra deps. Opt in with
+# `pip install chronarch-farm[chiapos]` and CHRONARCH_CHIAPOS=1.
+[project.optional-dependencies]
+chiapos = ["chiapos"]
 
 [build-system]
 requires = ["setuptools>=68"]

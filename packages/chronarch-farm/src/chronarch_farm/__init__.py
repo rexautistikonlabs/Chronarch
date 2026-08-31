@@ -28,6 +28,24 @@ from .pospace import (
     verify_pospace,
     verify_vdf_record,
 )
+from .infusion import (
+    DEFAULT_VDF_ITERATIONS,
+    FILTER_PREFIX_BITS,
+    MAX_VDF_ITERATIONS,
+    genesis_challenge,
+    infuse_challenge,
+    leading_zero_bits,
+    make_sequential_vdf,
+    plot_filter_ok,
+    verify_sequential_vdf,
+)
+from .chiapos_backend import (
+    BACKEND_CHIAPOS,
+    BACKEND_STANDIN,
+    active_backend,
+    chiapos_available,
+    chiapos_enabled,
+)
 
 __all__ = [
     "SIZE_TABLE",
@@ -53,4 +71,20 @@ __all__ = [
     "POSPACE_QUALITY_MISMATCH",
     "POSPACE_BELOW_DIFFICULTY",
     "POSPACE_ZERO_SPACE",
+    # Phase 7 infusion + filter + sequential VDF
+    "FILTER_PREFIX_BITS",
+    "DEFAULT_VDF_ITERATIONS",
+    "MAX_VDF_ITERATIONS",
+    "genesis_challenge",
+    "infuse_challenge",
+    "leading_zero_bits",
+    "plot_filter_ok",
+    "make_sequential_vdf",
+    "verify_sequential_vdf",
+    # Phase 7 optional real-tables backend (off by default)
+    "active_backend",
+    "chiapos_available",
+    "chiapos_enabled",
+    "BACKEND_STANDIN",
+    "BACKEND_CHIAPOS",
 ]
