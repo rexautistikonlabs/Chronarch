@@ -257,6 +257,44 @@ imports (S7).
 17 new tests (191 total green). Frozen files untouched (git diff proof);
 K18 AST scan clean.
 
+## Phase 6 — Chia-family body (verifier body only)
+
+Replaced the farm plot-proof *verification body* with a real-enough,
+deterministic local Proof-of-Space verifier, and added the Chia-family body
+fields to a node-level SlotHeader. Additive: `verify_plot_proof(proof,
+commitment)` keeps its signature (call-site test), the lottery math is
+untouched (equal units still elect identical leaders), and nothing in the
+kernel, admission, Council, Hearth, or the agent silo/hat layer changed.
+
+- `chronarch_farm.pospace`: `ProofOfSpace` + `verify_pospace` (quality =
+  SHA256(domain‖plot_id‖challenge‖proof_bytes); valid iff quality <
+  `difficulty_from_space_units`), stable error codes, deterministic nonce
+  walk. Plus a typed `VDFRecord` with an integrity-only stub check.
+- `chronarch_node.slotheader`: a research-fork SlotHeader
+  (`plot_commitment_hash, pospace_challenge, pospace_quality/pospace,
+  vdf_placeholder`) attached by the leader; a follower rejects the slot if
+  the ProofOfSpace fails or the plot commitment is missing. The SlotHeader
+  is separate from the frozen kernel `Header`.
+
+### Rejected (kept rejected, now Phase-6-specific)
+
+- **Plots as a database** — still no. A plot proves space; the SlotHeader
+  carries a commitment *hash*, never rings/weights/vectors, and no ring goes
+  inside a `.plot`.
+- **Vendoring chia-blockchain** — no. No submodule, no CHIP-48, no mainnet
+  compatibility claim. This is a local stand-in, documented as such
+  ([PHASE6_POST.md](PHASE6_POST.md)); real Chia tables + real VDF are a
+  Phase-7 non-goal.
+- **VDF-as-consensus** — no. The VDF is a typed stub record and the
+  `vdf_placeholder` is ignored by the lottery (tested: same winners with and
+  without it). The VDF does not vote; slot time is not wall-clock.
+- **Stake-in-draw** — no. The election stays space-weighted and
+  prestress-gated; PoSpace is a per-slot gate on the already-elected leader,
+  adding no weight (G2/G10).
+
+13 new tests (204 total green). Frozen files untouched (git diff proof);
+K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

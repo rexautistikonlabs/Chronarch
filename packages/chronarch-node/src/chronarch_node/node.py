@@ -86,6 +86,13 @@ class Node:
         self.last_challenge_pass_slot = 0
         self.seat: str | None = None
 
+        # Phase 6: a representative PlotCommitment for this farmer (a real,
+        # recomputable plot id bound to its pinset). The slot lottery still
+        # runs on abstract space units; this is the body proof it attaches.
+        from .slotheader import commitment_for_node
+        self.plot_commitment = commitment_for_node(identity, self.cas)
+        self.last_slot_header: dict | None = None
+
     # -- prestress / eligibility -------------------------------------------
     def bond_chronons(self, identity: str | None = None) -> int:
         pos = self.hearth.position(identity or self.identity)
@@ -156,8 +163,21 @@ class Node:
                 "issuance": slot_issuance_chronons(slot)}
         ring = self.ledger.seal("economic", body, author=leader, slot=slot)
         header = self.build_header(slot, leader)
+        # Phase 6: attach a valid ProofOfSpace SlotHeader for this slot. The
+        # difficulty uses the farmer's declared space (the same units the
+        # lottery weighs), so a legitimate leader always produces a valid
+        # proof deterministically.
+        from .slotheader import build_slot_header
+        slot_header = build_slot_header(
+            slot=slot, leader=leader, commitment=self.plot_commitment,
+            space_units=self.space_table.get(leader, self.space_units),
+            prev_header_hash=self.last_header_hash)
+        self.last_slot_header = slot_header
         self._accept_header(header)
         return [
+            # SlotHeader first: a follower verifies the proof before applying
+            # the slot ring, and rejects the slot if it fails.
+            {"kind": "slot_header", "slot_header": slot_header, "leader": leader},
             {"kind": "ring", "ring_type": "economic", "body": body,
              "author": leader, "slot": slot, "witnesses": [],
              "height": ring["height"], "ring_hash": ring_hash(ring)},
@@ -175,8 +195,23 @@ class Node:
             self._apply_ring(message)
         elif kind == "header":
             self._apply_header(message)
+        elif kind == "slot_header":
+            self._apply_slot_header(message)
         elif kind == "challenge":
             self._apply_challenge(message)
+
+    def _apply_slot_header(self, msg: dict) -> None:
+        """Phase 6: verify the leader's ProofOfSpace. Reject the slot if the
+        proof fails or the plot commitment is missing (the vdf_placeholder is
+        ignored — it does not vote)."""
+        from .slotheader import verify_slot_header
+        slot_header = msg["slot_header"]
+        leader = msg.get("leader", slot_header.get("leader"))
+        result = verify_slot_header(
+            slot_header, space_units=self.space_table.get(leader, 0))
+        if not result["ok"]:
+            raise NodeError(f"slot rejected: pospace {result['error_code']}")
+        self.last_slot_header = slot_header
 
     def _apply_ring(self, msg: dict) -> None:
         # Apply only the next ring in order; re-seal it identically and check

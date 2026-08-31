@@ -81,12 +81,18 @@ tokens, and fully deterministic.
 | `slot` | int ≥ 0 | The slot answered |
 | `proof` | hash | Phase 4 stub: `chash("PlotProofStub", {plot_id, slot})`, recomputable by any peer |
 
-**`verify_plot_proof` (Phase 4 stub).** Checks structure, the size table,
+**`verify_plot_proof` (structural).** Checks structure, the size table,
 commitment/proof consistency, and that the proof hash recomputes. It does
-**not** implement Chia table lookups, proof-of-time, or VDFs — Phase 6
-replaces the stub recomputation with real proof verification behind the
-same function signature. It also does **not** check CAS availability
-(deliberately — see §2).
+**not** check CAS availability (deliberately — see §2).
+
+**Verifier body replaced, signature unchanged (Phase 6).** The plot-proof
+*verification body* is now backed by a real-enough, deterministic local
+Proof-of-Space verifier (`verify_pospace`) plus a node-level SlotHeader —
+see [PHASE6_POST.md](PHASE6_POST.md). `verify_plot_proof(proof, commitment)`
+keeps its exact signature (a call-site test pins it); Phase 6 adds new
+objects (`ProofOfSpace`, `VDFRecord`) and functions beside it rather than
+re-signing it. It remains a **local stand-in, not Chia mainnet proofs**, and
+the lottery is unchanged: equal `space_units` still elect identical leaders.
 
 ## 4. Size table (FROZEN-MVP)
 

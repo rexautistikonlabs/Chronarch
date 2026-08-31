@@ -8,6 +8,13 @@ Everything routes through the frozen kernel machinery.
 from .cluster import STEWARD_LOCK_CHRONONS, Cluster
 from .leader import plot_challenge_proof, slot_leader, verify_leader
 from .node import Node, NodeError
+from .slotheader import (
+    SlotHeaderError,
+    build_slot_header,
+    commitment_for_node,
+    pospace_challenge,
+    verify_slot_header,
+)
 from .transport import InProcessBus, RpcServer, rpc_call
 
 __all__ = [
@@ -21,4 +28,9 @@ __all__ = [
     "InProcessBus",
     "RpcServer",
     "rpc_call",
+    "SlotHeaderError",
+    "build_slot_header",
+    "verify_slot_header",
+    "commitment_for_node",
+    "pospace_challenge",
 ]
