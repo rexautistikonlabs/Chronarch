@@ -1,0 +1,7 @@
+{
+  "kernel_manifest_hash": "3547506d8dacc32aad8636dd06d20d944b01442e76f111040dc81d4dcc4ca534",
+  "ring0_hash": "8e6ce1a56bf50ae6b3fd109316eba3876af8b4d81191a096e773c328f1542eef",
+  "covenant_hash": "c5597422f82b64ebc102df74635697364b1c8bfdc212ffbf8521c3e822daf7f7",
+  "genesis_params_hash": "506d0b9eb4c644d4ba8479e5ceae75a643f43f496d064129dab12e1bb84a4c45",
+  "faculty_registry_hash": "dcb576688b5f4712fae64054c2de909b878e0319ee1fa6f146be604297de7367"
+}

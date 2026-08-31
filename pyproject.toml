@@ -1,0 +1,10 @@
+[project]
+name = "chronarch-workspace"
+version = "0.0.1"
+description = "Chronarch: a decentralized autonomous cognitive organism (DACO). Workspace root."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "packages"]
+python_files = ["test_*.py"]
+addopts = "-q"
