@@ -28,7 +28,7 @@ All values verbatim from the kernel constants (K14 and friends). Integers only; 
 | `HEARTH_BOND_LEG_BPS` | `5000` | FROZEN-MVP. The slashable security-bond leg of the Hearth lock ([HEARTH.md](HEARTH.md)). |
 | `REWARD_ROUTER_BPS["council_ops_share"]` | `300` bps of each slot's issuance | Pays published tallies/reports, **never a yes-vote** ([TOKEN.md](TOKEN.md)). |
 
-Changing any of these is MAJOR class **M6** (`council_thresholds_or_membership_floors`) — Proposal + Ballot only (G14).
+Changing the council thresholds or membership floors in this table (approval weights, seat majority, voting window, activation delay, bond/pinset/cadence floors) is MAJOR class **M6** (`council_thresholds_or_membership_floors`); changing `UNBOND_DELAY_SLOTS`, the Hearth leg split, or any reward-router row (including `council_ops_share`) is **M4** (`issuance_reward_router_hearth_split_unbond_delay`). Either way: Proposal + Ballot only (G14).
 
 ---
 

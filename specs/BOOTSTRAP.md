@@ -42,7 +42,7 @@ The `KernelManifest` binds the **structured content** of every module by hash (`
 | K12 | `reward_router` | Per-slot issuance split in bps |
 | K13 | `hearth` | One lock, two legs; unbond delay; salience clamp |
 | K14 | `council_charter_proposal_machine` | Change invariant, major classes, approval rule, upgrade path |
-| K15 | `self_config_program` | Steps S0..S8; `reads_admin_private_key: false` |
+| K15 | `self_config_program` | Steps S0..S8; `privileged_key_inputs: "none — no bootstrap path reads one (G11)"` |
 | K16 | `dummymind_executor` | The deterministic primitive interpreter |
 | K17 | `attribution` | Lineage of cognition, health model, and body |
 | K18 | `reject_list` | The explicit reject list and forbidden key tokens |
@@ -99,7 +99,7 @@ See [TOKEN.md](TOKEN.md), [HEARTH.md](HEARTH.md), [COUNCIL.md](COUNCIL.md) for t
 
 **K14 — council_charter_proposal_machine.** Binds the change invariant (the `change` slogan, quoted in §1), the nine MAJOR classes M1..M9, the approval rule `yes_weight*den >= eligible_weight*num AND yes_seats > eligible_seats/2` with weight 2/3, `voting_window_slots = 128`, `activation_delay_slots = 32`, and the **only** upgrade path: `proposal_ring -> gym+health report -> ballots -> tally -> result ring -> activation at height H`. See [COUNCIL.md](COUNCIL.md).
 
-**K15 — self_config_program.** Binds the self-config program itself: the ordered steps S0..S8 (§3) and the flag `reads_admin_private_key: false`. The program that builds a node is part of what Ring 0 seals — a node cannot claim to have booted "the Chronarch way" while running a different program (G11).
+**K15 — self_config_program.** Binds the self-config program itself: the ordered steps S0..S8 (§3) and the declaration `privileged_key_inputs: "none — no bootstrap path reads one (G11)"`. The program that builds a node is part of what Ring 0 seals — a node cannot claim to have booted "the Chronarch way" while running a different program (G11).
 
 **K16 — dummymind_executor.** Binds the DummyMind: a **deterministic primitive interpreter** that runs **only live-registry faculty hashes (G3)**; **authored code is inert until activation (G4)**. DummyMind is the only executor at Block 0. It is not an LLM, contains no model weights, and is named to keep that honest.
 
@@ -145,7 +145,7 @@ The program is linear and total: every step either succeeds or records its failu
 
 ### S5 — announce_pinset_compute_optional_hearth_bond
 
-**Inputs:** the S1 pinset; `NodeConfig.compute_units`; optional `NodeConfig.hearth_bond_chronons`. **Action:** announce the node's `PinSet` (identity, pins, slot) on the Cambium/CAS lane, declare `compute_units`, and — only if `hearth_bond_chronons > 0` — open a `HearthPosition`: one lock, two legs, split 5000/5000 bps between the slashable bond leg and the protocol liquidity leg (see [HEARTH.md](HEARTH.md)). A bond of 0 is a valid farming-only configuration; a bond of at least 1000 Chronos (1000 × 10^12 chronons) is one of the Council eligibility floors, alongside `min_pinset_size = 4` and `max_challenge_gap_slots = 64` (see [COUNCIL.md](COUNCIL.md)). **Outputs:** pinset advertisement (a MINOR class), compute declaration, optional Hearth lock. **Failure:** an announcement the node cannot honor is an I3 event; a malformed or insolvent Hearth lock is an I9 (`hearth_solvency_lp_integrity`) event; recorded, scar at S7.
+**Inputs:** the S1 pinset; `NodeConfig.compute_units`; optional `NodeConfig.hearth_bond_chronons`. **Action:** announce the node's `PinSet` (identity, pins, slot) on the Cambium/CAS lane, declare `compute_units`, and — only if `hearth_bond_chronons > 0` — open a `HearthPosition`: one lock, two legs, split 5000/5000 bps between the slashable bond leg and the protocol liquidity leg (see [HEARTH.md](HEARTH.md)). A bond of 0 is a valid *boot* configuration — the node pins, serves, and witnesses — but it sits below the prestress floors, so its slot eligibility is demoted until it bonds (see [NERVOUS.md](NERVOUS.md) and [ARCHITECTURE.md](ARCHITECTURE.md) §5); a bond of at least 1000 Chronos (1000 × 10^12 chronons) is also one of the Council eligibility floors, alongside `min_pinset_size = 4` and `max_challenge_gap_slots = 64` (see [COUNCIL.md](COUNCIL.md)). **Outputs:** pinset advertisement (a MINOR class), compute declaration, optional Hearth lock. **Failure:** an announcement the node cannot honor is an I3 event; a malformed or insolvent Hearth lock is an I9 (`hearth_solvency_lp_integrity`) event; recorded, scar at S7.
 
 ### S6 — gym_smoke_and_prestress_check
 
@@ -176,7 +176,7 @@ Rules, in admission order:
 2. **Closed schema.** Any unknown key is rejected. A field cannot ride along "for later."
 3. **Codec.** Integers only; floats are banned from consensus objects.
 
-There is **no bootstrap path that reads an admin private key**. This is not merely policy: K15 binds `reads_admin_private_key: false` into the hashed kernel content, K18 binds the reject list (`admin_key`, `founder_key`, `helm_override`, `ai_self_enact`), and the test suite asserts no code path reads such a key. A "bootstrap" that asked for one would fail S0, because its kernel would not hash to Ring 0's commitments.
+There is **no bootstrap path that reads an admin private key**. This is not merely policy: K15 binds `privileged_key_inputs: "none"` into the hashed kernel content (a key literally *named* `reads_admin_private_key` would itself trip the K18 screen — the kernel once contained one and was corrected), K18 binds the reject list (`admin_key`, `founder_key`, `helm_override`, `ai_self_enact`), and the test suite asserts no code path reads such a key. A "bootstrap" that asked for one would fail S0, because its kernel would not hash to Ring 0's commitments.
 
 ## 5. Seed faculties and the opcode menu (K5, K16)
 
@@ -241,7 +241,7 @@ Two nodes holding the same kernel blob derive:
 2. therefore the **same `KernelManifest` and the same kernel manifest hash**, and
 3. therefore the **same Ring 0 hash** — Ring 0 is built purely from kernel commitments: `ring_type = "genesis"`, `height = 0`, `slot = 0`, `prev_ring_hash = ""`, `author = "chronarch-prime"`, empty witness list, and a body carrying `kernel_manifest_hash`, `covenant_hash`, `genesis_params_hash`, `faculty_registry_hash`, the genesis timestamp `2026-01-01T00:00:00Z`, and the slogans. No keys, no randomness, no clock reads.
 
-**The test suite pins this.** Kernel construction and Ring 0 sealing are pure functions of the constants; tests fail if code and spec drift, and any change to a FROZEN-MVP value is MAJOR (M1/M2/M4/M6 as applicable) — Proposal + Ballot only (G14). Determinism is what makes G11 enforceable: if bootstrap depended on anything a privileged operator supplies, two honest nodes could not land on the same Ring 0 hash — so the absence of a hidden admin is not a promise, it is a checksum.
+**The test suite pins this.** Kernel construction and Ring 0 sealing are pure functions of the constants; tests fail if code and spec drift, and any change to a FROZEN-MVP value is MAJOR (M1/M4/M6 as applicable) — Proposal + Ballot only (G14). Determinism is what makes G11 enforceable: if bootstrap depended on anything a privileged operator supplies, two honest nodes could not land on the same Ring 0 hash — so the absence of a hidden admin is not a promise, it is a checksum.
 
 ---
 

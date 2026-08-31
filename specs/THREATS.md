@@ -83,7 +83,7 @@ Where trust still lives in v0, named exactly:
 
 | Surface | Current value | What it means | How it changes |
 |---|---|---|---|
-| Head witnesses | `WITNESS_K = 3` of `WITNESS_N = 5` (K11) | A 3-of-5 capture can attest a false head until conflicting attestations surface (threat 8). Five bonded identities is a small set; this is the MVP's largest single trust concentration. | FROZEN-MVP — Proposal + Ballot only (G14; thresholds/floors are M6 territory). |
+| Head witnesses | `WITNESS_K = 3` of `WITNESS_N = 5` (K11) | A 3-of-5 capture can attest a false head until conflicting attestations surface (threat 8). Five bonded identities is a small set; this is the MVP's largest single trust concentration. | FROZEN-MVP — Proposal + Ballot only (G14; a witness-rule change is an M1 genesis-param change). |
 | Slot clock | Sim-only stub slots, `SLOTS_PER_EPOCH = 32` | Every slot-denominated bound inherits the sim clock's honesty until VDF/timelord physics arrives (Phase 6). | FROZEN-MVP — Proposal + Ballot only (G14); the fork itself is M1-class. |
 
 Both parameters are **FROZEN-MVP**: they are sealed at genesis and changeable only via Proposal + Ballot (G14). Neither Chronarch (G15), nor the Council acting outside a legal Ballot (G16, G17), nor any operator can widen or shrink this trust surface by hand. "Chronarch proposes. The Timechain remembers. The tensegrity feels. The Council stewards. Chronos is blood, not conscience."

@@ -111,8 +111,10 @@ def bootstrap(kernel_blob: dict, node_config: dict) -> dict:
             last_challenge_pass_slot=0,
             slot=0,
         )
-        # A fresh node without a bond is a valid FARMER below council floors;
-        # prestress here gates ELIGIBILITY, not booting (NERVOUS.md).
+        # A fresh node without a bond boots fine (pins, serves, witnesses),
+        # but sits below the prestress floors: slot and Council eligibility
+        # stay demoted until it bonds. Prestress gates ELIGIBILITY, never
+        # booting (NERVOUS.md).
         boot_ok = step("S6", smoke_ok,
                        f"gym smoke {'passed' if smoke_ok else 'FAILED'}; "
                        f"prestress checks: {prestress['checks']}") and boot_ok

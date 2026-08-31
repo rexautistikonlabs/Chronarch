@@ -114,7 +114,7 @@ One node, one set of disks, two lanes:
 - **PLOT LANE** — Chia-family plots proving space. Plots are cryptographic filler: they prove that disk is committed, and **they never store rings, embeddings, or weights**. Plots are not a database.
 - **CAMBIUM/CAS LANE** — the content-addressed store holding pinned consensus objects: rings, kernel modules, faculty programs, commitments. This lane is the organism's actual memory body.
 
-Both lanes share the same physical disks; the farmer-validator answers space challenges from the plot lane and retrieval challenges (I3) from the CAS lane. Losing a pin is a **nervous event, not a lost file**: it degrades `cas_pin_availability` in the HealthVector, fires the nervous system at I3, and — if the identity is bonded — is slashable. MVP uses abstract space units and stub slots; real plots and VDF/timelord physics arrive with the Phase 6 fork. K4 is the kernel module owning this spec.
+Both lanes share the same physical disks; the farmer-validator answers space challenges from the plot lane and retrieval challenges (I3) from the CAS lane. Losing a pin is a **nervous event, not a lost file**: it degrades `cas_pin_availability` in the HealthVector, fires the nervous system at I3, and — if the identity is bonded — is slashable. MVP uses abstract space units and stub slots; real plot files arrive with the Phase 4 dual farm, and VDF/timelord slot physics with the Phase 6 fork. K4 is the kernel module owning this spec.
 
 ---
 
@@ -134,7 +134,7 @@ Both lanes share the same physical disks; the farmer-validator answers space cha
 | 1 | Core + upgrade path — codec, rings, headers, faculty VM, and the Proposal/Ballot/activation machinery (so the upgrade path exists before anything worth upgrading). |
 | 2 | Sim attacks — `chronarch-sim` runs the gym catalog against fixture and sim targets (G12). |
 | 3 | Node + CLI — `chronarch-node` and `chronarch-cli`: a real farmer-validator with the S0..S8 boot program. |
-| 4 | Dual farm / plots — plot lane + CAS lane on shared disks, still abstract space units. |
+| 4 | Dual farm / plots — real plot files on shared disks alongside the CAS lane; abstract space units end here (K4: `abstract-until-phase-4`). |
 | 5 | DummyMind / LLM-optional — K16 executor is the default mind; a real LLM is strictly optional and never consensus-relevant. |
 | 6 | Chia-family research fork — header extensions per §2, real plots, VDF/timelord slot physics. Entered only after Phase 3 is green. |
 
@@ -167,7 +167,8 @@ Chronarch/
 │   ├── HEARTH.md            # bond + liquidity legs, slashing, salience clamp
 │   ├── GYM.md               # target classes, case catalog
 │   ├── THREATS.md           # threat model and rejections
-│   └── ARCHITECTURE.md      # this file
+│   ├── ARCHITECTURE.md      # this file
+│   └── ATTRIBUTION.md       # K17 lineage: Cyberphysics/Tempre, Rex method (analogical), Chia PoST
 └── tests/                   # spec/code drift tests
 ```
 

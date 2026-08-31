@@ -38,21 +38,23 @@ The gym is a pure input/output pair sealed on the Timechain. A **GymCase** descr
 
 | Field | Type | Meaning |
 |---|---|---|
-| `case` | str | One of the twelve `GYM_CASE_CATALOG` names (Section 3); schema rejects anything else. |
-| `target_class` | str | One of `GYM_TARGET_CLASSES` — `chronarch_fixture`, `chronarch_sim`, `chronarch_testnet` (Section 1); any other value is rejected and scarred (T9). |
-| `payload_hash` | hash | CAS hash of the rehearsed attack payload (a Chronarch-target artifact only). |
-| `expected` | dict | The oracle: the `detected` / `rejected` / scar expectations this case must satisfy. |
+| `case_id` | str | Unique id for this drill run. |
+| `attack` | str | One of the twelve `GYM_CASE_CATALOG` names (Section 3); the gym rejects anything else (new attack *classes* are M5). |
+| `target_class` | str | One of `GYM_TARGET_CLASSES` — `chronarch_fixture`, `chronarch_sim`, `chronarch_testnet` (Section 1); the schema rejects any other value (T9). |
+| `target` | str | The Chronarch identity/fixture under drill. |
+| `payload` | dict | The rehearsed attack payload (a Chronarch-target artifact only; screened against K18 tokens like every object). |
 
 ### 2.2 GymReceipt (schema fields)
 
 | Field | Type | Meaning |
 |---|---|---|
+| `case_id` | str | The GymCase this receipt answers. |
 | `detected` | bool | Whether the defending machinery detected the attack. |
 | `rejected` | bool | Whether the illegal object/action was rejected at its admission or judgment point. |
-| `scar_hash` | hash_or_empty | Hash of the Scar sealed when the case wounds the organism; empty only when the oracle expects no wound. |
+| `scar_hash` | hash_or_empty | Hash of the evidence ring sealed for the drill (a real attack reaching consensus seals a Scar; a detected drill seals an `immune` ring); empty when the oracle needs no ring. |
 | `detail` | str | Human-readable account of what happened, for the health-impact record. |
 
-A run **passes** iff the GymReceipt matches the GymCase `expected` oracle. A run that does *not* match — the machinery failed to detect, or failed to reject, or failed to seal a scar it owed — is itself a nervous event: it seals a Scar at the interface the case exercises. The immune system failing its own drill is a wound, not a silent test failure.
+The **oracle** — what a healthy organism MUST do under each attack — lives in the K8 case catalog (Section 3) and the gym runner, not in the GymCase object itself. A run **passes** iff the GymReceipt satisfies that oracle. A run that does *not* — the machinery failed to detect, or failed to reject, or failed to seal a ring it owed — is itself a nervous event: it seals a Scar at the interface the case exercises. The immune system failing its own drill is a wound, not a silent test failure.
 
 ### 2.3 Receipts are sealed as `gym` rings
 
