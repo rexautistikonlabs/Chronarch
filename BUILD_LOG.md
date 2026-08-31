@@ -153,6 +153,31 @@ and a forged gossip ring is rejected fleet-wide.
 **CI**: `.github/workflows/ci.yml` runs `pytest -q` on every push and PR to
 `main` (Python 3.11 and 3.12), no install step (G11).
 
+## Phase 4 — dual-farm docs + abstract-to-plot adapter (`packages/chronarch-farm`)
+
+Scope held deliberately narrow: [specs/DUAL_FARM.md](specs/DUAL_FARM.md)
+(plot lane vs CAS lane, what is/is not in a plot, the size table, the
+adapter contract) plus typed `PlotCommitment`/`PlotProof` objects, a
+FROZEN-MVP size table (`test`=1 unit; `k32`=1014 units ≈ a documented
+~101.4 GiB — no real-farming claims), a both-ways adapter, and a
+**structural stub verifier**. No VDF, no Chia header fork, no CHIP-48, no
+chia-blockchain submodule — Phase 6 replaces the stub recomputation behind
+the same `verify_plot_proof` signature.
+
+The load-bearing property, tested slot-by-slot over hundreds of slots: for
+identical units, the plot world and the abstract world elect **identical
+leaders**. The adapter adds no weight, no denomination bonus, and no new
+power; prestress floors gate contention exactly as before.
+
+**"Plots as a database" stayed rejected** — and got teeth: a plot's only
+bridge to memory is the optional `cas_root` commitment. A missing CAS
+object does not invalidate a plot proof (space was still proven); the
+missing pin is an I3 nervous event on the CAS lane. Timechain JSONL inside
+a `.plot` file is a category error, not an optimization.
+
+16 new tests (149 total green). Frozen files untouched (git diff proof);
+the K18 AST scan covers the new package automatically and stays clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
