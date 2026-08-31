@@ -57,6 +57,10 @@ No prose-only APIs: an agent can drive the whole surface from the envelope.
 | `COUNCIL_REJECTED` | a proposal/ballot was rejected by the Council machine |
 | `LLM_DISABLED` | the LLM path was requested while the gate is off |
 | `NOT_FOUND` | identity or task not found |
+| `CONVEYANCE_DENIED` | an attempt to convey/instruct another agent (S3/S10) |
+| `GYM_TARGET_FOREIGN` | a hat/gym target outside Chronarch fixtures (G12/S7) |
+| `HATS_INCOMPLETE` | `propose_release` before white+red+black all passed (S8) |
+| `QUARANTINE` | tool-call-shaped or oversized payload quarantined (S4/S9) |
 | `INTERNAL` | an unexpected error — reported, never hidden |
 
 ## 3. Closed tool surface
@@ -65,7 +69,8 @@ No prose-only APIs: an agent can drive the whole surface from the envelope.
 for exactly these verbs:
 
 `init`, `recall`, `pin`, `challenge`, `seal`, `propose`, `ballot`,
-`health`, `turn`, `task_open`, `task_resume`.
+`health`, `turn`, `silo_open`, `silo_put`, `silo_list`, `hat_run`,
+`propose_release`, `task_open`, `task_resume`.
 
 **Forbidden — these tools do not exist**, and requesting one returns
 `FORBIDDEN_TOOL`:
@@ -76,9 +81,36 @@ for exactly these verbs:
 - `edit_ring` — history is append-only; correction is a new ring or a scar
   (G1/G5).
 - `helm_override` — there is no helm key (G17).
+- `release_now` — release is earned through the hat pipeline + Council, never
+  taken (S8).
+- `eval` — model text is never executed.
+- `instruct_agent`, `whisper`, `convey` — agents cannot convey agents
+  (S3/S10).
 
 A test pins the tool set to exactly the allowed verbs and asserts none of
 the forbidden names is present.
+
+## 3a. Injection / conveyance safeguards (code, not policy)
+
+These run at the runtime boundary on **every** agent JSON, before any verb
+executes:
+
+- **S1** — K18 forbidden-key screen on every payload → `SCHEMA_REJECTED`.
+- **S3 / S10** — any key that names, addresses, or instructs another agent
+  (`peer_agent_id`, `instruct_agent`, `whisper`, `convey`, `forwarded_tool_calls`,
+  …) → `CONVEYANCE_DENIED`, and an I6 scar on the *sender's* chain. There is
+  no delivery path: the target receives nothing. Peer influence happens only
+  through sealed rings other agents choose to `recall`.
+- **S4** — `recall` decodes each object and, if it is tool-call shaped (a
+  `name`+`arguments` pair, or a `tools`/`tool_calls`/`function_call` key),
+  quarantines it → `QUARANTINE` + I6 scar. A smuggled instruction never
+  reaches the mind.
+- **S9** — payload size and nesting limits → `QUARANTINE`.
+- **S7** — the agent package makes no DNS or socket calls (a test scans its
+  imports). Foreign hat/gym targets → `GYM_TARGET_FOREIGN`.
+
+See [SILOS.md](SILOS.md) for the silo/hat pipeline and the black-hat
+prevention modality.
 
 ## 4. The wear loop (`turn`, DummyMind default)
 

@@ -1,6 +1,6 @@
 {
   "chronarch_agent_tools_version": "v0",
-  "note": "Closed tool surface for AI agents building on Chronarch (Phase 5). OpenAI-style function schemas. Every call is JSON in / JSON out with the {ok,error_code,result,ring_hash,evidence_refs} envelope. There is deliberately no activate_faculty, execute_upgrade, edit_ring, or helm_override tool: authored code stays inert, upgrades go through Proposal + Ballot (G14), history is append-only (G1).",
+  "note": "Closed tool surface for AI agents building on Chronarch (Phase 5). OpenAI-style function schemas. Every call is JSON in / JSON out with the {ok,error_code,result,ring_hash,evidence_refs} envelope. There is deliberately no activate_faculty, execute_upgrade, edit_ring, helm_override, release_now, eval, instruct_agent, whisper, or convey tool: authored code stays inert, upgrades go through Proposal + Ballot (G14), history is append-only (G1), and agents cannot convey agents (S3/S10).",
   "tools": [
     {
       "type": "function",
@@ -122,6 +122,81 @@
             "ring_type": {"type": "string"},
             "proposal": {"type": "object"}
           },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "silo_open",
+        "description": "Open one of the four silos (silo.codex, silo.antihacker, silo.llm, silo.commons) for artifact work. Artifacts are inert.",
+        "parameters": {
+          "type": "object",
+          "properties": {"silo": {"type": "string", "enum": ["silo.codex", "silo.antihacker", "silo.llm", "silo.commons"]}},
+          "required": ["silo"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "silo_put",
+        "description": "Store an INERT artifact in an open silo. silo.llm holds LLM drafts and exposes only opaque hashes. No artifact runs; release is earned via the hat pipeline.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "silo": {"type": "string"},
+            "artifact_id": {"type": "string"},
+            "object": {"type": "object"},
+            "kind": {"type": "string"}
+          },
+          "required": ["silo", "artifact_id", "object"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "silo_list",
+        "description": "List artifacts in a silo. silo.llm entries are opaque (hash only).",
+        "parameters": {
+          "type": "object",
+          "properties": {"silo": {"type": "string"}},
+          "required": ["silo"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "hat_run",
+        "description": "Run one hat over a Chronarch fixture only (G12): white (schema/tests/K18), red (immune gym), or black (prevention_catalog_modality only). A foreign target returns GYM_TARGET_FOREIGN.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "role": {"type": "string", "enum": ["white", "red", "black"]},
+            "target": {"type": "string", "enum": ["fixture", "sim", "testnet"]},
+            "artifact_id": {"type": "string"},
+            "artifact": {"type": "object"}
+          },
+          "required": ["role", "target", "artifact_id"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "propose_release",
+        "description": "Propose releasing a silo artifact. Requires white+red+black hat passes (else HATS_INCOMPLETE); submits a Proposal. An authored faculty stays inert until the Council votes (M3, G14). There is no release_now.",
+        "parameters": {
+          "type": "object",
+          "properties": {"artifact_id": {"type": "string"}, "proposal": {"type": "object"}},
+          "required": ["artifact_id"],
           "additionalProperties": false
         }
       }

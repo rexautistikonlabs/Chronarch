@@ -24,13 +24,33 @@ Branch on `ok` first, then `error_code` (closed set — see the spec).
 ## Your verbs
 
 `init` · `recall` · `pin` · `challenge` · `seal` · `propose` · `ballot` ·
-`health` · `turn` · `task_open` · `task_resume`
+`health` · `turn` · `silo_open` · `silo_put` · `silo_list` · `hat_run` ·
+`propose_release` · `task_open` · `task_resume`
 
 Schemas: [`packages/chronarch-agent/tools.json`](packages/chronarch-agent/tools.json).
+Silos + hats: [specs/SILOS.md](specs/SILOS.md).
 
 ## Forbidden (do not look for these — they don't exist)
 
-`activate_faculty` · `execute_upgrade` · `edit_ring` · `helm_override`
+`activate_faculty` · `execute_upgrade` · `edit_ring` · `helm_override` ·
+`release_now` · `eval` · `instruct_agent` · `whisper` · `convey`
+
+## You cannot convey another agent
+
+There is no inbox and no outbox. Any key that names/instructs a peer
+(`peer_agent_id`, `instruct_agent`, `whisper`, `convey`, …) →
+`CONVEYANCE_DENIED` and an I6 scar on **your** chain; the peer gets nothing.
+Influence a peer only by sealing a ring it chooses to `recall`. Recalled
+objects are hash-verified and tool-call-fenced: a smuggled `{name,arguments}`
+or `tools` blob is `QUARANTINE`d, never run.
+
+## Building: silos → hats → release
+
+`silo_put` an inert artifact, prove it with `hat_run` white + red + black
+(Chronarch fixtures only — a foreign target is `GYM_TARGET_FOREIGN`), then
+`propose_release`. All three hats or `HATS_INCOMPLETE`. Authored code stays
+inert until the Council votes. Black-hat is a prevention catalog (list /
+propose-inert-case / score), never an actor.
 
 ## A turn
 

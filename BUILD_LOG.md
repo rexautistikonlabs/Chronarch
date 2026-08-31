@@ -220,6 +220,43 @@ The tempting shortcuts, all rejected and now tested against:
 25 new agent/CLI tests (174 total green). Frozen files untouched (git diff
 proof); the K18 AST scan covers the new package and stays clean.
 
+## Phase 5 (extended) — silos, hat pipeline, prevention modality
+
+Added on top of the agent runtime: four silos (`silo.codex`, `.antihacker`,
+`.llm`, `.commons`) of inert artifacts; a white/red/black **hat pipeline**
+(schema+K18 / Immune-Gym on an isolated fixture / prevention-catalog only),
+Chronarch fixtures only (G12); `propose_release` gated on all three hats then
+the Council (M3, G14); and the safeguards S1–S10 as code. New verbs:
+`silo_open`, `silo_put`, `silo_list`, `hat_run`, `propose_release`. New
+forbidden verbs: `release_now`, `eval`, `instruct_agent`, `whisper`,
+`convey`. See [specs/SILOS.md](specs/SILOS.md).
+
+### Rejected ideas (now with teeth)
+
+- **"Black-hat agent."** Rejected. Black-hat is a `prevention_catalog_modality`
+  with exactly three ops (list attack classes / propose an inert case / score
+  a fixture run) and nothing else — the class holds no agent, ledger, hearth,
+  council, socket, or peer reference, so messaging, sealing, ballots,
+  activation, and moving Chronos are *unrepresentable*, not merely forbidden.
+  A test introspects its dispatch table to prove the surface is exactly three.
+- **"Peer conveyance."** Rejected. Agents cannot instruct agents: there is no
+  inbox/outbox, any conveyance key is `CONVEYANCE_DENIED` + an I6 scar on the
+  sender (never delivery), and recalled evidence is tool-call-fenced and
+  quarantined (S3/S4/S10). The only inter-agent channel is a sealed ring a
+  peer chooses to recall — pull, hash-verified, never push.
+- **"Silo auto-release."** Rejected. No `Chronarch.release()`, no
+  `release_now`. Authored code reaching the protocol path is a major change;
+  the hats gather evidence, the Council decides (G14/S8).
+
+The black-hat modality was deliberately kept out of the protocol faculty
+registry: it is a hat-run-only analysis tool, so G3/G4 stay clean (it never
+touches the protocol path) and releasing an authored artifact still needs
+Council. The agent package imports no socket/DNS module — a test scans its
+imports (S7).
+
+17 new tests (191 total green). Frozen files untouched (git diff proof);
+K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

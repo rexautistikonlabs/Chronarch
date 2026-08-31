@@ -18,13 +18,17 @@ from __future__ import annotations
 from chronarch_core import InertFacultyError, Timechain, ring_hash, run_faculty
 from chronarch_council import CouncilError
 from chronarch_node import Node
-from chronarch_spec import SchemaError, build_ring0
+from chronarch_spec import SchemaError, build_ring0, screen_keys
 from chronarch_spec.constants import CHRONARCH_PRIME
 
 from .backend import resolve_backend
+from .hats import ForeignTargetError, HatError, HatPipeline
 from .poq import self_poq
+from .prevention_catalog import PreventionDenied
 from .protocol import err, ok
-from .recall import EvidenceError, recall_evidence
+from .recall import EvidenceError, QuarantineError, recall_evidence
+from .safeguards import find_conveyance_key, payload_too_big
+from .silos import SiloError, SiloStore
 from .tools import ALLOWED_VERBS, FORBIDDEN_VERBS
 
 DEFAULT_FACULTY = "injection_screen_sense"
@@ -37,6 +41,17 @@ class Agent:
         self.node = node or Node(identity, space_units)
         self.backend, self.llm_active = resolve_backend(backend, env)
         self.tasks: dict[str, Timechain] = {}
+        self.silos = SiloStore()
+        self.hats = HatPipeline(self.node.kernel)
+
+    def _scar_i6(self, cause: str) -> None:
+        """Seal an I6 (mempool/injection) scar on this identity's own chain.
+        Conveyance attempts scar the SENDER, never reach a target (S10)."""
+        try:
+            self.node.ledger.seal_scar("I6", cause, [], author=self.identity,
+                                       slot=self.node.ledger.height + 1)
+        except Exception:
+            pass
 
     # -- dispatch -----------------------------------------------------------
     def handle(self, verb: str, params: dict | None = None) -> dict:
@@ -45,17 +60,45 @@ class Agent:
             return err("BAD_REQUEST", "params must be a JSON object")
         if verb in FORBIDDEN_VERBS:
             return err("FORBIDDEN_TOOL",
-                       f"{verb!r} does not exist: authored code stays inert and "
-                       "upgrades go through Proposal + Ballot (G4/G14/G17)")
+                       f"{verb!r} does not exist: authored code stays inert, "
+                       "upgrades go through Proposal + Ballot, and agents cannot "
+                       "convey agents (G4/G14/G17/S3)")
         if verb not in ALLOWED_VERBS:
             return err("UNKNOWN_VERB", f"{verb!r} is not in the tool surface")
+
+        # S9: rate/size + nesting limit on every payload.
+        oversized = payload_too_big(params)
+        if oversized:
+            self._scar_i6(f"oversized payload on {verb}: {oversized}")
+            return err("QUARANTINE", oversized)
+        # S3/S10: no agent may name, address, or instruct another agent.
+        convey = find_conveyance_key(params)
+        if convey is not None:
+            self._scar_i6(f"conveyance attempt on {verb} at {convey}")
+            return err("CONVEYANCE_DENIED",
+                       f"forbidden conveyance key at {convey} — agents cannot convey agents")
+        # S1: K18 forbidden-key screen on every agent JSON.
+        try:
+            screen_keys(params)
+        except SchemaError as exc:
+            return err("SCHEMA_REJECTED", str(exc))
+
         handler = getattr(self, f"_verb_{verb}")
         try:
             return handler(params)
+        except QuarantineError as exc:
+            self._scar_i6(f"tool-call-shaped evidence {exc.ref[:16]}")
+            return err("QUARANTINE", str(exc))
         except EvidenceError as exc:
             return err("EVIDENCE_MISSING", str(exc))
         except InertFacultyError as exc:
             return err("INERT_FACULTY", str(exc))
+        except ForeignTargetError as exc:
+            return err("GYM_TARGET_FOREIGN", str(exc))
+        except PreventionDenied as exc:
+            return err("FORBIDDEN_TOOL", str(exc))
+        except (SiloError, HatError) as exc:
+            return err("BAD_REQUEST", str(exc))
         except SchemaError as exc:
             return err("SCHEMA_REJECTED", str(exc))
         except CouncilError as exc:
@@ -100,6 +143,48 @@ class Agent:
 
     def _verb_health(self, params: dict) -> dict:
         return ok(self.node.rpc("health", params))
+
+    # -- silos --------------------------------------------------------------
+    def _verb_silo_open(self, params: dict) -> dict:
+        self.silos.open(params["silo"])
+        return ok({"silo": params["silo"], "open": True})
+
+    def _verb_silo_put(self, params: dict) -> dict:
+        record = self.silos.put(params["silo"], params["artifact_id"],
+                                params["object"], kind=params.get("kind", "artifact"))
+        return ok(record, evidence_refs=[record["content_hash"]])
+
+    def _verb_silo_list(self, params: dict) -> dict:
+        return ok({"silo": params["silo"], "artifacts": self.silos.list(params["silo"])})
+
+    # -- hats + release -----------------------------------------------------
+    def _verb_hat_run(self, params: dict) -> dict:
+        result = self.hats.run(params["role"], params["target"],
+                               params["artifact_id"], artifact=params.get("artifact"))
+        return ok(result)
+
+    def _verb_propose_release(self, params: dict) -> dict:
+        artifact_id = params["artifact_id"]
+        # S8: no release without all three hats. No Chronarch.release().
+        if not self.hats.three_complete(artifact_id):
+            passed = sorted(self.hats.passes.get(artifact_id, set()))
+            return err("HATS_INCOMPLETE",
+                       f"passed {passed}; need white+red+black before release")
+        proposal = params.get("proposal") or {
+            "proposal_id": f"release-{artifact_id}",
+            "proposer": self.identity,
+            "major_class": "M3",  # authored faculty activation is M3
+            "spec_hash": "00" * 32,
+            "changes": {"faculty_code_hash": "00" * 32, "artifact_id": artifact_id},
+            "deposit_chronons": 0,
+            "submitted_slot": self.node.ledger.height,
+        }
+        r = self.node.rpc("propose", {"proposal": proposal})
+        # The proposal exists; the faculty is STILL inert until the Council
+        # votes (M3, G14). propose_release never activates anything.
+        return ok({"artifact_id": artifact_id,
+                   "proposal_id": proposal["proposal_id"],
+                   "inert_until_council": True, **r})
 
     # -- the wear loop ------------------------------------------------------
     def _verb_turn(self, params: dict) -> dict:

@@ -25,6 +25,10 @@ ERROR_CODES = (
     "COUNCIL_REJECTED",    # a proposal/ballot was rejected by the Council machine
     "LLM_DISABLED",        # the LLM path was requested while the gate is off
     "NOT_FOUND",           # identity/task not found
+    "CONVEYANCE_DENIED",   # an attempt to convey/instruct another agent (S3/S10)
+    "GYM_TARGET_FOREIGN",  # a hat/gym target outside Chronarch fixtures (G12/S7)
+    "HATS_INCOMPLETE",     # propose_release before white+red+black all passed (S8)
+    "QUARANTINE",          # tool-call-shaped or oversized payload quarantined (S4/S9)
     "INTERNAL",            # an unexpected error (should not happen; reported, not hidden)
 )
 

@@ -16,12 +16,16 @@ from pathlib import Path
 
 ALLOWED_VERBS = (
     "init", "recall", "pin", "challenge", "seal", "propose", "ballot",
-    "health", "turn", "task_open", "task_resume",
+    "health", "turn", "silo_open", "silo_put", "silo_list", "hat_run",
+    "propose_release", "task_open", "task_resume",
 )
 
 # Names an agent must never have a tool for. Kept as string data (not
 # identifiers) so the K18 AST scan stays clean.
-FORBIDDEN_VERBS = ("activate_faculty", "execute_upgrade", "edit_ring", "helm_override")
+FORBIDDEN_VERBS = (
+    "activate_faculty", "execute_upgrade", "edit_ring", "helm_override",
+    "release_now", "eval", "instruct_agent", "whisper", "convey",
+)
 
 _TOOLS_PATH = Path(__file__).resolve().parents[2] / "tools.json"
 
