@@ -25,6 +25,7 @@ from .plots import PlotError
 _INFUSE_DOMAIN = b"chronarch/v0/infuse\n"
 _GENESIS_DOMAIN = b"chronarch/v0/pospace-genesis\n"
 _SEQVDF_DOMAIN = b"chronarch/v0/seqvdf\n"
+_TIMECHAIN_DOMAIN = b"chronarch/v0/timechain\n"
 
 # Plot filter strength. Small for tests: N zero bits => ~2^N grind tries.
 # FROZEN-MVP; changing it post-genesis is an M1 genesis-param change (G14).
@@ -49,6 +50,15 @@ def infuse_challenge(prev_quality: str, prev_challenge: str, slot: int) -> str:
     data = (_INFUSE_DOMAIN + prev_quality.encode() + prev_challenge.encode()
             + str(slot).encode())
     return hash_bytes(data)
+
+
+def timechain_vdf_input(infused_challenge: str, prev_vdf_output: str = "") -> str:
+    """Phase 8 time chain: the SequentialVDF input commits to both this slot's
+    infused challenge AND the previous slot's VDF output, so the VDFs form a
+    chain. input = SHA256(domain || infused_challenge || prev_vdf_output).
+    Still discrete slots; no wall clock."""
+    return hash_bytes(_TIMECHAIN_DOMAIN + infused_challenge.encode()
+                      + prev_vdf_output.encode())
 
 
 # ---------------------------------------------------------------------------

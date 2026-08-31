@@ -37,8 +37,10 @@ from .infusion import (
     leading_zero_bits,
     make_sequential_vdf,
     plot_filter_ok,
+    timechain_vdf_input,
     verify_sequential_vdf,
 )
+from . import wesolowski
 from .chiapos_backend import (
     BACKEND_CHIAPOS,
     BACKEND_STANDIN,
@@ -81,6 +83,9 @@ __all__ = [
     "plot_filter_ok",
     "make_sequential_vdf",
     "verify_sequential_vdf",
+    "timechain_vdf_input",
+    # Phase 8 Wesolowski test-group VDF (optional)
+    "wesolowski",
     # Phase 7 optional real-tables backend (off by default)
     "active_backend",
     "chiapos_available",

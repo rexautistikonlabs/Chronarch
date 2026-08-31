@@ -336,6 +336,41 @@ optional real-tables backend seam. Additive: the lottery is untouched
 204 pre-existing still pass with zero extra deps). Frozen files untouched
 (git diff proof); K18 AST scan clean.
 
+## Phase 8 — research-grade proof-of-time + CHIP-48-shaped fields
+
+Adds a test-group Wesolowski VDF, CHIP-48-shaped header field names (layout
+only), and a VDF time chain. Additive: the lottery is untouched (equal units
+still elect identical leaders), the SequentialVDF stays the default header
+time check, and the frozen signatures/backends are unchanged.
+
+- `chronarch_farm.wesolowski`: a genuine Wesolowski `prove`/`verify`
+  (y = x^(2^T); pi = x^q, q = 2^T // l, l = hash-to-prime; verify
+  pi^l·x^r ≡ y) over a **tiny documented prime modulus** (Mersenne 2^127−1,
+  group_id `prime-mod-mersenne127`) — NOT 2048-bit RSA, NOT a class group.
+- SlotHeader += `wesolowski_proof` (OPTIONAL; absent = still valid),
+  `plot_filter_bits`, `quality_string`, `extra_delta` (uint, inert),
+  `prev_vdf_output`. The SequentialVDF input now commits to the previous
+  slot's VDF output (time chain); followers recompute and reject a mismatch.
+- Docs: specs/PHASE8_POST.md (real test-group Wesolowski verify vs CHIP-48
+  naming vs Phase-9 non-goals); notes added to PHASE7/6.
+
+### Rejected (kept rejected)
+
+- **VDF-as-vote** — no. Wesolowski, the SequentialVDF, and `extra_delta` are
+  header artifacts; none changes the elected leader (tested: identical winners
+  with/without them).
+- **Wall-clock slots** — no. The time chain links VDF outputs across discrete
+  slots; there is still no wall clock.
+- **Stake-in-draw** — no. Election stays space-weighted + prestress-gated.
+- **Chia submodule / vendored tree** — no. `chiapos` optional pip extra only.
+- **"We are CHIP-48 compatible"** — no. The field names *rhyme* with CHIP-48 /
+  PoST 2.0 research notes; this is not a CHIP-48 implementation and claims no
+  Chia mainnet compatibility. The Wesolowski group is a toy stand-in.
+- **Plots-as-DB** — still no.
+
+16 new tests (233 total; 217 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

@@ -102,11 +102,12 @@ def test_plot_filter_rejects_low_prefix_quality():
             bad = {"challenge": chal, "plot_id": pid, "proof_bytes": pb, "quality_string": q}
             break
     assert bad is not None
-    bad_sh = dict(sh0, pospace=bad, plot_filter_ok=False)
+    q = bad["quality_string"]
+    bad_sh = dict(sh0, pospace=bad, plot_filter_ok=False, quality_string=q)
     assert verify_slot_header(bad_sh, space_units=100,
                               prev_slot_header=None)["error_code"] == "SLOT_HEADER_FILTER_FAIL"
     # A lying plot_filter_ok=True over the same failing quality is still rejected.
-    lying = dict(sh0, pospace=bad, plot_filter_ok=True)
+    lying = dict(sh0, pospace=bad, plot_filter_ok=True, quality_string=q)
     assert verify_slot_header(lying, space_units=100,
                               prev_slot_header=None)["error_code"] == "SLOT_HEADER_FILTER_FAIL"
 
