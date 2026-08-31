@@ -1,0 +1,156 @@
+{
+  "chronarch_agent_tools_version": "v0",
+  "note": "Closed tool surface for AI agents building on Chronarch (Phase 5). OpenAI-style function schemas. Every call is JSON in / JSON out with the {ok,error_code,result,ring_hash,evidence_refs} envelope. There is deliberately no activate_faculty, execute_upgrade, edit_ring, or helm_override tool: authored code stays inert, upgrades go through Proposal + Ballot (G14), history is append-only (G1).",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "init",
+        "description": "Boot/attach the agent to its kernel and return identity head, ring0/kernel hashes, and live faculty ids.",
+        "parameters": {"type": "object", "properties": {}, "additionalProperties": false}
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "recall",
+        "description": "Fetch CAS objects by content hash and re-verify each hash before use. A missing or tampered ref returns EVIDENCE_MISSING. Never trust the prompt; cite rings.",
+        "parameters": {
+          "type": "object",
+          "properties": {"evidence_refs": {"type": "array", "items": {"type": "string"}}},
+          "required": ["evidence_refs"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "pin",
+        "description": "Put an object into the CAS lane and return its content hash. Retrieval is later challengeable (I3).",
+        "parameters": {
+          "type": "object",
+          "properties": {"object": {"type": "object"}},
+          "required": ["object"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "challenge",
+        "description": "Run a live-registry faculty replay and judge it by replay-hash equality. Judgment takes no payment/self_poq parameter (G2).",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "faculty": {"type": "string"},
+            "inputs": {"type": "object"},
+            "witnesses": {"type": "array", "items": {"type": "string"}}
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "seal",
+        "description": "Seal a validated ring onto the ledger. The body is screened against forbidden keys (K18); an admin_key body is rejected. Cannot seal governance/lifecycle ring types.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "ring_type": {"type": "string", "enum": ["experience", "decision", "learning", "task_head", "dream", "economic"]},
+            "body": {"type": "object"}
+          },
+          "required": ["body"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "propose",
+        "description": "Submit a Proposal to the Council. This is the ONLY path to a major change (G14). The agent cannot enact it; the Council votes.",
+        "parameters": {
+          "type": "object",
+          "properties": {"proposal": {"type": "object"}},
+          "required": ["proposal"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "ballot",
+        "description": "Cast a Ballot on a proposal (only meaningful for a bonded, seated identity).",
+        "parameters": {
+          "type": "object",
+          "properties": {"ballot": {"type": "object"}},
+          "required": ["ballot"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "health",
+        "description": "Publish and return this epoch's HealthVector (9 components, 0..10000 bps).",
+        "parameters": {
+          "type": "object",
+          "properties": {"slot": {"type": "integer"}},
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "turn",
+        "description": "One wear-loop turn: recall+verify evidence, run a live faculty via DummyMind, attach advisory self_poq metadata, then admit and seal (or propose). Authored code stays inert; self_poq never enters judgment.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "text": {"type": "string"},
+            "faculty": {"type": "string"},
+            "inputs": {"type": "object"},
+            "evidence_refs": {"type": "array", "items": {"type": "string"}},
+            "intent": {"type": "string", "enum": ["seal", "propose"]},
+            "ring_type": {"type": "string"},
+            "proposal": {"type": "object"}
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "task_open",
+        "description": "Open a Continuum task chain for a long job and seal a pointer ring on the identity chain. Task work never splices into identity (G8).",
+        "parameters": {
+          "type": "object",
+          "properties": {"task_id": {"type": "string"}, "goal": {"type": "string"}},
+          "required": ["task_id", "goal"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "task_resume",
+        "description": "Append progress to an open Continuum task chain and return its head. Identity chain stays a pointer, not a task dump.",
+        "parameters": {
+          "type": "object",
+          "properties": {"task_id": {"type": "string"}, "note": {"type": "string"}},
+          "required": ["task_id", "note"],
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

@@ -178,6 +178,48 @@ a `.plot` file is a category error, not an optimization.
 16 new tests (149 total green). Frozen files untouched (git diff proof);
 the K18 AST scan covers the new package automatically and stays clean.
 
+## Phase 5 — agent runtime (`packages/chronarch-agent`)
+
+AI agents as the primary builders — the interface is optimized, consensus is
+not touched. The agent **wears** a node (boots one, drives it through the
+frozen machinery); it does not fork the kernel.
+
+- **Machine protocol**: every verb is JSON→JSON with one envelope
+  `{ok, error_code, result, ring_hash, evidence_refs}` and a closed error-code
+  set documented in [specs/AGENT.md](specs/AGENT.md). No prose-only APIs.
+- **Closed tool surface**: `packages/chronarch-agent/tools.json` ships
+  OpenAI-style schemas for exactly `init, recall, pin, challenge, seal,
+  propose, ballot, health, turn, task_open, task_resume`. There is no
+  `activate_faculty`, `execute_upgrade`, `edit_ring`, or `helm_override`
+  tool — requesting one returns `FORBIDDEN_TOOL`.
+- **Wear loop** (DummyMind default): load identity head → recall + re-verify
+  every evidence CAS hash → run only live-registry faculties → attach
+  advisory `self_poq` (6×0–255) as **metadata** → seal or propose. Authored
+  faculty stays inert; M3 still needs Proposal + Ballot.
+- **LLM gate**: a backend implements `complete(prompt)->str`, active only
+  when `CHRONARCH_LLM=1` AND a backend is injected. Its output is a draft
+  string in a payload — never code, never an upgrade, never a Challenge
+  verdict. Unset env → DummyMind; the whole suite passes with zero keys.
+- **Continuum**: `task_open` makes a separate task chain + a pointer ring on
+  identity; `task_resume` appends to the task chain. Task work never splices
+  into identity (G8).
+
+### Rejected: "LLM as consensus"
+
+The tempting shortcuts, all rejected and now tested against:
+
+- *The chain is the model* — no. The Timechain is memory; the mind is a
+  replaceable wearer. DummyMind is the default and is required.
+- *Put the LLM in the validator* — no. No backend appears in any judgment,
+  admission, or election signature; grep confirms it.
+- *`eval()` the model's text* — no. An LLM draft is a string in a payload; a
+  test proves a `FakeLLM` draft cannot become a live faculty.
+- *self_poq / salience / Chronos buys a seal or a verdict* — no. `self_poq`
+  is advisory metadata; a maxed 255×6 cannot flip a Challenge (G2/G10).
+
+25 new agent/CLI tests (174 total green). Frozen files untouched (git diff
+proof); the K18 AST scan covers the new package and stays clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

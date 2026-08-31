@@ -64,6 +64,19 @@ def _cmd_rpc(args) -> int:
     return 0 if reply.get("ok") else 1
 
 
+def _cmd_agent(args) -> int:
+    # Thin: boot a Chronarch-Prime agent in-process and run one verb. Always
+    # JSON out. The CLI never injects an LLM, so the mind is DummyMind (the
+    # optional LLM backend is a library-injection path, not a CLI flag).
+    from chronarch_agent import Agent
+
+    agent = Agent()
+    params = json.loads(args.json) if args.json else {}
+    envelope = agent.handle(args.agent_verb, params)
+    _print(envelope)
+    return 0 if envelope.get("ok") else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="chronarch", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -87,6 +100,13 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--port", type=int, default=8731)
         p.add_argument("--json", default="", help="JSON params object")
         p.set_defaults(func=_cmd_rpc, verb=verb)
+
+    agent = sub.add_parser("agent", help="agent runtime (DummyMind; JSON out)")
+    agent_sub = agent.add_subparsers(dest="agent_verb", required=True)
+    for verb in ("turn", "health", "recall"):
+        p = agent_sub.add_parser(verb, help=f"agent {verb}")
+        p.add_argument("--json", default="", help="JSON params object")
+        p.set_defaults(func=_cmd_agent, agent_verb=verb)
 
     return parser
 
