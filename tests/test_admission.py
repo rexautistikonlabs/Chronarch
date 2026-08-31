@@ -84,3 +84,14 @@ def test_chronos_cannot_flip_challenge():
     # Same wrong replay, arbitrarily many attestors: still fails.
     assert not judge_challenge(challenge, {"a": 5},
                                [f"w{i}" for i in range(100)])["passed"]
+
+
+def test_spelling_games_do_not_evade_the_screen(chain):
+    """adminKey / helm-override / ADMIN__KEY are still the forbidden tokens."""
+    for hostile in ({"tx_type": "transfer", "sender": "m", "adminKey": "x"},
+                    {"tx_type": "helmOverride", "sender": "m"},
+                    {"tx_type": "transfer", "sender": "m",
+                     "memo": {"ADMIN__KEY": 1}},
+                    {"tx_type": "founder.override", "sender": "m"}):
+        result = admit_tx(hostile, chain=chain, slot=1)
+        assert not result.accepted, hostile

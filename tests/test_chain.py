@@ -92,3 +92,17 @@ def test_genesis_must_be_genesis():
         Timechain(dict(ring0, ring_type="experience"))
     with pytest.raises(ChainError):
         Timechain(dict(ring0, prev_ring_hash="ab" * 32))
+
+
+def test_truncation_detected_by_head_commitment(chain):
+    """Cutting the tail leaves a valid prefix — verify_full alone cannot see
+    it (that is what k-of-n head witnesses anchor, K11). The head commitment
+    detects it."""
+    _grow(chain, 5)
+    committed = chain.head_state()
+    # Tail truncation: internally consistent...
+    del chain._rings[-1]
+    del chain._hashes[-1]
+    assert chain.verify_full()
+    # ...but it no longer matches the witnessed head.
+    assert chain.head_state() != committed

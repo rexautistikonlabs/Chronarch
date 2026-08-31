@@ -7,6 +7,8 @@ interface I8, and slashed if the sender is a bonded identity.
 """
 from __future__ import annotations
 
+import re
+
 from chronarch_spec import SchemaError, screen_keys
 from chronarch_spec.constants import REJECT_LIST
 
@@ -51,10 +53,14 @@ class AdmissionResult:
         return f"AdmissionResult(accepted={self.accepted}, reason={self.reason!r})"
 
 
+_STRIP_RE = re.compile(r"[^a-z0-9]+")
+
+
 def _claims_override(tx: dict) -> str | None:
     tx_type = str(tx.get("tx_type", "")).lower()
+    normalized = _STRIP_RE.sub("", tx_type)
     for claim in _OVERRIDE_CLAIMS:
-        if claim in tx_type:
+        if claim in tx_type or _STRIP_RE.sub("", claim) in normalized:
             return f"tx_type claims {claim!r}"
     try:
         screen_keys(tx)

@@ -30,13 +30,22 @@ class SchemaError(ValueError):
 _HASH_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
+# Tokens are matched both verbatim and with separators stripped, so spelling
+# games (adminKey, admin-key, ADMIN__KEY) do not slip past the screen.
+_STRIP_RE = re.compile(r"[^a-z0-9]+")
+_NORMALIZED_TOKENS = tuple(
+    (token, _STRIP_RE.sub("", token)) for token in FORBIDDEN_KEY_TOKENS
+)
+
+
 def screen_keys(obj: object, path: str = "$") -> None:
     """Recursively reject any dict key containing a forbidden token (K18)."""
     if isinstance(obj, dict):
         for key, value in obj.items():
             lowered = str(key).lower()
-            for token in FORBIDDEN_KEY_TOKENS:
-                if token in lowered:
+            normalized = _STRIP_RE.sub("", lowered)
+            for token, bare in _NORMALIZED_TOKENS:
+                if token in lowered or bare in normalized:
                     raise SchemaError(
                         f"forbidden key {key!r} at {path} (token {token!r}, K18/G17)"
                     )
