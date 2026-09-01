@@ -64,6 +64,45 @@ def _cmd_rpc(args) -> int:
     return 0 if reply.get("ok") else 1
 
 
+def _cmd_farm(args) -> int:
+    # On-disk SpaceSeal (.cseal) tooling. JSON out. No verb writes rings.
+    from chronarch_farm import (
+        SIZE_TABLE,
+        inspect_space_seal,
+        make_space_seal,
+        prove_from_file,
+        verify_space_proof,
+        write_space_seal,
+    )
+
+    if args.farm_verb == "init":
+        units_to_ksize = {v: k for k, v in SIZE_TABLE.items()}
+        k_size = units_to_ksize.get(args.units)
+        if k_size is None:
+            _print({"ok": False, "error_code": "BAD_UNITS",
+                    "result": {"detail": f"--units must be one of {sorted(units_to_ksize)}"}})
+            return 1
+        seal = make_space_seal(args.farmer_id, k_size, cas_root=args.cas_root or "")
+        info = write_space_seal(args.out, seal)
+        _print({"ok": True, "result": {"out": args.out, "k_size": k_size,
+                                       "space_units": seal["space_units"], **info}})
+        return 0
+
+    if args.farm_verb == "inspect":
+        _print({"ok": True, "result": inspect_space_seal(args.path)})
+        return 0
+
+    if args.farm_verb == "prove":
+        space_units = inspect_space_seal(args.path)["space_units"]
+        proof = prove_from_file(args.path, args.challenge)
+        result = verify_space_proof(proof, space_units)
+        _print({"ok": result["ok"], "result": {"proof": proof, "verify": result}})
+        return 0 if result["ok"] else 1
+
+    _print({"ok": False, "error_code": "UNKNOWN_VERB"})
+    return 1
+
+
 def _cmd_agent(args) -> int:
     # Thin: boot a Chronarch-Prime agent in-process and run one verb. Always
     # JSON out. The CLI never injects an LLM, so the mind is DummyMind (the
@@ -107,6 +146,22 @@ def build_parser() -> argparse.ArgumentParser:
         p = agent_sub.add_parser(verb, help=f"agent {verb}")
         p.add_argument("--json", default="", help="JSON params object")
         p.set_defaults(func=_cmd_agent, agent_verb=verb)
+
+    farm = sub.add_parser("farm", help="on-disk SpaceSeal (.cseal) tooling; JSON out")
+    farm_sub = farm.add_subparsers(dest="farm_verb", required=True)
+    f_init = farm_sub.add_parser("init", help="write a .cseal SpaceSeal file")
+    f_init.add_argument("--farmer-id", required=True)
+    f_init.add_argument("--units", type=int, required=True)
+    f_init.add_argument("--out", required=True)
+    f_init.add_argument("--cas-root", default="")
+    f_init.set_defaults(func=_cmd_farm, farm_verb="init")
+    f_inspect = farm_sub.add_parser("inspect", help="inspect a .cseal header")
+    f_inspect.add_argument("path")
+    f_inspect.set_defaults(func=_cmd_farm, farm_verb="inspect")
+    f_prove = farm_sub.add_parser("prove", help="prove space from a .cseal")
+    f_prove.add_argument("path")
+    f_prove.add_argument("--challenge", required=True)
+    f_prove.set_defaults(func=_cmd_farm, farm_verb="prove")
 
     return parser
 

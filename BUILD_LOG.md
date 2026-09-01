@@ -406,6 +406,39 @@ difficulty/infusion byte changes, no frozen-signature changes.
 10 new tests (243 total; 233 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof); K18 AST scan clean.
 
+## Phase 10 — on-disk SpaceSeal files (.cseal) + farmer CLI
+
+Chronarch's OWN on-disk space format. Additive: no lottery/difficulty/
+infusion/frozen-signature changes.
+
+- `chronarch_farm.spacefile`: the `.cseal` format — 4-byte magic `CSL1`, a
+  4-byte big-endian header length, a canonical-codec SpaceSeal header
+  (`plot_id, k_size, space_units, farmer_id, cas_root, index`), and a
+  reserved zero body of `file_body_bytes(space_units)` (one TEST unit =
+  4096 bytes). `write_space_seal` / `read_space_seal` / `inspect_space_seal`
+  / `prove_from_file`. Reading rejects bad magic, a bad/oversized/forbidden-key
+  header (K18 + plot_id recompute), a wrong file size (short body OR appended
+  payload), and any non-zero body byte (stuffed rings/jsonl/blobs).
+- Proving loads the file → SpaceSeal → the frozen `make_pospace`; an optional
+  `cas_root` is a commitment only (a missing CAS object never invalidates the
+  file).
+- CLI: `chronarch farm init|inspect|prove`, JSON out. No farm verb writes
+  rings into a file.
+- Docs: specs/SPACEFILE.md; pointers from CHRONARCH_POST.md and DUAL_FARM.md.
+
+### Rejected (kept rejected)
+
+- **Plots-as-DB** — no, with teeth: a `.cseal` body is reserved zeros and the
+  reader rejects any non-zero byte, any appended payload, and any ring/jsonl
+  stuffed after the header. A `.cseal` stores space, never memory.
+- **Chia plot format** — no. `.cseal` is Chronarch's own layout; not a Chia
+  plot, not chiapos, not CHIP-48.
+- **k32 in CI** — no. Only the TEST size class (1 unit, 4096-byte body) is
+  written in tests; no real gigabyte plots.
+
+17 new tests (261 total; 244 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

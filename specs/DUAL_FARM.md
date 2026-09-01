@@ -35,7 +35,9 @@ prestress returns.
 A plot proves that space is reserved. That is all it proves.
 
 **In a plot:** proof-of-space data (Phase 4: the structural stub; later:
-real plot tables).
+real plot tables). On disk a SpaceSeal persists as a `.cseal` file — a header
+plus a reserved zero body, Chronarch's own format, described in
+[SPACEFILE.md](SPACEFILE.md).
 
 **Never in a plot:** rings, Timechain segments, faculty code, model
 weights, embedding vectors, CAS blobs of any kind. "Plots as a database" is

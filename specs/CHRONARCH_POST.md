@@ -15,7 +15,7 @@ slashing-backed vote (G14) — not an AI rewrite and not an admin key.
 
 | Chronarch name | Is | Farmer-facing API (`chronarch_farm.post`) |
 |---|---|---|
-| **SpaceSeal** | a `PlotCommitment` — reserved space sealed to a farmer, `space_units` + optional `cas_root` | `make_space_seal`, `verify_space_seal` |
+| **SpaceSeal** | a `PlotCommitment` — reserved space sealed to a farmer, `space_units` + optional `cas_root`; persists on disk as a `.cseal` ([SPACEFILE.md](SPACEFILE.md)) | `make_space_seal`, `verify_space_seal`, `write_space_seal`, `read_space_seal` |
 | **SpaceProof** | a `ProofOfSpace` — `{challenge, plot_id, proof_bytes, quality}` | `make_space_proof`, `verify_space_proof` |
 | **Pulse** | the infused challenge chain — each slot's challenge derived from the previous slot's quality + pulse | `genesis_pulse`, `next_pulse`, `verify_pulse` |
 | **Filter** | the quality prefix-bits gate (`filter_bits`) | `filter_ok` |

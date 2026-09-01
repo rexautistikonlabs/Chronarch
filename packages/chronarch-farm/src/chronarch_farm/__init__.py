@@ -42,6 +42,17 @@ from .infusion import (
 )
 from . import wesolowski
 from . import post
+from . import spacefile
+from .spacefile import (
+    CSEAL_EXT,
+    TEST_BODY_BYTES,
+    SpaceFileError,
+    file_body_bytes,
+    inspect_space_seal,
+    prove_from_file,
+    read_space_seal,
+    write_space_seal,
+)
 from .post import (
     filter_ok,
     genesis_pulse,
@@ -115,6 +126,16 @@ __all__ = [
     "verify_time_seal",
     "make_time_proof",
     "verify_time_proof",
+    # Phase 10 on-disk SpaceSeal files (.cseal)
+    "spacefile",
+    "write_space_seal",
+    "read_space_seal",
+    "inspect_space_seal",
+    "prove_from_file",
+    "file_body_bytes",
+    "SpaceFileError",
+    "CSEAL_EXT",
+    "TEST_BODY_BYTES",
     # Phase 7 optional real-tables backend (off by default)
     "active_backend",
     "chiapos_available",
