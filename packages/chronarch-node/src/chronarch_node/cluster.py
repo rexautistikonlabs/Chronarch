@@ -21,22 +21,40 @@ STEWARD_LOCK_CHRONONS = 2 * MIN_COUNCIL_BOND_CHRONONS
 
 class Cluster:
     def __init__(self, n_nodes: int = 4, *, space_per_node: int = 100,
-                 bond: bool = True) -> None:
+                 bond: bool = True, space_seals: dict[str, dict] | None = None,
+                 space_paths: dict[str, str] | None = None) -> None:
+        """`space_seals` / `space_paths` (identity -> SpaceSeal / .cseal path)
+        build file-backed nodes; each node's units come from its file. When
+        neither is given, nodes use abstract units (backward compatible)."""
         self.bus = InProcessBus()
         self.hearth = HearthState()
         self.council = CouncilState(self.hearth)
-        self.space_table = {f"node-{i}": space_per_node * (i + 1)
-                            for i in range(n_nodes)}
         self.nodes: dict[str, Node] = {}
         self.slot = 0
 
-        for i in range(n_nodes):
-            identity = f"node-{i}"
+        if space_seals or space_paths:
+            identities = list((space_seals or space_paths).keys())
+        else:
+            identities = [f"node-{i}" for i in range(n_nodes)]
+        # Build each node first so file-backed units are known, then assemble
+        # the shared space_table from the resolved units.
+        pending = []
+        for i, identity in enumerate(identities):
             if bond:
                 self.hearth.lock(identity, STEWARD_LOCK_CHRONONS, slot=0)
-            node = Node(identity, self.space_table[identity],
-                        hearth=self.hearth, council=self.council,
-                        space_table=self.space_table)
+            kwargs = {"hearth": self.hearth, "council": self.council}
+            if space_seals and identity in space_seals:
+                kwargs["space_seal"] = space_seals[identity]
+            elif space_paths and identity in space_paths:
+                kwargs["space_path"] = space_paths[identity]
+            else:
+                kwargs["space_units"] = space_per_node * (i + 1)
+            node = Node(identity, **kwargs)
+            pending.append((i, identity, node))
+        self.space_table = {identity: node.space_units
+                            for _i, identity, node in pending}
+        for i, identity, node in pending:
+            node.space_table = self.space_table  # shared view for leader election
             if bond:
                 node.seat = f"seat-{i}"
                 self.council.register_seat(

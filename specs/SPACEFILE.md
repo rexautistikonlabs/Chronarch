@@ -82,5 +82,8 @@ lives on the CAS lane; the `cas_root` is a one-way commitment.
 
 ---
 
+A node farms from a `.cseal` by passing `space_path=` (the file is the source
+of truth for units) — see [FARMER.md](FARMER.md).
+
 Lineage: Chia-family Proof of Space inspired the body; the `.cseal` format is
 Chronarch's own ([ATTRIBUTION.md](ATTRIBUTION.md), K17).

@@ -24,12 +24,27 @@ def _print(obj: object) -> None:
     print(json.dumps(obj, indent=2, sort_keys=True))
 
 
-def _cmd_serve(args) -> int:
-    from chronarch_node import Node, RpcServer
+def build_node_from_space(identity, space, compute):
+    """`--space` is a .cseal path when it ends with .cseal, else abstract
+    integer units. A bad/missing file raises NodeError (JSON error to caller)."""
+    from chronarch_node import Node
 
-    node = Node(args.identity, args.space, compute_units=args.compute)
+    if isinstance(space, str) and space.endswith(".cseal"):
+        return Node(identity, space_path=space, compute_units=compute)
+    return Node(identity, int(space), compute_units=compute)
+
+
+def _cmd_serve(args) -> int:
+    from chronarch_node import NodeError, RpcServer
+
+    try:
+        node = build_node_from_space(args.identity, args.space, args.compute)
+    except NodeError as exc:
+        _print({"ok": False, "error_code": "BAD_SPACE", "result": {"detail": str(exc)}})
+        return 1
     server = RpcServer(node.rpc, host=args.host, port=args.port).start()
     _print({"serving": args.identity, "host": server.host, "port": server.port,
+            "space_units": node.space_units, "space_path": node.space_path,
             "boot_ok": node.boot["report"]["boot_ok"]})
     try:
         server._thread.join()  # block until killed
@@ -39,13 +54,39 @@ def _cmd_serve(args) -> int:
 
 
 def _cmd_cluster(args) -> int:
-    from chronarch_node import Cluster
+    import glob
+    import os
 
-    cluster = Cluster(n_nodes=args.nodes)
+    from chronarch_node import Cluster, NodeError
+
+    space_paths = None
+    if args.space_dir:
+        files = sorted(glob.glob(os.path.join(args.space_dir, "*.cseal")))
+        if not files:
+            _print({"ok": False, "error_code": "NO_CSEAL_FILES",
+                    "result": {"detail": f"no .cseal files in {args.space_dir}"}})
+            return 1
+        # Node identity per file = its farmer_id (read from the SpaceSeal).
+        from chronarch_farm import read_space_seal
+        space_paths = {}
+        try:
+            for path in files:
+                seal = read_space_seal(path)
+                space_paths[seal["farmer_id"]] = path
+        except (NodeError, ValueError, OSError) as exc:
+            _print({"ok": False, "error_code": "BAD_SPACE",
+                    "result": {"detail": str(exc)}})
+            return 1
+        cluster = Cluster(space_paths=space_paths)
+    else:
+        cluster = Cluster(n_nodes=args.nodes)
+
     log = cluster.run_slots(args.slots)
     _print({
-        "nodes": args.nodes,
+        "ok": True,
+        "nodes": len(cluster.nodes),
         "slots": args.slots,
+        "space_table": cluster.space_table,
         "leaders": [r["leader"] for r in log],
         "converged": cluster.converged(),
         "all_verify": cluster.all_verify(),
@@ -122,7 +163,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     serve = sub.add_parser("serve", help="boot a node and serve RPC")
     serve.add_argument("--identity", default="node-0")
-    serve.add_argument("--space", type=int, default=100)
+    # --space is abstract integer units, OR a path ending in .cseal to farm
+    # from an on-disk SpaceSeal file.
+    serve.add_argument("--space", default="100")
     serve.add_argument("--compute", type=int, default=8)
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8731)
@@ -131,6 +174,8 @@ def build_parser() -> argparse.ArgumentParser:
     cluster = sub.add_parser("cluster", help="run an in-process cluster demo")
     cluster.add_argument("--nodes", type=int, default=4)
     cluster.add_argument("--slots", type=int, default=6)
+    cluster.add_argument("--space-dir", default="",
+                         help="dir of .cseal files; one file-backed node per file")
     cluster.set_defaults(func=_cmd_cluster)
 
     for verb in RPC_VERBS:

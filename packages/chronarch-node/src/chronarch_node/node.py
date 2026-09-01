@@ -53,11 +53,28 @@ class NodeError(ValueError):
 
 
 class Node:
-    def __init__(self, identity: str, space_units: int, *, compute_units: int = 8,
-                 kernel: dict | None = None, hearth: HearthState | None = None,
+    def __init__(self, identity: str, space_units: int | None = None, *,
+                 compute_units: int = 8, kernel: dict | None = None,
+                 hearth: HearthState | None = None,
                  council: CouncilState | None = None,
-                 space_table: dict[str, int] | None = None) -> None:
+                 space_table: dict[str, int] | None = None,
+                 space_path: str | None = None,
+                 space_seal: dict | None = None) -> None:
         self.identity = identity
+        # Phase 11: a farmer may boot from a .cseal SpaceSeal file. The file is
+        # the source of truth for space_units; if abstract units are ALSO
+        # passed they must match, else SPACE_UNITS_MISMATCH.
+        self.space_path = space_path
+        self._file_seal = self._resolve_file_seal(space_path, space_seal)
+        if self._file_seal is not None:
+            file_units = self._file_seal["space_units"]
+            if space_units is not None and space_units != file_units:
+                raise NodeError(
+                    f"SPACE_UNITS_MISMATCH: abstract {space_units} != file {file_units}")
+            space_units = file_units
+        elif space_units is None:
+            raise NodeError("space_units or a space file (.cseal) is required")
+
         self.space_units = space_units
         self.compute_units = compute_units
         self.kernel = kernel or build_kernel()
@@ -86,13 +103,51 @@ class Node:
         self.last_challenge_pass_slot = 0
         self.seat: str | None = None
 
-        # Phase 6: a representative PlotCommitment for this farmer (a real,
-        # recomputable plot id bound to its pinset). The slot lottery still
-        # runs on abstract space units; this is the body proof it attaches.
-        from .slotheader import commitment_for_node
-        self.plot_commitment = commitment_for_node(identity, self.cas)
+        # The farmer's PlotCommitment (SpaceSeal). File-backed nodes use the
+        # SpaceSeal from their .cseal; abstract nodes derive one from their
+        # pinset. Either way the slot lottery runs on integer space units.
+        if self._file_seal is not None:
+            self.plot_commitment = dict(self._file_seal)
+        else:
+            from .slotheader import commitment_for_node
+            self.plot_commitment = commitment_for_node(identity, self.cas)
         self.last_slot_header: dict | None = None
         self.slot_headers: list[dict] = []  # the infusion chain, in order
+
+    @staticmethod
+    def _resolve_file_seal(space_path: str | None, space_seal: dict | None) -> dict | None:
+        """Read/validate a SpaceSeal from a .cseal path or an in-memory seal.
+        Any file problem surfaces as a NodeError so the process does not farm
+        on a bad file."""
+        if space_path is None and space_seal is None:
+            return None
+        from chronarch_farm import SpaceFileError, read_space_seal, verify_space_seal
+        try:
+            if space_path is not None:
+                seal = read_space_seal(space_path)
+                if space_seal is not None and verify_space_seal(dict(space_seal)) != seal:
+                    raise NodeError("SPACE_UNITS_MISMATCH: space_seal disagrees with file")
+                return seal
+            return verify_space_seal(dict(space_seal))
+        except NodeError:
+            raise
+        except (SpaceFileError, OSError, ValueError) as exc:
+            raise NodeError(f"bad space file: {exc}") from None
+
+    def verify_space(self) -> bool:
+        """Re-read the .cseal (if file-backed) and confirm it still matches the
+        booted SpaceSeal + units. Abstract nodes always return True. The slot
+        loop MAY call this before produce_slot; a file that went invalid means
+        skip leadership this slot — never crash the process."""
+        if self.space_path is None:
+            return True
+        from chronarch_farm import SpaceFileError, read_space_seal
+        try:
+            seal = read_space_seal(self.space_path)
+        except (SpaceFileError, OSError, ValueError):
+            return False
+        return (seal.get("space_units") == self.space_units
+                and seal.get("plot_id") == self.plot_commitment.get("plot_id"))
 
     # -- prestress / eligibility -------------------------------------------
     def bond_chronons(self, identity: str | None = None) -> int:
@@ -159,6 +214,10 @@ class Node:
         return the gossip messages; otherwise []."""
         leader = slot_leader(slot, self.space_table, self.eligible_leaders(slot))
         if leader != self.identity:
+            return []
+        # Phase 11: a file-backed farmer whose .cseal went invalid mid-run
+        # skips leadership this slot rather than crashing (or forging a proof).
+        if self.space_path is not None and not self.verify_space():
             return []
         body = {"event": "slot", "slot": slot, "leader": leader,
                 "issuance": slot_issuance_chronons(slot)}

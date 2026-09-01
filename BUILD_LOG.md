@@ -439,6 +439,43 @@ infusion/frozen-signature changes.
 17 new tests (261 total; 244 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof); K18 AST scan clean.
 
+## Phase 11 — node farms from a .cseal space file
+
+A node boots from an on-disk SpaceSeal (`.cseal`) or from abstract units.
+Additive: no lottery/difficulty/frozen-signature changes; abstract units stay
+valid for any node/test that passes no file.
+
+- `Node(identity, space_path=..., space_seal=...)`: reads/validates the file,
+  derives the SpaceSeal + `space_units`, and registers those units with the
+  existing lottery. The file is the source of truth; if abstract units are
+  also passed they must match, else **`SPACE_UNITS_MISMATCH`**. A missing/bad
+  file raises `NodeError` and the process does not farm.
+- `produce_slot` uses the file-backed SpaceSeal for the PlotCommitment /
+  SpaceProof; followers reject a bad proof/Pulse as before. `Node.verify_space()`
+  re-reads the file; the slot loop calls it before `produce_slot`, so a file
+  that went invalid mid-run means the node **skips leadership this slot**
+  rather than crashing or forging a proof.
+- `Cluster(space_seals=..., space_paths=...)`: one file-backed node per file;
+  a fleet of `.cseal` files elects the same winners as abstract units of the
+  same integers.
+- CLI: `chronarch serve --space path.cseal` (a `.cseal` path when it ends in
+  `.cseal`, else integer units); `chronarch cluster --space-dir DIR`. Bad/
+  missing file → JSON `BAD_SPACE`. specs/FARMER.md; pointers from SPACEFILE.md
+  and CHRONARCH_POST.md.
+
+### Rejected (kept rejected)
+
+- **Silent unit override** — no. A file and mismatching abstract units fail
+  loudly (`SPACE_UNITS_MISMATCH`); the node never quietly farms different
+  space than the operator declared.
+- **Rings-in-file** — still no. The node reads only the SpaceSeal header; the
+  `.cseal` body is reserved zeros (Phase 10), and a stuffed file is rejected
+  at read time, so it never farms.
+- **chiapos** — not wired; that stays a separate opt-in task.
+
+17 new tests (278 total; 261 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
