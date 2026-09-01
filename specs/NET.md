@@ -102,5 +102,9 @@ if the net does not converge.
 
 ---
 
+Each net_run writes the fleet to every home as `home/peers.json`, so a bare
+`Node(home=DIR)` resumes the net without a conductor passing the space table —
+see [PEERS.md](PEERS.md).
+
 See [PULSE.md](PULSE.md) for the single-home loop the net scales up, and
 [HOME.md](HOME.md) for the durable homes it gossips between.

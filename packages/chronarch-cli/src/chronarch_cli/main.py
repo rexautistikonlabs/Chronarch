@@ -233,7 +233,7 @@ def _cmd_net(args) -> int:
     # codes: BAD_HOME / SPACE_UNITS_MISMATCH / HOME_KERNEL_MISMATCH.
     from chronarch_node import NodeError, net_run
 
-    homes = [h for h in args.homes.split(",") if h]
+    homes = [h for h in (args.homes or "").split(",") if h]
     if len(homes) < 2:
         _print({"ok": False, "error_code": "BAD_REQUEST",
                 "result": {"detail": "--homes needs at least two comma-separated dirs"}})
@@ -242,7 +242,9 @@ def _cmd_net(args) -> int:
         result = net_run(homes, slots=args.slots)
     except NodeError as exc:
         detail = str(exc)
-        if "HOME_KERNEL_MISMATCH" in detail:
+        if "PEERS_MISMATCH" in detail:
+            code = "PEERS_MISMATCH"
+        elif "HOME_KERNEL_MISMATCH" in detail:
             code = "HOME_KERNEL_MISMATCH"
         elif "SPACE_UNITS_MISMATCH" in detail:
             code = "SPACE_UNITS_MISMATCH"
@@ -252,6 +254,21 @@ def _cmd_net(args) -> int:
         return 1
     _print({"ok": True, "result": result})
     return 0 if result["converged"] else 1
+
+
+def _cmd_net_status(args) -> int:
+    # Read-only status of each home in a net (Phase 18): identity, height,
+    # head_hash, peer_count, peers_ok. No node booted, no file written.
+    from chronarch_node import net_status
+
+    homes = [h for h in args.homes.split(",") if h]
+    if len(homes) < 1:
+        _print({"ok": False, "error_code": "BAD_REQUEST",
+                "result": {"detail": "--homes needs at least one dir"}})
+        return 1
+    result = net_status(homes)
+    _print({"ok": True, "result": result})
+    return 0 if all(h["peers_ok"] for h in result["homes"]) else 1
 
 
 def _cmd_pulse(args) -> int:
@@ -419,10 +436,15 @@ def build_parser() -> argparse.ArgumentParser:
     h_inspect.set_defaults(func=_cmd_home, home_verb="inspect")
 
     net = sub.add_parser("net", help="run a two-home local net (in-process bus); JSON out")
-    net.add_argument("--homes", required=True,
+    net.add_argument("--homes",
                      help="comma-separated home dirs, e.g. /tmp/a,/tmp/b")
     net.add_argument("--slots", type=int, default=6)
     net.set_defaults(func=_cmd_net)
+    net_sub = net.add_subparsers(dest="net_verb")
+    net_status = net_sub.add_parser("status", help="read-only net status; JSON out")
+    net_status.add_argument("--homes", required=True,
+                            help="comma-separated home dirs, e.g. /tmp/a,/tmp/b")
+    net_status.set_defaults(func=_cmd_net_status)
 
     pulse = sub.add_parser("pulse", help="run one organism pulse on a home; JSON out")
     pulse.add_argument("--home", required=True)

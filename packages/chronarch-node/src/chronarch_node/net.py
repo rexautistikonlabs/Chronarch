@@ -23,11 +23,26 @@ from chronarch_hearth import HearthState
 from .cluster import STEWARD_LOCK_CHRONONS
 from .home import NodeHome
 from .leader import slot_leader
-from .node import Node
+from .node import HomeError, Node
 from .pulse import PULSE_FACULTY
 from .transport import InProcessBus
 
 DEFAULT_NET_IDENTITY = "net-node"
+
+
+def _check_existing_peers(homes, space_table: dict) -> None:
+    """Fail closed if any home already carries a peers.json that disagrees with
+    the planned fleet — the net never silently rewrites a different fleet."""
+    from .peers import PeersError, peers_match
+    for home in homes:
+        node_home = NodeHome(home)
+        if not node_home.has_peers():
+            continue
+        existing = node_home.read_peers()  # HomeError on a corrupt file
+        if not peers_match(existing, space_table):
+            raise PeersError(
+                f"PEERS_MISMATCH: peers.json at {home} disagrees with the planned "
+                "fleet — refusing to silently rewrite it")
 
 
 def _plan_home(home: str, index: int) -> tuple[str, int]:
@@ -62,6 +77,11 @@ def net_run(homes, slots: int = 6) -> dict:
     if len(space_table) != len(plans):
         raise ValueError("net homes must have distinct identities")
 
+    # Phase 18: the fleet is persisted as home/peers.json. Before writing it,
+    # a pre-existing peers.json that disagrees with the planned fleet fails
+    # closed (no silent peer rewrite). This is checked on every home up front.
+    _check_existing_peers(homes, space_table)
+
     # Shared Hearth/Council so each node's eligibility can see every peer's bond
     # (mirrors Cluster). Bonds are the operators locking their OWN positions.
     hearth = HearthState()
@@ -84,6 +104,13 @@ def net_run(homes, slots: int = 6) -> dict:
         node.rpc("challenge", {"slot": node.ledger.height + 1})
         nodes[identity] = node
         bus.register(identity, node)
+
+    # Persist/refresh the fleet on EVERY home — identical canonical bytes — so a
+    # later bare Node(home=DIR) resumes the net without a conductor.
+    from .peers import canonical_peers
+    fleet = canonical_peers(space_table)
+    for home in homes:
+        NodeHome(home).write_peers(fleet)
 
     # All homes converged at the same height last run (or all fresh at 0); drive
     # the shared slot counter from there.
@@ -126,3 +153,38 @@ def net_run(homes, slots: int = 6) -> dict:
         "leaders": leaders,
         "converged": converged,
     }
+
+
+def net_status(homes) -> dict:
+    """Read-only status of each home in a net: identity, persisted height +
+    head_hash, the peer count, and whether the peers file is valid AND names
+    this home's own identity/units. No node is booted and no file is written."""
+    from .peers import PeersError, verify_peers
+    out = []
+    for home in homes:
+        node_home = NodeHome(home)
+        entry = {"home": home, "identity": None, "height": None,
+                 "head_hash": None, "peer_count": 0, "peers_ok": False}
+        if not node_home.is_initialized():
+            out.append(entry)
+            continue
+        entry["identity"] = node_home.read_identity()
+        head = node_home.read_head() or {}
+        entry["height"] = head.get("height")
+        entry["head_hash"] = head.get("head_hash")
+        try:
+            peers = node_home.read_peers()
+        except HomeError:
+            peers = None
+        if peers is not None:
+            try:
+                canonical = verify_peers(peers)
+                entry["peer_count"] = len(canonical)
+                table = {e["identity"]: e["space_units"] for e in canonical}
+                units = node_home.read_space_units()
+                entry["peers_ok"] = (
+                    entry["identity"] in table and table[entry["identity"]] == units)
+            except PeersError:
+                entry["peers_ok"] = False
+        out.append(entry)
+    return {"homes": out}

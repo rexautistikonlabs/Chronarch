@@ -740,6 +740,47 @@ receipts) and rewrites none of it.
 13 new tests (394 total; 381 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
 
+## Phase 18 — persist the peer/space table
+
+A net home now records its fleet in `home/peers.json`, so a bare
+`Node(home=DIR)` resumes a net-produced ledger — one with peer-led slots —
+without a conductor passing the space table in. specs/PEERS.md; pointers from
+NET.md and HOME.md. New module `chronarch_node.peers` + a peers file in
+NodeHome; `net_run` writes it; the lottery and slot-header verify read it. The
+lottery math, HOME fail-closed replay, and the `net_run`/`pulse` observable JSON
+keys are all unchanged (net_status adds new keys only).
+
+- **peers.json** — a canonical list of `{identity, space_units}` sorted by
+  identity: a closed schema (exact keys), K18-screened, integer units only,
+  distinct identities. Every home in a fleet writes byte-for-byte identical
+  bytes (`peers_bytes` = canonical_bytes of the sorted list).
+- **Node(home=DIR)** without an explicit `space_table` adopts peers.json as its
+  fleet BEFORE ledger replay (so peer-led slot headers verify). Fail closed as
+  **PEERS_MISMATCH** when the home's own identity/units are absent or disagree,
+  or the file is corrupt/schema-invalid.
+- **net_run** always writes/refreshes peers.json on every home from the planned
+  fleet; an existing peers.json that disagrees with the plan is PEERS_MISMATCH
+  (no silent rewrite — the tampered file is left untouched).
+- **CLI**: `chronarch net status --homes DIR1,DIR2` → JSON per home {identity,
+  height, head_hash, peer_count, peers_ok} (read-only; boots no node). `net run`
+  gains the PEERS_MISMATCH error code. `chronarch net --homes ...` (no
+  subcommand) still runs the net.
+
+### Rejected (kept rejected)
+
+- **Silent peer rewrite** — no. net_run refuses to overwrite a peers.json that
+  disagrees with the planned fleet, and a bare resume refuses a peers file that
+  disagrees with the home's own identity/units (tested; the tampered file stays
+  as-is).
+- **Admin peer key** — no. peers.json is a closed `{identity, space_units}`
+  schema; a forbidden key (admin_key & kin, a chronos/vote field) is rejected.
+  No entry grants authority — the fleet is lottery weights, nothing more.
+- **Public discovery** — no. The file lists a fleet the operators already
+  agreed on; nothing is discovered over a network. Still in-process bus only.
+
+18 new tests (412 total; 394 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

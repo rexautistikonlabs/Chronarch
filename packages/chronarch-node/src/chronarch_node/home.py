@@ -44,6 +44,7 @@ class NodeHome:
         self.head_path = os.path.join(self.ledger_dir, "head.json")
         self.boot_path = os.path.join(path, "boot.json")
         self.rewards_path = os.path.join(path, "rewards.jsonl")
+        self.peers_path = os.path.join(path, "peers.json")
 
     # -- lifecycle ----------------------------------------------------------
     def is_initialized(self) -> bool:
@@ -164,6 +165,28 @@ class NodeHome:
                         f"truncated/corrupt reward ledger at line {lineno}: {exc}") from None
                 out.append(obj)
         return out
+
+    # -- peer/space table (Phase 18) ---------------------------------------
+    def has_peers(self) -> bool:
+        return os.path.exists(self.peers_path)
+
+    def read_peers(self) -> list | None:
+        """Parse home/peers.json (raw list). Absent → None; corrupt → fail
+        closed. The caller validates the closed peers schema."""
+        if not os.path.exists(self.peers_path):
+            return None
+        try:
+            with open(self.peers_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise HomeError(f"unreadable peers.json: {exc}") from None
+        return data
+
+    def write_peers(self, peers) -> None:
+        """Write the canonical peers list — identical bytes on every home for
+        the same fleet."""
+        from .peers import peers_bytes
+        _atomic_write(self.peers_path, peers_bytes(peers))
 
     def copy_space_seal(self, src_path: str) -> None:
         """Copy the farmed .cseal into the home so a resume can reopen it even

@@ -69,11 +69,11 @@ def test_net_run_is_deterministic(tmp_path):
 def test_net_all_homes_verify_full(tmp_path):
     homes = _homes(tmp_path)
     net_run(homes, slots=5)
-    # Resuming a net home needs the validator set (peer space units) to replay
-    # peer-led slot headers — that is the net context net_run supplies.
-    table = {"net-node-0": 1, "net-node-1": 2}
+    # Phase 18: a BARE Node(home=DIR) resumes and verifies a net ledger with
+    # peer-led slots — the validator set comes from the persisted peers.json,
+    # no conductor needed.
     for home in homes:
-        node = Node("x", home=home, space_table=dict(table))
+        node = Node("x", home=home)
         assert node.ledger.verify_full()
 
 

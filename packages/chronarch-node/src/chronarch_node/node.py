@@ -74,6 +74,9 @@ class Node:
         self._home = None
         self._persist_enabled = False
         resuming = False
+        # Phase 18: when the caller does not pass a space table, a resuming home
+        # adopts its persisted peer/space table (home/peers.json) as the fleet.
+        space_table_given = space_table is not None
         if home is not None:
             from .home import NodeHome
             self._home = NodeHome(home)
@@ -162,6 +165,12 @@ class Node:
         # Phase 13: wire durable persistence last, once boot + ledger are ready.
         if self._home is not None:
             if resuming:
+                # Phase 18: adopt the persisted peer/space table so a bare
+                # Node(home=DIR) can verify peer-led slot headers without a
+                # conductor passing the fleet in. Done BEFORE replay, which uses
+                # self.space_table to verify each slot header.
+                if not space_table_given and self._home.has_peers():
+                    self._adopt_peers(self._home.read_peers())
                 self._resume_from_home()
                 # Phase 14: reload the persisted Chronos credit ledger so the
                 # resumed node reports the same totals (rewards are appended,
@@ -223,6 +232,26 @@ class Node:
                 self.pin_store.put(data, kind="object")
             except PinError:
                 self.pin_store.put(data, kind="opaque")
+
+    def _adopt_peers(self, peers) -> None:
+        """Validate home/peers.json and adopt it as this node's space table.
+        The home's OWN identity must appear in the fleet with its own recorded
+        units, else PEERS_MISMATCH (fail closed) — a home never farms a fleet
+        that disagrees with what it is."""
+        from .peers import PeersError, space_table_from_peers
+        try:
+            table = space_table_from_peers(peers)
+        except PeersError:
+            raise
+        recorded = table.get(self.identity)
+        if recorded is None:
+            raise PeersError(
+                f"PEERS_MISMATCH: home identity {self.identity!r} is not in peers.json")
+        if recorded != self.space_units:
+            raise PeersError(
+                f"PEERS_MISMATCH: peers.json lists {self.identity!r} at {recorded} "
+                f"units but the home farms {self.space_units}")
+        self.space_table = table
 
     def _resume_from_home(self) -> None:
         """Replay the durable home into this freshly-booted node. Fail closed:

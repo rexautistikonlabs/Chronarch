@@ -112,6 +112,11 @@ One command runs the whole organism on a home — farm, pin-check, attest
 compute, credit Chronos — and reports: `chronarch pulse --home DIR`. See
 [PULSE.md](PULSE.md).
 
+A home that belongs to a net also carries `home/peers.json` — the canonical
+fleet (`{identity, space_units}` per peer), so a bare `Node(home=DIR)` resumes
+the net without a conductor; a peers file that disagrees with the home's own
+identity/units is `PEERS_MISMATCH` (fail closed). See [PEERS.md](PEERS.md).
+
 See [FARMER.md](FARMER.md) for booting from a `.cseal`, [PINS.md](PINS.md) for
 the pin lane a home reopens, and [SPACEFILE.md](SPACEFILE.md) for why a space
 file never holds the ledger.
