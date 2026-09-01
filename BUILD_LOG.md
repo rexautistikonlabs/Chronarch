@@ -611,6 +611,55 @@ unchanged; Phase 14 adds `reward_slot` beside them.
 23 new tests (339 total; 316 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
 
+## Phase 15 — attested compute receipts
+
+COMPUTE_SHARE is paid only for a DummyMind or Immune Gym job that verifies.
+specs/COMPUTE.md; pointer from REWARDS.md. New module
+`chronarch_core.compute`; schemas.py, reward_slot, and the gym oracle are all
+untouched (reused, not forked).
+
+- **ComputeReceipt** (closed schema, validated locally like
+  `verify_plot_commitment` — schemas.py is frozen):
+  `{worker, job_kind, job_id, input_hash, output_hash, evidence_refs, slot?}`.
+  K18-screened; any key outside the set is rejected (so no chronos/vote/seat/
+  activate_faculty field can appear); `job_kind` ∉ {dummymind, gym} is refused.
+- **attest_compute(receipt, node_or_fixture) -> {ok, code}**. DummyMind: job_id
+  must be a LIVE-registry faculty; the input is fetched from the node CAS by
+  input_hash and replayed via the frozen `run_faculty`; the recomputed
+  `chash("ComputeOutput", output)` must equal output_hash. Gym: the named case
+  runs in an ISOLATED Chronarch fixture (throwaway boot — its own chain/CAS/
+  registry/Hearth, so attestation never mutates the attesting node) via
+  `chronarch_gym.run_case`; the oracle must pass and the verdict must hash to
+  output_hash. Never raises on a bad receipt — unverifiable → COMPUTE_UNATTESTED.
+- **Foreign gym target → GYM_TARGET_FOREIGN, no receipt** — refused at build
+  time by `make_compute_receipt` (the only sanctioned, backdoor-free builder;
+  it does the work honestly and returns a receipt that re-verifies).
+- **Node**: `submit_compute_receipt` MUST call `attest_compute`; unattested →
+  NodeError, not buffered; attested → buffered until a win, then `reward_slot`
+  credits the worker (no attested receipt → COMPUTE folds to treasury, Phase 14
+  rule unchanged). The Phase-14 hand-built-receipt test now routes through
+  `make_compute_receipt` (a genuine DummyMind attestation, not a backdoor flag).
+- **CLI**: `chronarch compute submit --home DIR --job-kind dummymind|gym
+  --job-id ID [--input HEX] [--worker W]` → JSON ok / COMPUTE_UNATTESTED /
+  GYM_TARGET_FOREIGN / BAD_HOME.
+
+### Rejected (kept rejected)
+
+- **Pay-LLM** — no. An LLM draft is a string, not a live-registry faculty
+  output; its hash never matches a faculty replay, and `job_kind="llm"` is not
+  a payable kind. (Tested: a draft-shaped receipt is UNATTESTED.)
+- **Pay-hats** — no. A `hat_run` black-catalog / `prevention_catalog` output is
+  inert/non-executable and has no payable `job_kind`. The prevention modality
+  is not paid.
+- **Pay-unattested** — no. `submit_compute_receipt` gates on `attest_compute`;
+  a receipt that does not replay/verify is rejected and never buffered.
+- **Chronos-for-Challenge** — no. `judge_challenge` still takes no chronos
+  parameter (a `chronos=` kwarg is a TypeError — tested); attestation never
+  touches Challenge or Ballot legality.
+
+29 new tests (368 total; 339 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

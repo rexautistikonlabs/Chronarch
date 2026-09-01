@@ -8,6 +8,16 @@ from .challenge import is_consensus_grade, judge_challenge, make_challenge
 from .executor import ExecutorError, run_faculty
 from .registry import FacultyRegistry, InertFacultyError, RegistryError, faculty_code_hash
 from .pinstore import PinError, PinStore, pinset_root
+from .compute import (
+    COMPUTE_OK,
+    COMPUTE_UNATTESTED,
+    GYM_TARGET_FOREIGN,
+    ComputeError,
+    ForeignGymTargetError,
+    attest_compute,
+    make_compute_receipt,
+    verify_compute_receipt,
+)
 from .rewards import (
     Credit,
     reward_slot,
@@ -43,6 +53,14 @@ __all__ = [
     "reward_slot",
     "Credit",
     "totals_by_reason",
+    "attest_compute",
+    "make_compute_receipt",
+    "verify_compute_receipt",
+    "ComputeError",
+    "ForeignGymTargetError",
+    "COMPUTE_OK",
+    "COMPUTE_UNATTESTED",
+    "GYM_TARGET_FOREIGN",
     "PinStore",
     "PinError",
     "pinset_root",

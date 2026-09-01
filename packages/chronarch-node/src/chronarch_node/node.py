@@ -440,11 +440,21 @@ class Node:
         ]
 
     # -- Chronos issuance (Phase 14) ---------------------------------------
-    def submit_compute_receipt(self, receipt) -> None:
-        """Buffer an attested compute receipt (a DummyMind/gym job) for the
-        next won slot. A receipt names its worker account; it is inert data,
-        never a Challenge/Ballot input."""
+    def submit_compute_receipt(self, receipt) -> dict:
+        """Attest a compute receipt and, only if it verifies, buffer it for the
+        next won slot (Phase 15). Attestation replays a DummyMind faculty or
+        runs a gym oracle — an unattested receipt is REJECTED and never
+        buffered, so COMPUTE is paid only for work that actually happened. A
+        receipt is inert data: it never enters a Challenge or Ballot.
+
+        Returns the attestation result {ok, code, detail}; raises NodeError on
+        an unattested receipt (do not buffer)."""
+        from chronarch_core import attest_compute
+        result = attest_compute(receipt, self)
+        if not result["ok"]:
+            raise NodeError(f"compute receipt rejected: {result['code']}: {result['detail']}")
         self.compute_receipts.append(receipt)
+        return result
 
     def _issue_slot_reward(self, slot: int, leader: str) -> list[dict]:
         """Credit space/pin/compute/treasury for a slot this node won. Records

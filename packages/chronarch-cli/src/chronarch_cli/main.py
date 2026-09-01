@@ -227,6 +227,60 @@ def _cmd_home(args) -> int:
     return 1
 
 
+def _cmd_compute(args) -> int:
+    # Attest and submit a compute receipt against a home node (Phase 15). The
+    # node builds the receipt honestly (running a DummyMind faculty or a gym
+    # oracle) and attests it; JSON out is ok or COMPUTE_UNATTESTED /
+    # GYM_TARGET_FOREIGN. There is no backdoor: an unattested job is refused.
+    from chronarch_core import (
+        ComputeError,
+        ForeignGymTargetError,
+        GYM_TARGET_FOREIGN,
+        make_compute_receipt,
+    )
+    from chronarch_node import Node, NodeError, NodeHome
+
+    if args.compute_verb != "submit":
+        _print({"ok": False, "error_code": "UNKNOWN_VERB"})
+        return 1
+
+    if not NodeHome(args.home).is_initialized():
+        _print({"ok": False, "error_code": "BAD_HOME",
+                "result": {"detail": f"no node home at {args.home}"}})
+        return 1
+    try:
+        node = Node("_compute_", home=args.home)
+    except NodeError as exc:
+        _print({"ok": False, "error_code": "BAD_HOME", "result": {"detail": str(exc)}})
+        return 1
+
+    worker = args.worker or node.identity
+    try:
+        if args.job_kind == "dummymind":
+            if not args.input:
+                _print({"ok": False, "error_code": "BAD_REQUEST",
+                        "result": {"detail": "--input HEX is required for a dummymind job"}})
+                return 1
+            inputs = {"tx": {"input": args.input}}
+            receipt = make_compute_receipt(worker, "dummymind", args.job_id,
+                                           node=node, inputs=inputs)
+        else:  # gym
+            receipt = make_compute_receipt(worker, "gym", args.job_id)
+        result = node.submit_compute_receipt(receipt)
+    except ForeignGymTargetError as exc:
+        _print({"ok": False, "error_code": GYM_TARGET_FOREIGN, "result": {"detail": str(exc)}})
+        return 1
+    except (NodeError, ComputeError) as exc:
+        _print({"ok": False, "error_code": "COMPUTE_UNATTESTED", "result": {"detail": str(exc)}})
+        return 1
+
+    _print({"ok": True, "result": {
+        "code": result["code"], "worker": worker,
+        "job_kind": receipt["job_kind"], "job_id": receipt["job_id"],
+        "buffered": len(node.compute_receipts)}})
+    return 0
+
+
 def _cmd_rewards(args) -> int:
     # Chronos credit ledger tooling (Phase 14). `inspect` reads
     # home/rewards.jsonl directly (no ledger replay) and reports totals by
@@ -307,6 +361,19 @@ def build_parser() -> argparse.ArgumentParser:
     h_inspect = home_sub.add_parser("inspect", help="resume a home read-only and report state")
     h_inspect.add_argument("--home", required=True)
     h_inspect.set_defaults(func=_cmd_home, home_verb="inspect")
+
+    compute = sub.add_parser("compute", help="attest + submit compute receipts; JSON out")
+    compute_sub = compute.add_subparsers(dest="compute_verb", required=True)
+    c_submit = compute_sub.add_parser("submit", help="attest a DummyMind/gym job and buffer it")
+    c_submit.add_argument("--home", required=True)
+    c_submit.add_argument("--job-kind", choices=("dummymind", "gym"), required=True)
+    c_submit.add_argument("--job-id", required=True,
+                          help="dummymind: a live-registry faculty; gym: a catalog attack")
+    c_submit.add_argument("--input", default="",
+                          help="dummymind input (HEX/opaque); ignored for gym")
+    c_submit.add_argument("--worker", default="",
+                          help="worker account credited (default: the node identity)")
+    c_submit.set_defaults(func=_cmd_compute, compute_verb="submit")
 
     rewards = sub.add_parser("rewards", help="Chronos credit ledger tooling; JSON out")
     rewards_sub = rewards.add_subparsers(dest="rewards_verb", required=True)

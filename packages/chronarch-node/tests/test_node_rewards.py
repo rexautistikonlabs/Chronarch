@@ -62,8 +62,14 @@ def test_home_node_persists_rewards_and_resumes(tmp_path):
 
 
 def test_compute_receipt_pays_worker(tmp_path):
+    # Phase 15: the receipt now goes through attestation (a real DummyMind job),
+    # not a hand-built dict. This is a genuine attested receipt, not a backdoor.
+    from chronarch_core import make_compute_receipt
+
     node = _bonded(Node("A", 1, space_table={"A": 1}))
-    node.submit_compute_receipt({"worker": "gpu-1", "job": "gym-smoke"})
+    receipt = make_compute_receipt("gpu-1", "dummymind", "injection_screen_sense",
+                                   node=node, inputs={"tx": {"amount": 1}})
+    node.submit_compute_receipt(receipt)
     node.produce_slot(1)
     compute = [c for c in node.reward_credits if c["reason"] == "compute"]
     assert len(compute) == 1

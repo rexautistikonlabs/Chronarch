@@ -49,8 +49,11 @@ Credit = {account, amount, reason, slot}   # reason ∈ {space, pin, compute, tr
   (`pins_ok` false), no farmer is paid the pin share — a pin-failing farmer is
   **never** paid — and the unpaid pin share folds into the treasury sink.
 - **COMPUTE** → split across `compute_receipts` (each names a `worker`
-  account). **Documented choice:** with no receipt this slot, the compute share
-  **folds into the treasury sink** (it is never left unissued).
+  account). Every receipt is an **attested** ComputeReceipt — a DummyMind
+  faculty replay or a gym oracle that verifies; an unattested job never reaches
+  the router (see [COMPUTE.md](COMPUTE.md)). **Documented choice:** with no
+  attested receipt this slot, the compute share **folds into the treasury
+  sink** (it is never left unissued).
 - **TREASURY** → the fixed treasury share **plus** every unpaid remainder above.
 
 A `Credit` is inert accounting: it grants no salience, no vote weight, no
