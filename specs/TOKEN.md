@@ -71,6 +71,8 @@ Every slot's issuance is split by the reward router — seven shares in basis po
 
 Reward accounting on the protocol path runs through the seed faculty `reward_accounting_sense` (opcode `SUM_REWARDS`) — a K5 kernel primitive, not authored code (G3, G4).
 
+The concrete per-slot crediting of real accounts for space, pins, and compute — the `reward_slot(...)` router, the four `*_SHARE_CHRONONS` integer shares, the node/home credit ledger, and `chronarch rewards inspect` — is specified in [REWARDS.md](REWARDS.md). It credits the same Chronos chronons (not a second token), keeps Chronos out of Challenge and Ballot legality, and never changes Hearth salience or the lottery. The abstract seven-share table above is unchanged by it.
+
 ---
 
 ## 5. Deposits

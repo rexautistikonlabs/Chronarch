@@ -142,6 +142,14 @@ class Node:
         self.last_slot_header: dict | None = None
         self.slot_headers: list[dict] = []  # the infusion chain, in order
 
+        # Phase 14: a node-local Chronos credit ledger (blood, not consensus).
+        # Every produced (won) slot credits space/pin/compute/treasury accounts;
+        # credits grant no salience, no vote weight, no lottery weight. Home
+        # nodes also persist to home/rewards.jsonl. `compute_receipts` buffers
+        # attested compute receipts for the next produced slot.
+        self.reward_credits: list[dict] = []
+        self.compute_receipts: list = []
+
         # Phase 12: optional on-disk CAS pin lane bound to the SpaceSeal's
         # cas_root. A pin failure is an I3 nervous event, never a space defect.
         self.pin_dir = pin_dir
@@ -155,6 +163,10 @@ class Node:
         if self._home is not None:
             if resuming:
                 self._resume_from_home()
+                # Phase 14: reload the persisted Chronos credit ledger so the
+                # resumed node reports the same totals (rewards are appended,
+                # never replayed through the Timechain).
+                self.reward_credits = self._home.read_rewards()
             else:
                 # Fresh home: record identity + the boot-ok receipt, and copy
                 # the farmed .cseal in so a resume can reopen it. The ledger is
@@ -413,6 +425,10 @@ class Node:
         self.slot_headers.append(slot_header)
         self._home_append({"t": "slot_header", "slot_header": slot_header})
         self._accept_header(header)
+        # Phase 14: credit this winning slot. Rewards are a separate ledger —
+        # they do not enter the gossip messages, the consensus ring, or any
+        # legality decision.
+        self._issue_slot_reward(slot, leader)
         return [
             # SlotHeader first: a follower verifies the proof before applying
             # the slot ring, and rejects the slot if it fails.
@@ -422,6 +438,43 @@ class Node:
              "height": ring["height"], "ring_hash": ring_hash(ring)},
             {"kind": "header", "header": header, "leader": leader},
         ]
+
+    # -- Chronos issuance (Phase 14) ---------------------------------------
+    def submit_compute_receipt(self, receipt) -> None:
+        """Buffer an attested compute receipt (a DummyMind/gym job) for the
+        next won slot. A receipt names its worker account; it is inert data,
+        never a Challenge/Ballot input."""
+        self.compute_receipts.append(receipt)
+
+    def _issue_slot_reward(self, slot: int, leader: str) -> list[dict]:
+        """Credit space/pin/compute/treasury for a slot this node won. Records
+        the credits in the node ledger (and home/rewards.jsonl when home is
+        set). Never touches Hearth, salience, vote weight, or the lottery."""
+        from chronarch_core import reward_slot
+        # A pin-ok farmer earns the pin share; a pin-failing (or unconfigured
+        # but committed) node is NOT paid the pin share (pin-fail-still-paid is
+        # a rejected idea). This node can only vouch its own pin health.
+        pin_ok_ids = [leader] if self.verify_pins(slot=slot)["ok"] else []
+        receipts = self.compute_receipts
+        self.compute_receipts = []  # consumed this slot
+        credits = reward_slot(slot, leader, pin_ok_ids=pin_ok_ids,
+                              compute_receipts=receipts)
+        recorded = []
+        for credit in credits:
+            entry = credit.as_dict()
+            self.reward_credits.append(entry)
+            if self._home is not None:
+                self._home.append_reward(entry)
+            recorded.append(entry)
+        return recorded
+
+    def reward_totals(self) -> dict:
+        """Totals by reason (space|pin|compute|treasury) over this node's
+        credit ledger, plus the last slot credited."""
+        from chronarch_core import totals_by_reason
+        last_slot = max((c["slot"] for c in self.reward_credits), default=None)
+        return {"totals": totals_by_reason(self.reward_credits),
+                "last_slot": last_slot, "credits": len(self.reward_credits)}
 
     def _accept_header(self, header: dict) -> None:
         self.headers.append(header)

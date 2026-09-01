@@ -560,6 +560,57 @@ the layout; pointers from FARMER.md and PINS.md.
 16 new tests (316 total; 300 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof); K18 AST scan clean.
 
+## Phase 14 — Chronos issuance for space, pins, and compute
+
+Chronos is **blood, not conscience** (G2). A flat per-winning-slot emission
+credits real accounts for space, pins, and compute — and pays nothing for
+judgment. specs/REWARDS.md; pointer from TOKEN.md §4. The existing
+`chronarch_core.rewards` was **extended** (no second token): the abstract K12
+`REWARD_ROUTER_BPS` + halving `route_slot_reward`/`slot_issuance_chronons` are
+unchanged; Phase 14 adds `reward_slot` beside them.
+
+- **Emission** (new constants in `chronarch_spec.constants`, NOT in the kernel
+  manifest — genesis hashes unchanged): `SLOT_REWARD_CHRONONS = 64` chronos
+  splits into `SPACE_SHARE=40` (leader), `PIN_SHARE=12` (pin-ok farmers),
+  `COMPUTE_SHARE=8` (attested receipts), `TREASURY_SHARE=4` (sink). Integers
+  only; a kernel-adjacent assert pins the sum.
+- **Router** `reward_slot(slot, leader_id, pin_ok_ids=[], compute_receipts=[])
+  -> list[Credit]`, `Credit={account, amount, reason∈{space,pin,compute,
+  treasury}, slot}`. SPACE always to the leader; PIN split across pin-ok
+  farmers (0 to any farmer when pins_ok is false); COMPUTE split across
+  receipts' workers; unpaid pin/compute shares and floor-division dust fold
+  into `chronos:treasury` (a sink, not a key), so every slot mints exactly
+  SLOT_REWARD. `Credit(reason="ballot_yes")` is rejected outright.
+- **Documented choice**: a slot with no compute receipt sends COMPUTE to the
+  treasury (never left unissued).
+- **Node/home ledger**: `produce_slot` credits the won slot into
+  `node.reward_credits`; a home node also appends to `home/rewards.jsonl` and
+  reloads it on resume. `submit_compute_receipt` buffers an attested receipt
+  for the next won slot. The reward ledger is never gossiped, never sealed into
+  the Timechain, and never replayed through the frozen chain (the economic ring
+  body carries no credit list).
+- **CLI**: `chronarch rewards inspect --home DIR` → `{totals, last_slot,
+  credits}` (reads rewards.jsonl directly; BAD_HOME on an uninitialized dir).
+
+### Rejected (kept rejected)
+
+- **Chronos-for-Challenge** — no. `judge_challenge(challenge, replay, attestors)`
+  has nowhere to put Chronos; a `chronos=`/`reward=` kwarg is a TypeError
+  (tested). A reward can never flip a Challenge outcome (G2/G10).
+- **Chronos-for-Ballot** — no. Ballot legality is unchanged; no reward reason
+  names a vote, and `Credit(reason="ballot_yes")` is rejected. Rewards never
+  enter vote weight or salience (Hearth position unchanged after a credit —
+  tested), and never change lottery winners (tested).
+- **Pin-fail-still-paid** — no. A pin-failing farmer is never in `pin_ok_ids`,
+  so it earns SPACE but no PIN; the unpaid pin share folds to treasury.
+- **Float emission** — no. Every share and split is integer chronons; dust to
+  the sink, so nothing is minted or lost.
+- **AMM / Hearth split change / chiapos / Council features / paying the
+  prevention modality** — all out of scope.
+
+23 new tests (339 total; 316 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

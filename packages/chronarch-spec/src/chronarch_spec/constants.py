@@ -48,6 +48,23 @@ REWARD_ROUTER_BPS = {
 }
 assert sum(REWARD_ROUTER_BPS.values()) == 10000
 
+# Phase 14 — Chronos issuance for space, pins, and compute (concrete per-slot
+# credit split). Chronos is blood, not conscience (G2): NONE of these shares
+# reward a Challenge pass, a Ballot yes, self-PoQ, an LLM draft, or a hat role.
+# Integers only — no floats. This is a flat per-winning-slot emission credited
+# to real accounts; it does NOT alter the abstract K12 REWARD_ROUTER_BPS or the
+# halving schedule above (changing either stays M4). These constants are NOT
+# part of the kernel manifest (genesis params/hashes are unchanged).
+SLOT_REWARD_CHRONONS = 64 * CHRONONS_PER_CHRONOS        # per winning slot
+SPACE_SHARE_CHRONONS = 40 * CHRONONS_PER_CHRONOS        # -> slot leader (homage to XCH farming)
+PIN_SHARE_CHRONONS = 12 * CHRONONS_PER_CHRONOS          # -> split across pin-ok farmers
+COMPUTE_SHARE_CHRONONS = 8 * CHRONONS_PER_CHRONOS       # -> attested compute receipts
+TREASURY_SHARE_CHRONONS = 4 * CHRONONS_PER_CHRONOS      # -> protocol sink (NOT an admin key)
+assert (SPACE_SHARE_CHRONONS + PIN_SHARE_CHRONONS + COMPUTE_SHARE_CHRONONS
+        + TREASURY_SHARE_CHRONONS) == SLOT_REWARD_CHRONONS
+REWARD_TREASURY_ACCOUNT = "chronos:treasury"  # a protocol sink account, never a key
+REWARD_REASONS = ("space", "pin", "compute", "treasury")
+
 # ---------------------------------------------------------------------------
 # Hearth (K13): one lock, two legs.
 # ---------------------------------------------------------------------------

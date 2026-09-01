@@ -43,6 +43,7 @@ class NodeHome:
         self.log_path = os.path.join(self.ledger_dir, "log.jsonl")
         self.head_path = os.path.join(self.ledger_dir, "head.json")
         self.boot_path = os.path.join(path, "boot.json")
+        self.rewards_path = os.path.join(path, "rewards.jsonl")
 
     # -- lifecycle ----------------------------------------------------------
     def is_initialized(self) -> bool:
@@ -137,6 +138,32 @@ class NodeHome:
     def write_head(self, head_state: dict) -> None:
         _atomic_write(self.head_path,
                       json.dumps(head_state, sort_keys=True).encode("utf-8"))
+
+    def append_reward(self, credit: dict) -> None:
+        """Append one Chronos credit to home/rewards.jsonl. Separate from the
+        ledger log — rewards are blood, not consensus, and are never replayed
+        into the Timechain."""
+        with open(self.rewards_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(credit, sort_keys=True) + "\n")
+
+    def read_rewards(self) -> list[dict]:
+        """Parse the reward ledger (may be absent for a node that never won a
+        slot). A malformed tail line fails closed, like the ledger log."""
+        if not os.path.exists(self.rewards_path):
+            return []
+        out: list[dict] = []
+        with open(self.rewards_path, "r", encoding="utf-8") as f:
+            for lineno, raw in enumerate(f, start=1):
+                line = raw.rstrip("\n")
+                if line == "":
+                    continue
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise HomeError(
+                        f"truncated/corrupt reward ledger at line {lineno}: {exc}") from None
+                out.append(obj)
+        return out
 
     def copy_space_seal(self, src_path: str) -> None:
         """Copy the farmed .cseal into the home so a resume can reopen it even

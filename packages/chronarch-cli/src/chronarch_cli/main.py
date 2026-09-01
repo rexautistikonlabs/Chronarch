@@ -227,6 +227,37 @@ def _cmd_home(args) -> int:
     return 1
 
 
+def _cmd_rewards(args) -> int:
+    # Chronos credit ledger tooling (Phase 14). `inspect` reads
+    # home/rewards.jsonl directly (no ledger replay) and reports totals by
+    # reason + the last slot credited. JSON out.
+    import os
+
+    from chronarch_core import totals_by_reason
+    from chronarch_node import HomeError, NodeHome
+
+    if args.rewards_verb == "inspect":
+        home = NodeHome(args.home)
+        if not home.is_initialized():
+            _print({"ok": False, "error_code": "BAD_HOME",
+                    "result": {"detail": f"no node home at {args.home}"}})
+            return 1
+        try:
+            credits = home.read_rewards()
+        except HomeError as exc:
+            _print({"ok": False, "error_code": "BAD_REWARDS",
+                    "result": {"detail": str(exc)}})
+            return 1
+        last_slot = max((c["slot"] for c in credits), default=None)
+        _print({"ok": True, "result": {
+            "totals": totals_by_reason(credits),
+            "last_slot": last_slot, "credits": len(credits)}})
+        return 0
+
+    _print({"ok": False, "error_code": "UNKNOWN_VERB"})
+    return 1
+
+
 def _cmd_agent(args) -> int:
     # Thin: boot a Chronarch-Prime agent in-process and run one verb. Always
     # JSON out. The CLI never injects an LLM, so the mind is DummyMind (the
@@ -276,6 +307,12 @@ def build_parser() -> argparse.ArgumentParser:
     h_inspect = home_sub.add_parser("inspect", help="resume a home read-only and report state")
     h_inspect.add_argument("--home", required=True)
     h_inspect.set_defaults(func=_cmd_home, home_verb="inspect")
+
+    rewards = sub.add_parser("rewards", help="Chronos credit ledger tooling; JSON out")
+    rewards_sub = rewards.add_subparsers(dest="rewards_verb", required=True)
+    r_inspect = rewards_sub.add_parser("inspect", help="totals by reason + last slot credited")
+    r_inspect.add_argument("--home", required=True)
+    r_inspect.set_defaults(func=_cmd_rewards, rewards_verb="inspect")
 
     agent = sub.add_parser("agent", help="agent runtime (DummyMind; JSON out)")
     agent_sub = agent.add_subparsers(dest="agent_verb", required=True)

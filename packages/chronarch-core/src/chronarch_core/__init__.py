@@ -8,7 +8,13 @@ from .challenge import is_consensus_grade, judge_challenge, make_challenge
 from .executor import ExecutorError, run_faculty
 from .registry import FacultyRegistry, InertFacultyError, RegistryError, faculty_code_hash
 from .pinstore import PinError, PinStore, pinset_root
-from .rewards import route_slot_reward, slot_issuance_chronons
+from .rewards import (
+    Credit,
+    reward_slot,
+    route_slot_reward,
+    slot_issuance_chronons,
+    totals_by_reason,
+)
 
 __all__ = [
     "ALLOWED_TX_TYPES",
@@ -34,6 +40,9 @@ __all__ = [
     "faculty_code_hash",
     "route_slot_reward",
     "slot_issuance_chronons",
+    "reward_slot",
+    "Credit",
+    "totals_by_reason",
     "PinStore",
     "PinError",
     "pinset_root",
