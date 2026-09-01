@@ -1,9 +1,15 @@
-# PHASE8_POST.md — Research-Grade Proof-of-Time + CHIP-48-Shaped Fields
+# PHASE8_POST.md — Research-Grade Proof-of-Time + Header Fields
+
+> **Canonical names live in [CHRONARCH_POST.md](CHRONARCH_POST.md).** Phase 9
+> renamed the header fields to Chronarch names (`filter_bits`, `extra_weight`,
+> `time_proof`); this file is build history. Chia inspired the body;
+> **Chronarch does not implement CHIP-48** and claims no Chia mainnet
+> compatibility.
 
 Phase 8 adds a **test-group Wesolowski VDF** (real prove/verify, toy modulus),
-**CHIP-48-shaped** header field names (layout only), and a **VDF time chain**.
-It stays a research fork: no chia-blockchain vendored, no mainnet, no
-production cryptography, and the VDF still does not vote.
+explicit header field names (layout only), and a **VDF time chain**. It stays
+a research fork: no chia-blockchain vendored, no mainnet, no production
+cryptography, and the VDF still does not vote.
 
 Status: v0. The SequentialVDF (Phase 7) remains the **default** header time
 check; Wesolowski is an optional field. FROZEN-MVP values change only via
@@ -34,19 +40,22 @@ is a stand-in for tests. Tampering `y`, `pi`, `iterations`, the input, or the
 API: `prove(input_bytes, iterations) -> {y, pi, iterations, group_id}` and
 `verify(input_bytes, proof) -> bool`.
 
-## 2. What is naming (CHIP-48-shaped fields)
+## 2. Header field names (Chronarch-native as of Phase 9)
 
-The SlotHeader now exposes these field names explicitly:
+The SlotHeader exposes these field names. Phase 9 renamed them to Chronarch
+names (canonical in [CHRONARCH_POST.md](CHRONARCH_POST.md)); the Phase-8
+names are shown as the deprecated form:
 
-- `plot_filter_bits` — the filter strength (Phase 7's `FILTER_PREFIX_BITS`);
-- `quality_string` — the winning quality (also inside the ProofOfSpace);
-- `infused_challenge` — the infused challenge (Phase 7);
-- `extra_delta` — a `uint`, default 0, **inert**: it MUST NOT change the
-  lottery, and a negative value is rejected.
+- `filter_bits` (was `plot_filter_bits`) — the filter strength
+  (`FILTER_PREFIX_BITS`);
+- `quality_string` — the winning quality (also inside the SpaceProof);
+- `infused_challenge` — the Pulse (infused challenge, Phase 7);
+- `extra_weight` (was `extra_delta`) — a `uint`, default 0, **inert**: it
+  MUST NOT change the lottery, and a negative value is rejected.
 
-These names **rhyme with CHIP-48 / PoST 2.0 research notes** so a future
-phase has an obvious mapping. They are **NOT a CHIP-48 implementation** and
-this fork makes **no claim of Chia mainnet compatibility**.
+Chia's PoST research inspired the *shapes* of these fields, but they are
+Chronarch's own objects: **Chronarch does not implement CHIP-48 or PoST
+2.0**, and this fork makes no claim of Chia mainnet compatibility.
 
 ## 3. VDF time chain
 
@@ -64,11 +73,11 @@ clock, and the VDF still does not vote.
 
 ## 4. Optional Wesolowski proof on the header
 
-`wesolowski_proof` is an **optional** SlotHeader field:
+`time_proof` (was `wesolowski_proof`) is an **optional** SlotHeader field:
 
 - absent (`None`) → the header is still valid (backward compatible);
 - present → the follower verifies it over the `infused_challenge`; a garbled
-  proof is rejected (`SLOT_HEADER_WESOLOWSKI_INVALID`).
+  proof is rejected (`SLOT_HEADER_TIME_PROOF_INVALID`).
 
 The node attaches it only when asked (`with_wesolowski=True`); by default it
 is off. The lottery ignores the field either way (tested: identical winners
@@ -84,14 +93,14 @@ peering with Chia mainnet or testnet.
 
 - The lottery: space-weighted + prestress-gated; equal `space_units` still
   elect identical leaders (tested). Wesolowski, the SequentialVDF time chain,
-  and `extra_delta` are per-slot header checks on the already-elected leader.
+  and `extra_weight` are per-slot header checks on the already-elected leader.
 - `verify_plot_proof(proof, commitment)` and `verify_pospace(pospace,
   space_units)` signatures; the default Phase-6 backend; the Phase-7 infusion
   formula and `FILTER_PREFIX_BITS` default behavior.
 - The frozen kernel, admission, Council, Hearth, challenge judgment, and the
   agent silo/hat layer.
 
-## 7. Phase-9 non-goals (explicit)
+## 7. Later-phase non-goals (explicit)
 
 - a real class-group VDF (production Wesolowski/Pietrzak over an RSA or class
   group);

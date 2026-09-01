@@ -5,12 +5,18 @@
 > plot filter, and a sequential-time VDF, and adds an optional real-tables
 > backend seam — see [PHASE7_POST.md](PHASE7_POST.md). None of that changes
 > the lottery or the frozen signatures below.
+>
+> **Phase 9 note.** The canonical Chronarch names for these objects
+> (SpaceSeal / SpaceProof / Pulse / Filter / TimeSeal / TimeProof) live in
+> [CHRONARCH_POST.md](CHRONARCH_POST.md). Chia inspired the body; Chronarch
+> does not implement CHIP-48.
 
 Phase 6 replaces the farm's plot-proof **verification body** with a
 real-enough, deterministic local Proof-of-Space verifier, and adds the
 Chia-family body fields to a node-level SlotHeader. It does **not** vendor
-chia-blockchain, claim CHIP-48 / mainnet compatibility, or change the
-lottery, Council, Hearth, admission, or the agent silo/hat layer.
+chia-blockchain, does **not** implement CHIP-48, does **not** claim Chia
+mainnet compatibility, and does not change the lottery, Council, Hearth,
+admission, or the agent silo/hat layer.
 
 > Plots prove space. CAS stores memory. The VDF does not vote.
 
@@ -67,7 +73,7 @@ Deferred, and deliberately not built here:
 
 - real Chia plot tables and a genuine proof-of-space search;
 - CHIP-48 / PoST 2.0;
-- infused challenge/reward blocks and Chia mainnet header compatibility;
+- no infused challenge/reward blocks and no Chia mainnet header compatibility;
 - a real VDF (Wesolowski/Pietrzak) and wall-clock slot timing;
 - any connection to Chia mainnet or foreign chains.
 

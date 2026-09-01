@@ -7,7 +7,11 @@ real-tables backend seam. Still a research fork: no chia-blockchain
 vendored, no mainnet, no Wesolowski/Pietrzak.
 
 Status: v0. FROZEN-MVP values (`FILTER_PREFIX_BITS`, VDF iteration bounds)
-change only via Proposal + Ballot (G14).
+change only via Proposal + Ballot (G14). **Canonical Chronarch names for
+these objects live in [CHRONARCH_POST.md](CHRONARCH_POST.md)** (the infused
+challenge chain is the **Pulse**, the plot filter is the **Filter**, the
+sequential VDF is the **TimeSeal**). Chia inspired the body; Chronarch does
+not implement CHIP-48.
 
 > Plots prove space. CAS stores memory. The VDF does not vote.
 

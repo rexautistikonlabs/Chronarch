@@ -41,6 +41,21 @@ from .infusion import (
     verify_sequential_vdf,
 )
 from . import wesolowski
+from . import post
+from .post import (
+    filter_ok,
+    genesis_pulse,
+    make_space_proof,
+    make_space_seal,
+    make_time_proof,
+    make_time_seal,
+    next_pulse,
+    verify_pulse,
+    verify_space_proof,
+    verify_space_seal,
+    verify_time_proof,
+    verify_time_seal,
+)
 from .chiapos_backend import (
     BACKEND_CHIAPOS,
     BACKEND_STANDIN,
@@ -86,6 +101,20 @@ __all__ = [
     "timechain_vdf_input",
     # Phase 8 Wesolowski test-group VDF (optional)
     "wesolowski",
+    # Phase 9 Chronarch-native PoST façade (canonical names)
+    "post",
+    "make_space_seal",
+    "verify_space_seal",
+    "make_space_proof",
+    "verify_space_proof",
+    "filter_ok",
+    "genesis_pulse",
+    "next_pulse",
+    "verify_pulse",
+    "make_time_seal",
+    "verify_time_seal",
+    "make_time_proof",
+    "verify_time_proof",
     # Phase 7 optional real-tables backend (off by default)
     "active_backend",
     "chiapos_available",

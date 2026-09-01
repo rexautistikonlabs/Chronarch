@@ -1,17 +1,21 @@
-"""Phase 6/7/8 — the node's SlotHeader extension (research-fork path).
+"""The node's SlotHeader — Chronarch-native space/time body.
 
-A node-level object, separate from the frozen kernel `Header`. Layers:
+Canonical primitive names (see specs/CHRONARCH_POST.md):
 
-  Phase 6: PlotCommitment + local ProofOfSpace stand-in.
-  Phase 7: infused challenge chain, plot filter, SequentialVDF.
-  Phase 8: CHIP-48-SHAPED fields (naming only — NOT a CHIP-48 implementation,
-           NOT mainnet compatible), a VDF time chain (the SequentialVDF input
-           commits to the previous slot's VDF output), and an OPTIONAL
-           Wesolowski test-group proof.
+  SpaceSeal    = the PlotCommitment (+ space_units, optional cas_root)
+  SpaceProof   = the ProofOfSpace (challenge, plot_id, proof_bytes, quality)
+  Pulse        = the infused challenge chain
+  Filter       = quality prefix bits           -> field `filter_bits`
+  TimeSeal     = the SequentialVDF on discrete slots
+  TimeProof    = the optional Wesolowski-style proof (test group) -> `time_proof`
+  extra_weight = a lottery-INERT header field   -> field `extra_weight`
 
-The lottery is unchanged and ignores every field here: neither the VDF, the
-Wesolowski proof, nor `extra_delta` changes the elected leader. The VDF does
-not vote; slots stay discrete (no wall clock).
+Chia inspired the body; Chronarch owns these objects and does not implement
+CHIP-48. The lottery ignores every field here — the VDF does not vote, and
+`extra_weight` cannot change a winner. Slots stay discrete (no wall clock).
+
+Backward compat: `extra_delta=` / `with_wesolowski=` kwargs remain aliases
+for `extra_weight=` / `with_time_proof=`.
 """
 from __future__ import annotations
 
@@ -33,15 +37,15 @@ from chronarch_farm import (
 )
 from chronarch_spec import chash
 
-# Wesolowski test-group proof iterations (small; optional field).
-WESOLOWSKI_ITERATIONS = 64
+# Optional TimeProof iterations (small; the field is off by default).
+TIME_PROOF_ITERATIONS = 64
 
 _SLOT_HEADER_FIELDS = (
     "slot", "leader", "plot_id", "space_units", "plot_commitment_hash",
     "infused_challenge", "prev_quality", "pospace", "plot_filter_ok", "vdf",
-    # Phase 8 CHIP-48-shaped + time-chain + optional Wesolowski fields:
-    "plot_filter_bits", "quality_string", "extra_delta", "prev_vdf_output",
-    "wesolowski_proof",
+    # Chronarch-native names (Phase 9 canonical):
+    "filter_bits", "quality_string", "extra_weight", "prev_vdf_output",
+    "time_proof",
 )
 
 
@@ -65,23 +69,29 @@ def build_slot_header(*, slot: int, leader: str, commitment: dict,
                       space_units: int, prev_slot_header: dict | None = None,
                       prev_header_hash: str = "", vdf_placeholder=None,
                       vdf_iterations: int = DEFAULT_VDF_ITERATIONS,
-                      extra_delta: int = 0, with_wesolowski: bool = False) -> dict:
-    """Leader-side. `prev_header_hash`/`vdf_placeholder` are accepted for
-    call-compat but superseded. `wesolowski_proof` is OPTIONAL (off by
-    default): a header without it is still valid."""
+                      extra_weight: int = 0, extra_delta: int | None = None,
+                      with_time_proof: bool = False,
+                      with_wesolowski: bool | None = None) -> dict:
+    """Leader-side. `extra_delta=` and `with_wesolowski=` are accepted as
+    aliases for `extra_weight=` and `with_time_proof=`."""
     verify_plot_commitment(commitment)
+    # Resolve deprecated aliases.
+    if extra_delta is not None:
+        extra_weight = extra_delta
+    if with_wesolowski is not None:
+        with_time_proof = with_wesolowski
+
     challenge, prev_quality = _challenge_for(slot, prev_slot_header)
     proof = make_pospace(commitment["plot_id"], challenge, space_units,
                          filter_prefix_bits=FILTER_PREFIX_BITS)
     quality = proof["quality_string"]
 
-    # Phase 8 time chain: the VDF input commits to the previous VDF output.
     prev_vdf_output = _prev_vdf_output(prev_slot_header)
     vdf_input = timechain_vdf_input(challenge, prev_vdf_output)
     vdf = make_sequential_vdf(vdf_input, vdf_iterations)
 
-    wesolowski_proof = (
-        wesolowski.prove(challenge, WESOLOWSKI_ITERATIONS) if with_wesolowski else None)
+    time_proof = (
+        wesolowski.prove(challenge, TIME_PROOF_ITERATIONS) if with_time_proof else None)
 
     return {
         "slot": slot,
@@ -94,31 +104,29 @@ def build_slot_header(*, slot: int, leader: str, commitment: dict,
         "pospace": proof,
         "plot_filter_ok": plot_filter_ok(quality),
         "vdf": vdf,
-        # Phase 8 fields:
-        "plot_filter_bits": FILTER_PREFIX_BITS,
+        "filter_bits": FILTER_PREFIX_BITS,
         "quality_string": quality,
-        "extra_delta": int(extra_delta),
+        "extra_weight": int(extra_weight),
         "prev_vdf_output": prev_vdf_output,
-        "wesolowski_proof": wesolowski_proof,
+        "time_proof": time_proof,
     }
 
 
 def verify_slot_header(slot_header: dict, *, space_units: int,
                        prev_slot_header: dict | None = None) -> dict:
     """Follower-side: returns {ok, error_code}. Fails closed on a missing
-    field. The VDF, Wesolowski proof, and extra_delta never change the
-    elected leader."""
+    field. The TimeSeal, TimeProof, and extra_weight never change the winner."""
     if not isinstance(slot_header, dict) or set(slot_header) != set(_SLOT_HEADER_FIELDS):
         return {"ok": False, "error_code": "SLOT_HEADER_BAD_STRUCTURE"}
     if not slot_header["plot_commitment_hash"]:
         return {"ok": False, "error_code": "SLOT_HEADER_NO_PLOT_COMMITMENT"}
 
-    # extra_delta must be a uint and is otherwise inert (it does not vote).
-    delta = slot_header["extra_delta"]
-    if not isinstance(delta, int) or isinstance(delta, bool) or delta < 0:
-        return {"ok": False, "error_code": "SLOT_HEADER_BAD_EXTRA_DELTA"}
+    # extra_weight must be a uint and is otherwise inert (it does not vote).
+    weight = slot_header["extra_weight"]
+    if not isinstance(weight, int) or isinstance(weight, bool) or weight < 0:
+        return {"ok": False, "error_code": "SLOT_HEADER_BAD_EXTRA_WEIGHT"}
 
-    # Infused challenge chain.
+    # Pulse: infused challenge chain.
     expected_challenge, expected_prev_q = _challenge_for(
         slot_header["slot"], prev_slot_header)
     if slot_header["infused_challenge"] != expected_challenge:
@@ -132,9 +140,9 @@ def verify_slot_header(slot_header: dict, *, space_units: int,
     if pospace.get("challenge") != slot_header["infused_challenge"]:
         return {"ok": False, "error_code": "SLOT_HEADER_CHALLENGE_MISMATCH"}
 
-    # Plot filter — fail closed. plot_filter_bits cannot claim a weaker filter,
-    # and quality_string must match the ProofOfSpace.
-    if slot_header["plot_filter_bits"] != FILTER_PREFIX_BITS:
+    # Filter — fail closed. filter_bits cannot claim a weaker filter, and
+    # quality_string must match the SpaceProof.
+    if slot_header["filter_bits"] != FILTER_PREFIX_BITS:
         return {"ok": False, "error_code": "SLOT_HEADER_FILTER_BITS_MISMATCH"}
     quality = pospace.get("quality_string", "")
     if slot_header["quality_string"] != quality:
@@ -148,8 +156,8 @@ def verify_slot_header(slot_header: dict, *, space_units: int,
     if not result["ok"]:
         return {"ok": False, "error_code": result["error_code"]}
 
-    # Phase 8 time chain: prev_vdf_output must match the follower's own prev,
-    # and the SequentialVDF input must commit to it.
+    # TimeSeal chain: prev_vdf_output must match, and the SequentialVDF input
+    # must commit to it.
     expected_prev_vdf = _prev_vdf_output(prev_slot_header)
     if slot_header["prev_vdf_output"] != expected_prev_vdf:
         return {"ok": False, "error_code": "SLOT_HEADER_PREV_VDF_MISMATCH"}
@@ -160,11 +168,11 @@ def verify_slot_header(slot_header: dict, *, space_units: int,
     if not verify_sequential_vdf(slot_header["vdf"]):
         return {"ok": False, "error_code": "SLOT_HEADER_VDF_INVALID"}
 
-    # OPTIONAL Wesolowski proof: verify iff present; absent is still valid.
-    weso = slot_header["wesolowski_proof"]
-    if weso is not None:
-        if not wesolowski.verify(slot_header["infused_challenge"], weso):
-            return {"ok": False, "error_code": "SLOT_HEADER_WESOLOWSKI_INVALID"}
+    # OPTIONAL TimeProof: verify iff present; absent is still valid.
+    time_proof = slot_header["time_proof"]
+    if time_proof is not None:
+        if not wesolowski.verify(slot_header["infused_challenge"], time_proof):
+            return {"ok": False, "error_code": "SLOT_HEADER_TIME_PROOF_INVALID"}
 
     return {"ok": True, "error_code": "SLOT_HEADER_OK"}
 

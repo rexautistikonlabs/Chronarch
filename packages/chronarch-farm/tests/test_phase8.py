@@ -49,26 +49,26 @@ def _header(slot, commitment, units, prev=None, **kw):
                              space_units=units, prev_slot_header=prev, **kw)
 
 
-def test_header_valid_without_wesolowski_proof():
+def test_header_valid_without_time_proof():
     c = make_plot_commitment("n", "test")
     sh = _header(1, c, 100)
-    assert sh["wesolowski_proof"] is None
+    assert sh["time_proof"] is None
     assert verify_slot_header(sh, space_units=100, prev_slot_header=None)["ok"]
 
 
 def test_header_with_valid_optional_proof_accepted():
     c = make_plot_commitment("n", "test")
     sh = _header(1, c, 100, with_wesolowski=True)
-    assert sh["wesolowski_proof"] is not None
+    assert sh["time_proof"] is not None
     assert verify_slot_header(sh, space_units=100, prev_slot_header=None)["ok"]
 
 
 def test_header_with_garbled_optional_proof_rejected():
     c = make_plot_commitment("n", "test")
     sh = _header(1, c, 100, with_wesolowski=True)
-    garbled = dict(sh, wesolowski_proof=dict(sh["wesolowski_proof"], y=0))
+    garbled = dict(sh, time_proof=dict(sh["time_proof"], y=0))
     assert verify_slot_header(garbled, space_units=100,
-                              prev_slot_header=None)["error_code"] == "SLOT_HEADER_WESOLOWSKI_INVALID"
+                              prev_slot_header=None)["error_code"] == "SLOT_HEADER_TIME_PROOF_INVALID"
 
 
 # --------------------------------------------- CHIP-48-shaped fields ---------
@@ -76,11 +76,11 @@ def test_header_with_garbled_optional_proof_rejected():
 def test_chip48_shaped_fields_present():
     c = make_plot_commitment("n", "test")
     sh = _header(1, c, 100)
-    for field in ("plot_filter_bits", "quality_string", "infused_challenge", "extra_delta"):
+    for field in ("filter_bits", "quality_string", "infused_challenge", "extra_weight"):
         assert field in sh
     assert sh["quality_string"] == sh["pospace"]["quality_string"]
     from chronarch_farm import FILTER_PREFIX_BITS
-    assert sh["plot_filter_bits"] == FILTER_PREFIX_BITS
+    assert sh["filter_bits"] == FILTER_PREFIX_BITS
 
 
 def test_extra_delta_does_not_change_lottery_winners():
@@ -98,12 +98,22 @@ def test_extra_delta_does_not_change_lottery_winners():
         assert verify_slot_header(d9, space_units=fleet[winner], prev_slot_header=None)["ok"]
 
 
-def test_negative_extra_delta_rejected():
+def test_negative_extra_weight_rejected():
     c = make_plot_commitment("n", "test")
     sh = _header(1, c, 100)
-    bad = dict(sh, extra_delta=-1)
+    bad = dict(sh, extra_weight=-1)
     assert verify_slot_header(bad, space_units=100,
-                              prev_slot_header=None)["error_code"] == "SLOT_HEADER_BAD_EXTRA_DELTA"
+                              prev_slot_header=None)["error_code"] == "SLOT_HEADER_BAD_EXTRA_WEIGHT"
+
+
+def test_extra_delta_kwarg_alias_still_works():
+    # The deprecated extra_delta= kwarg maps onto the canonical extra_weight.
+    c = make_plot_commitment("n", "test")
+    sh = build_slot_header(slot=1, leader="n", commitment=c, space_units=100,
+                           prev_slot_header=None, extra_delta=7)
+    assert sh["extra_weight"] == 7
+    assert "extra_delta" not in sh  # canonical field only
+    assert verify_slot_header(sh, space_units=100, prev_slot_header=None)["ok"]
 
 
 # ------------------------------------------------------ VDF time chain -------

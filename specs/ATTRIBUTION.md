@@ -34,11 +34,18 @@ diagnoses, and no clinical scoring instruments.
 
 Plot-elected farmers and a VDF/slot clock follow the Chia Network
 consensus physics. The MVP abstracts space units and stubs slots; the
-Phase 6 target is header extensions on a Chia-family **research fork**
+research fork adds header extensions
 (`economic_state_root`, `cognitive_state_root`, `poq_attestation_root`,
 `cas_availability_root`, `gym_attestation_root`, `hearth_root`,
 `council_root`, `nervous_root`), not a claim on Chia mainnet. Plots prove
 space; they never store rings, embeddings, or weights.
+
+**Chia inspired the body; Chronarch owns the objects.** Chronarch's
+space/time primitives (SpaceSeal, SpaceProof, Pulse, Filter, TimeSeal,
+TimeProof — see [CHRONARCH_POST.md](CHRONARCH_POST.md)) are Chronarch's own.
+Chronarch **does not implement CHIP-48 or PoST 2.0**, does not vendor or
+git-submodule chia-blockchain, and claims no Chia mainnet compatibility. We
+credit the concept and own the implementation.
 
 The Hearth's "two birds" design is an **homage** to $XCH farming and $CPHY
 lock/salience mechanics — it wraps neither asset.

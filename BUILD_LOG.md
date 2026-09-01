@@ -371,6 +371,41 @@ time check, and the frozen signatures/backends are unchanged.
 16 new tests (233 total; 217 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof); K18 AST scan clean.
 
+## Phase 9 — Chronarch-native farm/time body (names + façade)
+
+Makes the space/time body Chronarch's own. Additive: no lottery math, no
+difficulty/infusion byte changes, no frozen-signature changes.
+
+- `specs/CHRONARCH_POST.md`: canonical primitives in our names — SpaceSeal
+  (PlotCommitment), SpaceProof (ProofOfSpace), Pulse (infused challenge
+  chain), Filter (quality prefix bits), TimeSeal (SequentialVDF), TimeProof
+  (optional Wesolowski), `extra_weight` (lottery-inert). The law in one
+  paragraph.
+- `chronarch_farm.post`: a thin farmer-facing façade — make/verify space
+  seal, space proof, pulse, time seal, time proof — composing the frozen
+  pospace / infusion / wesolowski internals. No new lottery math.
+- SlotHeader canonical field rename: `plot_filter_bits → filter_bits`,
+  `extra_delta → extra_weight`, `wesolowski_proof → time_proof`. The
+  deprecated **kwargs** (`extra_delta=`, `with_wesolowski=`) still work as
+  aliases; the emitted header carries only canonical names.
+- Docs scrubbed: PHASE6/7/8 point at CHRONARCH_POST.md for canonical names;
+  ATTRIBUTION credits Chia for the concept and states Chronarch owns the
+  objects and **does not implement CHIP-48**. A test greps specs/README and
+  fails on any positive CHIP-48 / PoST 2.0 / Chia-mainnet compatibility claim.
+
+### Rejected (kept rejected)
+
+- **Chia submodule / vendored tree** — no. Optional `chiapos` pip extra only.
+- **"CHIP-48 / mainnet compatible"** — no. Chia inspired the body; Chronarch
+  owns the objects and implements no CHIP-48; no mainnet/testnet peering. A
+  grep test guards the claim.
+- **Plots-as-DB** — still no. A SpaceSeal stores space proofs only.
+- **VDF-as-vote** — still no. TimeSeal/TimeProof/`extra_weight` are inert to
+  the lottery.
+
+10 new tests (243 total; 233 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

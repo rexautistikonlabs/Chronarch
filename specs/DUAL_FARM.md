@@ -146,12 +146,15 @@ direction.
 
 ## 7. Phase boundary
 
-Phase 4 ends where physics begins. Explicitly out of scope, deferred to
-Phase 6's Chia-family research fork: CHIP-48 / PoST 2.0, chia-blockchain
-as a submodule, VDF/timelord infrastructure, infused blocks, header fields
-for time proofs, and any Chia mainnet compatibility. The adapter is built
-so that swap happens behind `verify_plot_proof` without touching the
-lottery, the size-table contract, or any frozen kernel file.
+Phase 4 ends where physics begins. The later research fork adds the real-enough
+verifier body and the space/time objects — whose **canonical names live in
+[CHRONARCH_POST.md](CHRONARCH_POST.md)** (SpaceSeal / SpaceProof / Pulse /
+Filter / TimeSeal / TimeProof). Explicitly out of scope: Chronarch **does not
+implement CHIP-48 or PoST 2.0**, does not vendor chia-blockchain as a
+submodule, does not build VDF/timelord infrastructure or Chia infused blocks,
+and claims no Chia mainnet compatibility. The adapter is built so that swap
+happens behind `verify_plot_proof` without touching the lottery, the
+size-table contract, or any frozen kernel file.
 
 ---
 
