@@ -108,6 +108,10 @@ error and never creates a home.
 
 ---
 
+One command runs the whole organism on a home — farm, pin-check, attest
+compute, credit Chronos — and reports: `chronarch pulse --home DIR`. See
+[PULSE.md](PULSE.md).
+
 See [FARMER.md](FARMER.md) for booting from a `.cseal`, [PINS.md](PINS.md) for
 the pin lane a home reopens, and [SPACEFILE.md](SPACEFILE.md) for why a space
 file never holds the ledger.

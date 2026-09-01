@@ -660,6 +660,43 @@ untouched (reused, not forked).
 29 new tests (368 total; 339 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
 
+## Phase 16 — the organism pulse
+
+One command runs the whole organism on a home: farm a slot, check pins, attest
+a DummyMind compute job, credit Chronos, and report. specs/PULSE.md; README
+"Run a pulse"; pointers from HOME.md and REWARDS.md. New module
+`chronarch_node.pulse` + CLI `pulse` verb + `python -m chronarch_cli`
+entrypoint; everything else is reused (lottery, verify_pins, attest_compute,
+reward_slot all unchanged).
+
+- **`pulse(home, *, space_path=None, slots=3, identity="chronarch-pulse")`**:
+  open/init the home (abstract TEST units with no `.cseal`; a file's farmer_id
+  names a fresh organism), self-bond the node's own Hearth position, refresh
+  the gym cadence with a self-challenge, then for each slot attest+submit a
+  DummyMind receipt (a live seed faculty replayed on a CAS input) and
+  produce_slot. Returns `{identity, height, won_slots, credits_by_reason,
+  pins_ok, i3, head_hash}`. Deterministic — no wall clock, no randomness beyond
+  the lottery. verify_pins/I3 is reported but never aborts the pulse.
+- On resume, `--space` that disagrees with what the home recorded is
+  **SPACE_UNITS_MISMATCH** (the home stays authoritative for space).
+- **CLI**: `chronarch pulse --home DIR [--space path.cseal] [--slots N]` → JSON;
+  error codes BAD_HOME / SPACE_UNITS_MISMATCH / BAD_SPACE / COMPUTE_UNATTESTED.
+
+### Rejected (kept rejected)
+
+- **Pulse-as-admin** — no. The pulse self-bonds its OWN Hearth position and
+  drives only frozen machinery; there is no admin key, founder key, or helm
+  override, and no privileged verb.
+- **Pulse-self-enact** — no. It never registers a live faculty and never
+  submits a proposal (tested: the registry holds only seed faculties and the
+  ledger carries only economic rings). Upgrades stay Proposal + Ballot (G4/G15).
+- **Credits-on-chain** — no. Credits go to home/rewards.jsonl only; the
+  consensus log carries no `reason`/credit entry (tested). Chronos is never
+  sealed into the Timechain.
+
+13 new tests (381 total; 368 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

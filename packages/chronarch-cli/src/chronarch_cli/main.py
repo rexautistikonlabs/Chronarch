@@ -227,6 +227,35 @@ def _cmd_home(args) -> int:
     return 1
 
 
+def _cmd_pulse(args) -> int:
+    # The organism pulse (Phase 16): one deterministic loop that farms, checks
+    # pins, attests a DummyMind compute job, and credits Chronos on a home.
+    # JSON out. Existing error codes: BAD_HOME / SPACE_UNITS_MISMATCH /
+    # COMPUTE_UNATTESTED / BAD_SPACE.
+    from chronarch_farm import SpaceFileError
+    from chronarch_node import NodeError, pulse
+
+    try:
+        result = pulse(args.home, space_path=args.space, slots=args.slots)
+    except NodeError as exc:
+        detail = str(exc)
+        if "SPACE_UNITS_MISMATCH" in detail:
+            code = "SPACE_UNITS_MISMATCH"
+        elif "COMPUTE_UNATTESTED" in detail or "compute receipt" in detail:
+            code = "COMPUTE_UNATTESTED"
+        elif "space file" in detail or "bad space" in detail:
+            code = "BAD_SPACE"
+        else:
+            code = "BAD_HOME"
+        _print({"ok": False, "error_code": code, "result": {"detail": detail}})
+        return 1
+    except (SpaceFileError, OSError, ValueError) as exc:
+        _print({"ok": False, "error_code": "BAD_SPACE", "result": {"detail": str(exc)}})
+        return 1
+    _print({"ok": True, "result": result})
+    return 0
+
+
 def _cmd_compute(args) -> int:
     # Attest and submit a compute receipt against a home node (Phase 15). The
     # node builds the receipt honestly (running a DummyMind faculty or a gym
@@ -361,6 +390,14 @@ def build_parser() -> argparse.ArgumentParser:
     h_inspect = home_sub.add_parser("inspect", help="resume a home read-only and report state")
     h_inspect.add_argument("--home", required=True)
     h_inspect.set_defaults(func=_cmd_home, home_verb="inspect")
+
+    pulse = sub.add_parser("pulse", help="run one organism pulse on a home; JSON out")
+    pulse.add_argument("--home", required=True)
+    pulse.add_argument("--space", default=None,
+                       help=".cseal path to farm (abstract TEST units if omitted)")
+    pulse.add_argument("--slots", type=int, default=3,
+                       help="slots to run (this identity wins its own slots)")
+    pulse.set_defaults(func=_cmd_pulse)
 
     compute = sub.add_parser("compute", help="attest + submit compute receipts; JSON out")
     compute_sub = compute.add_subparsers(dest="compute_verb", required=True)

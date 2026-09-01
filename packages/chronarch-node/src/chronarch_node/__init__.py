@@ -9,6 +9,7 @@ from .cluster import STEWARD_LOCK_CHRONONS, Cluster
 from .home import NodeHome
 from .leader import plot_challenge_proof, slot_leader, verify_leader
 from .node import HomeError, Node, NodeError
+from .pulse import pulse
 from .slotheader import (
     SlotHeaderError,
     build_slot_header,
@@ -25,6 +26,7 @@ __all__ = [
     "NodeError",
     "HomeError",
     "NodeHome",
+    "pulse",
     "slot_leader",
     "verify_leader",
     "plot_challenge_proof",

@@ -91,6 +91,11 @@ JSON out: `{totals: {space, pin, compute, treasury}, last_slot, credits}`. It
 reads `home/rewards.jsonl` directly (no ledger replay). An uninitialized home
 is `BAD_HOME`; a home that never won a slot reports empty totals.
 
+To *earn* credits in one command — farm a slot, attest a compute job, and write
+the credits — run a pulse: `chronarch pulse --home DIR` ([PULSE.md](PULSE.md)).
+The pulse writes only to this blood ledger; it never seals a credit into the
+Timechain.
+
 ## 6. What Phase 14 is not
 
 Not an AMM. Not a change to the Hearth 50/50 lock split or the salience clamp.

@@ -46,6 +46,24 @@ kernel blob with no privileged setup):
 pytest            # conftest.py wires packages/*/src onto sys.path
 ```
 
+### Run a pulse
+
+One command runs the whole organism on a durable home — farm a slot, check
+pins, attest a DummyMind compute job, and credit Chronos — and prints a JSON
+summary. It is deterministic (no wall clock, no randomness beyond the lottery)
+and needs no install:
+
+```
+python -m venv .venv && . .venv/bin/activate     # optional; no dependencies to install
+export PYTHONPATH="$(ls -d packages/*/src | tr '\n' ':')"
+python -m chronarch_cli pulse --home /tmp/chronarch-home
+```
+
+Re-running against the same `--home` resumes the same organism and extends the
+ledger. The pulse never uses an admin key, never creates a live faculty or a
+proposal, and never seals a Chronos credit into the Timechain — see
+[specs/PULSE.md](specs/PULSE.md).
+
 What the suite proves today (the Phase-0/Phase-1 testing bar):
 
 - kernel + disk + compute → `boot-ok` with **zero extra keys**; the golden
