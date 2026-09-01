@@ -44,7 +44,9 @@ weights, embedding vectors, CAS blobs of any kind. "Plots as a database" is
 a rejected idea (BUILD_LOG.md): stuffing memory into plot tables destroys
 both the space proof and the data model. The Timechain is JSONL-shaped
 state on the CAS lane and in node storage — putting it inside a `.plot`
-file is a category error, not an optimization.
+file is a category error, not an optimization. The CAS lane's on-disk form
+is the pin lane ([PINS.md](PINS.md)); a withheld pin there is an I3 nervous
+event, never a space defect.
 
 **The one bridge — `cas_root`.** A plot id MAY commit to a `cas_root`: a
 hash of the farmer's advertised pinset (`cas_root_of` in

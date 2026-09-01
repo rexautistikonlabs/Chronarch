@@ -81,5 +81,9 @@ No rings inside the space file — a `.cseal` stores space, never memory.
 
 ---
 
+A node may also bind a disk pin lane with `pin_dir=` — a withheld pin is an
+I3 nervous event that never stops the node farming space; see
+[PINS.md](PINS.md).
+
 See [SPACEFILE.md](SPACEFILE.md) for the file format and
 [CHRONARCH_POST.md](CHRONARCH_POST.md) for the canonical primitive names.

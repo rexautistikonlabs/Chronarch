@@ -476,6 +476,41 @@ valid for any node/test that passes no file.
 17 new tests (278 total; 261 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof); K18 AST scan clean.
 
+## Phase 12 — on-disk CAS pin lane bound to SpaceSeal.cas_root
+
+An on-disk pin store (the CAS lane on disk), bound to a farmer's SpaceSeal by
+the `cas_root` commitment. Additive: no lottery/space-proof/frozen changes.
+
+- `chronarch_core.PinStore(dir)`: `put(bytes, kind="object"|"opaque") -> hash`
+  (K18-screens any bytes that parse as a consensus object — a forbidden object
+  cannot be smuggled in even as opaque), `get -> bytes|None`, `verify`,
+  `pins`, `cas_root`, `withhold`. `pinset_root(hashes) = chash("CasRoot",
+  {"pins": sorted})` — a domain-separated sorted-list hash matching the frozen
+  `cas_root_of`, so a PinStore binds to the SpaceSeal it commits to.
+- `chronarch_farm.verify_pins(space_seal, pin_store, slot=)`:
+  `PINS_OK` / `PIN_MISMATCH` (tampered object) / `PIN_MISSING` (withheld pin).
+  A failure emits an **I3 RestrictionState** (nervous) and never invalidates
+  the `.cseal`, never changes lottery winners, never slashes space.
+- `Node(..., pin_dir=)`: optional; `health()` gains a `pins` block. Withholding
+  a pin after boot → next health is `PIN_MISSING` + I3; the node keeps running
+  and keeps farming space.
+- CLI: `chronarch pins put|get|verify` (the group is `pins`; `pin` is already a
+  node-RPC verb). specs/PINS.md; pointers from DUAL_FARM.md, SPACEFILE.md,
+  FARMER.md.
+
+### Rejected (kept rejected)
+
+- **CAS inside a .cseal body** — no. The pin lane is a separate directory; a
+  `.cseal` body is reserved zeros and never holds blobs; the Timechain is not
+  a hidden plot in the pin dir.
+- **Pin failure slashing space** — no. A withheld/tampered pin is an I3
+  nervous event only; the space proof and the `.cseal` are untouched.
+- **Pin failure flipping the lottery** — no. The pin lane is never consulted
+  by the space-weighted draw (tested: identical winners present vs withheld).
+
+22 new tests (300 total; 278 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

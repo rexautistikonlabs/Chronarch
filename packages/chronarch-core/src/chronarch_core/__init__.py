@@ -7,6 +7,7 @@ from .chain import ChainError, Timechain, resume_append, ring_hash
 from .challenge import is_consensus_grade, judge_challenge, make_challenge
 from .executor import ExecutorError, run_faculty
 from .registry import FacultyRegistry, InertFacultyError, RegistryError, faculty_code_hash
+from .pinstore import PinError, PinStore, pinset_root
 from .rewards import route_slot_reward, slot_issuance_chronons
 
 __all__ = [
@@ -33,4 +34,7 @@ __all__ = [
     "faculty_code_hash",
     "route_slot_reward",
     "slot_issuance_chronons",
+    "PinStore",
+    "PinError",
+    "pinset_root",
 ]

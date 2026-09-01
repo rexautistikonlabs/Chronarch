@@ -43,6 +43,8 @@ from .infusion import (
 from . import wesolowski
 from . import post
 from . import spacefile
+from . import pins
+from .pins import PINS_OK, PIN_MISMATCH, PIN_MISSING, verify_pins
 from .spacefile import (
     CSEAL_EXT,
     TEST_BODY_BYTES,
@@ -136,6 +138,12 @@ __all__ = [
     "SpaceFileError",
     "CSEAL_EXT",
     "TEST_BODY_BYTES",
+    # Phase 12 pin lane binding
+    "pins",
+    "verify_pins",
+    "PINS_OK",
+    "PIN_MISSING",
+    "PIN_MISMATCH",
     # Phase 7 optional real-tables backend (off by default)
     "active_backend",
     "chiapos_available",

@@ -144,6 +144,51 @@ def _cmd_farm(args) -> int:
     return 1
 
 
+def _cmd_pin(args) -> int:
+    # On-disk CAS pin lane tooling. JSON out.
+    from chronarch_core import PinError, PinStore
+    from chronarch_spec import SchemaError
+
+    if args.pin_verb == "put":
+        store = PinStore(args.dir)
+        with open(args.file, "rb") as f:
+            data = f.read()
+        try:
+            digest = store.put(data, kind=args.kind)
+        except (PinError, SchemaError) as exc:
+            _print({"ok": False, "error_code": "PIN_REJECTED",
+                    "result": {"detail": str(exc)}})
+            return 1
+        _print({"ok": True, "result": {"hash": digest, "kind": args.kind,
+                                       "bytes": len(data)}})
+        return 0
+
+    if args.pin_verb == "get":
+        store = PinStore(args.dir)
+        data = store.get(args.hash)
+        found = data is not None
+        _print({"ok": found, "result": {"found": found,
+                                        "bytes": len(data) if found else 0,
+                                        "verified": store.verify(args.hash) if found else False}})
+        return 0 if found else 1
+
+    if args.pin_verb == "verify":
+        from chronarch_farm import read_space_seal, verify_pins
+        store = PinStore(args.dir)
+        try:
+            seal = read_space_seal(args.space)
+        except Exception as exc:
+            _print({"ok": False, "error_code": "BAD_SPACE", "result": {"detail": str(exc)}})
+            return 1
+        result = verify_pins(seal, store)
+        _print({"ok": result["ok"], "result": {"code": result["code"],
+                                                "i3": result["restriction"]}})
+        return 0 if result["ok"] else 1
+
+    _print({"ok": False, "error_code": "UNKNOWN_VERB"})
+    return 1
+
+
 def _cmd_agent(args) -> int:
     # Thin: boot a Chronarch-Prime agent in-process and run one verb. Always
     # JSON out. The CLI never injects an LLM, so the mind is DummyMind (the
@@ -207,6 +252,22 @@ def build_parser() -> argparse.ArgumentParser:
     f_prove.add_argument("path")
     f_prove.add_argument("--challenge", required=True)
     f_prove.set_defaults(func=_cmd_farm, farm_verb="prove")
+
+    pin = sub.add_parser("pins", help="on-disk CAS pin lane; JSON out")
+    pin_sub = pin.add_subparsers(dest="pin_verb", required=True)
+    p_put = pin_sub.add_parser("put", help="store an object/blob, return its hash")
+    p_put.add_argument("--dir", required=True)
+    p_put.add_argument("--file", required=True)
+    p_put.add_argument("--kind", choices=("object", "opaque"), default="object")
+    p_put.set_defaults(func=_cmd_pin, pin_verb="put")
+    p_get = pin_sub.add_parser("get", help="fetch an object by hash")
+    p_get.add_argument("--dir", required=True)
+    p_get.add_argument("--hash", required=True)
+    p_get.set_defaults(func=_cmd_pin, pin_verb="get")
+    p_verify = pin_sub.add_parser("verify", help="verify a pin dir against a .cseal cas_root")
+    p_verify.add_argument("--space", required=True)
+    p_verify.add_argument("--dir", required=True)
+    p_verify.set_defaults(func=_cmd_pin, pin_verb="verify")
 
     return parser
 

@@ -59,7 +59,8 @@ class Node:
                  council: CouncilState | None = None,
                  space_table: dict[str, int] | None = None,
                  space_path: str | None = None,
-                 space_seal: dict | None = None) -> None:
+                 space_seal: dict | None = None,
+                 pin_dir: str | None = None) -> None:
         self.identity = identity
         # Phase 11: a farmer may boot from a .cseal SpaceSeal file. The file is
         # the source of truth for space_units; if abstract units are ALSO
@@ -113,6 +114,25 @@ class Node:
             self.plot_commitment = commitment_for_node(identity, self.cas)
         self.last_slot_header: dict | None = None
         self.slot_headers: list[dict] = []  # the infusion chain, in order
+
+        # Phase 12: optional on-disk CAS pin lane bound to the SpaceSeal's
+        # cas_root. A pin failure is an I3 nervous event, never a space defect.
+        self.pin_dir = pin_dir
+        if pin_dir is not None:
+            from chronarch_core import PinStore
+            self.pin_store = PinStore(pin_dir)
+        else:
+            self.pin_store = None
+
+    def verify_pins(self, *, slot: int = 0) -> dict:
+        """Check the pin lane against the SpaceSeal's cas_root. Returns
+        {ok, code, restriction}; an unconfigured node is trivially PINS_OK.
+        A PIN_MISSING/PIN_MISMATCH is nervous (I3) — it never invalidates the
+        space file and never changes lottery winners."""
+        from chronarch_farm import PINS_OK, verify_pins as _verify_pins
+        if self.pin_store is None:
+            return {"ok": True, "code": PINS_OK, "restriction": None}
+        return _verify_pins(self.plot_commitment, self.pin_store, slot=slot)
 
     @staticmethod
     def _resolve_file_seal(space_path: str | None, space_seal: dict | None) -> dict | None:
@@ -400,7 +420,12 @@ class Node:
         slot = int(params.get("slot", self.boot["chain"].height))
         vector = epoch_tick(self.boot, slot=slot)
         self.last_health = vector
-        return vector
+        if self.pin_store is None:
+            return vector
+        # Additive pin health (does not alter the sealed HealthVector object).
+        pins = self.verify_pins(slot=slot)
+        return {**vector, "pins": {"ok": pins["ok"], "code": pins["code"],
+                                   "i3": pins["restriction"]}}
 
     # tx admission, so a CLI can prove override rejection end to end.
     def _rpc_submit_tx(self, params: dict) -> dict:
