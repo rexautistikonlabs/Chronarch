@@ -6,8 +6,9 @@ verbs (init, seal, verify, pin, challenge, propose, ballot, health).
 Everything routes through the frozen kernel machinery.
 """
 from .cluster import STEWARD_LOCK_CHRONONS, Cluster
+from .home import NodeHome
 from .leader import plot_challenge_proof, slot_leader, verify_leader
-from .node import Node, NodeError
+from .node import HomeError, Node, NodeError
 from .slotheader import (
     SlotHeaderError,
     build_slot_header,
@@ -22,6 +23,8 @@ __all__ = [
     "STEWARD_LOCK_CHRONONS",
     "Node",
     "NodeError",
+    "HomeError",
+    "NodeHome",
     "slot_leader",
     "verify_leader",
     "plot_challenge_proof",

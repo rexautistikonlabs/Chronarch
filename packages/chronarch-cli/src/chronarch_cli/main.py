@@ -24,27 +24,40 @@ def _print(obj: object) -> None:
     print(json.dumps(obj, indent=2, sort_keys=True))
 
 
-def build_node_from_space(identity, space, compute):
+def build_node_from_space(identity, space, compute, home=None):
     """`--space` is a .cseal path when it ends with .cseal, else abstract
-    integer units. A bad/missing file raises NodeError (JSON error to caller)."""
+    integer units. A bad/missing file raises NodeError (JSON error to caller).
+
+    With `--home`, a durable node is booted: on an existing home the space
+    (and identity) are recovered from it, so `--space` may be omitted; a fresh
+    home still needs a `--space` (a file to copy in, or units to record)."""
     from chronarch_node import Node
 
+    kwargs = {"compute_units": compute}
+    if home is not None:
+        kwargs["home"] = home
+    if space is None:
+        return Node(identity, **kwargs)  # resume: home is the source of truth
     if isinstance(space, str) and space.endswith(".cseal"):
-        return Node(identity, space_path=space, compute_units=compute)
-    return Node(identity, int(space), compute_units=compute)
+        return Node(identity, space_path=space, **kwargs)
+    return Node(identity, int(space), **kwargs)
 
 
 def _cmd_serve(args) -> int:
     from chronarch_node import NodeError, RpcServer
 
+    space = args.space
+    if space is None and args.home is None:
+        space = "100"  # no home and no --space: the historic abstract default
     try:
-        node = build_node_from_space(args.identity, args.space, args.compute)
+        node = build_node_from_space(args.identity, space, args.compute, home=args.home)
     except NodeError as exc:
         _print({"ok": False, "error_code": "BAD_SPACE", "result": {"detail": str(exc)}})
         return 1
     server = RpcServer(node.rpc, host=args.host, port=args.port).start()
-    _print({"serving": args.identity, "host": server.host, "port": server.port,
+    _print({"serving": node.identity, "host": server.host, "port": server.port,
             "space_units": node.space_units, "space_path": node.space_path,
+            "home": args.home, "height": node.ledger.height,
             "boot_ok": node.boot["report"]["boot_ok"]})
     try:
         server._thread.join()  # block until killed
@@ -189,6 +202,31 @@ def _cmd_pin(args) -> int:
     return 1
 
 
+def _cmd_home(args) -> int:
+    # Durable node home tooling (Phase 13). `inspect` resumes a home read-only
+    # and reports its height, pin health, and farmed space. JSON out.
+    from chronarch_node import Node, NodeError
+
+    if args.home_verb == "inspect":
+        try:
+            # Identity is recovered from the home; the placeholder is ignored on
+            # resume. Inspecting an uninitialized home is a BAD_HOME error and
+            # never creates one.
+            node = Node("_inspect_", home=args.home)
+        except NodeError as exc:
+            _print({"ok": False, "error_code": "BAD_HOME",
+                    "result": {"detail": str(exc)}})
+            return 1
+        pins = node.verify_pins()
+        _print({"ok": True, "result": {
+            "identity": node.identity, "height": node.ledger.height,
+            "pins_ok": pins["ok"], "space_units": node.space_units}})
+        return 0
+
+    _print({"ok": False, "error_code": "UNKNOWN_VERB"})
+    return 1
+
+
 def _cmd_agent(args) -> int:
     # Thin: boot a Chronarch-Prime agent in-process and run one verb. Always
     # JSON out. The CLI never injects an LLM, so the mind is DummyMind (the
@@ -209,8 +247,11 @@ def build_parser() -> argparse.ArgumentParser:
     serve = sub.add_parser("serve", help="boot a node and serve RPC")
     serve.add_argument("--identity", default="node-0")
     # --space is abstract integer units, OR a path ending in .cseal to farm
-    # from an on-disk SpaceSeal file.
-    serve.add_argument("--space", default="100")
+    # from an on-disk SpaceSeal file. With --home on an existing home it may be
+    # omitted (the home's space wins); without --home it defaults to 100 units.
+    serve.add_argument("--space", default=None)
+    serve.add_argument("--home", default=None,
+                       help="durable node home dir (persist + resume as the same organism)")
     serve.add_argument("--compute", type=int, default=8)
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8731)
@@ -229,6 +270,12 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--port", type=int, default=8731)
         p.add_argument("--json", default="", help="JSON params object")
         p.set_defaults(func=_cmd_rpc, verb=verb)
+
+    home = sub.add_parser("home", help="durable node home tooling; JSON out")
+    home_sub = home.add_subparsers(dest="home_verb", required=True)
+    h_inspect = home_sub.add_parser("inspect", help="resume a home read-only and report state")
+    h_inspect.add_argument("--home", required=True)
+    h_inspect.set_defaults(func=_cmd_home, home_verb="inspect")
 
     agent = sub.add_parser("agent", help="agent runtime (DummyMind; JSON out)")
     agent_sub = agent.add_subparsers(dest="agent_verb", required=True)

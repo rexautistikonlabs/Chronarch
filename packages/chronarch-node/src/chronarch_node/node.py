@@ -52,6 +52,11 @@ class NodeError(ValueError):
     pass
 
 
+class HomeError(NodeError):
+    """A durable-home problem (Phase 13): corrupt layout, truncated ledger, or
+    a kernel / Ring 0 hash that drifts from the recorded genesis."""
+
+
 class Node:
     def __init__(self, identity: str, space_units: int | None = None, *,
                  compute_units: int = 8, kernel: dict | None = None,
@@ -60,7 +65,29 @@ class Node:
                  space_table: dict[str, int] | None = None,
                  space_path: str | None = None,
                  space_seal: dict | None = None,
-                 pin_dir: str | None = None) -> None:
+                 pin_dir: str | None = None,
+                 home: str | None = None) -> None:
+        # Phase 13: a durable home makes a stopped node come back as the same
+        # organism. The home is authoritative for identity and (when present)
+        # the space file; a resuming node replays home/ledger through the
+        # frozen Timechain and reopens home/pins.
+        self._home = None
+        self._persist_enabled = False
+        resuming = False
+        if home is not None:
+            from .home import NodeHome
+            self._home = NodeHome(home)
+            if self._home.is_initialized():
+                resuming = True
+                identity = self._home.read_identity()  # the home names the organism
+                if space_path is None and space_seal is None and self._home.has_space_seal():
+                    space_path = self._home.space_seal_path
+                elif space_path is None and space_seal is None and space_units is None:
+                    # An abstract (fileless) home resumes at its recorded weight.
+                    space_units = self._home.read_space_units()
+            if pin_dir is None:
+                pin_dir = self._home.pins_dir  # the home's canonical CAS pin lane
+
         self.identity = identity
         # Phase 11: a farmer may boot from a .cseal SpaceSeal file. The file is
         # the source of truth for space_units; if abstract units are ALSO
@@ -124,6 +151,26 @@ class Node:
         else:
             self.pin_store = None
 
+        # Phase 13: wire durable persistence last, once boot + ledger are ready.
+        if self._home is not None:
+            if resuming:
+                self._resume_from_home()
+            else:
+                # Fresh home: record identity + the boot-ok receipt, and copy
+                # the farmed .cseal in so a resume can reopen it. The ledger is
+                # JSONL node state — it is NEVER written into a .cseal.
+                self._home.initialize(self.identity, self.boot["report"], self.space_units)
+                if self.space_path is not None and self.space_path != self._home.space_seal_path:
+                    self._home.copy_space_seal(self.space_path)
+                # Abstract home node: persist its boot CAS onto the disk pin
+                # lane so the organism honors its own cas_root across a restart
+                # (a later withhold is then a real I3). A file-backed node's
+                # cas_root is the .cseal's own commitment — its pin lane stays
+                # operator-managed (Phase 12), so we never overwrite it here.
+                if self._file_seal is None and self.pin_store is not None:
+                    self._mirror_boot_cas()
+            self._persist_enabled = True  # append-on-write starts now
+
     def verify_pins(self, *, slot: int = 0) -> dict:
         """Check the pin lane against the SpaceSeal's cas_root. Returns
         {ok, code, restriction}; an unconfigured node is trivially PINS_OK.
@@ -133,6 +180,112 @@ class Node:
         if self.pin_store is None:
             return {"ok": True, "code": PINS_OK, "restriction": None}
         return _verify_pins(self.plot_commitment, self.pin_store, slot=slot)
+
+    # -- durable home: persist + resume (Phase 13) -------------------------
+    def _home_append(self, entry: dict, *, head: bool = False) -> None:
+        """Append one ledger object to home/ledger (no-op for an in-memory
+        node, so tests stay fast). `head=True` also refreshes the O(1) resume
+        commitment after the ledger advanced."""
+        if self._home is None or not self._persist_enabled:
+            return
+        self._home.append(entry)
+        if head:
+            self._home.write_head(self.ledger.head_state())
+
+    def _persist_ring(self, msg: dict) -> None:
+        self._home_append({
+            "t": "ring", "ring_type": msg["ring_type"], "body": msg["body"],
+            "author": msg["author"], "slot": msg["slot"],
+            "witnesses": msg.get("witnesses", []),
+            "height": msg["height"], "ring_hash": msg["ring_hash"],
+        }, head=True)
+
+    def _mirror_boot_cas(self) -> None:
+        """Copy every boot-CAS object onto the disk pin lane. CAS and PinStore
+        hash identically (hash_bytes of canonical bytes), so the mirrored
+        PinStore.cas_root() equals the node's committed cas_root."""
+        from chronarch_core import PinError
+        for digest in self.cas.pins():
+            data = self.cas.get(digest)
+            try:
+                self.pin_store.put(data, kind="object")
+            except PinError:
+                self.pin_store.put(data, kind="opaque")
+
+    def _resume_from_home(self) -> None:
+        """Replay the durable home into this freshly-booted node. Fail closed:
+        a kernel/Ring 0 drift, a truncated/hash-broken log, or a head
+        commitment that disagrees with the replayed rings all raise."""
+        home = self._home
+        stored = home.read_boot()
+        cur = self.boot["report"]
+        if (stored.get("ring0_hash") != cur["ring0_hash"]
+                or stored.get("kernel_hash") != cur["kernel_hash"]):
+            raise HomeError(
+                "HOME_KERNEL_MISMATCH: home genesis kernel/Ring 0 differs from "
+                "this node's kernel — refusing to resume under a different kernel")
+        for entry in home.read_log():  # read_log fails closed on a broken tail
+            kind = entry.get("t")
+            if kind == "ring":
+                self._replay_ring(entry)
+            elif kind == "header":
+                self._replay_header(entry)
+            elif kind == "slot_header":
+                self._replay_slot_header(entry)
+            elif kind == "challenge":
+                self._apply_challenge(
+                    {"result": entry["result"], "slot": entry.get("slot", 0)})
+            else:
+                raise HomeError(f"unknown ledger entry type {kind!r} on resume")
+        # O(1) resume commitment (Timechain head_state). A committed head BEYOND
+        # the replayed rings means the log lost its tail (truncation); a hash
+        # that differs at the committed height means a fork. A head that merely
+        # lagged (a crash between the ring append and the head refresh) is not
+        # corruption — the extra rings were each hash-checked above.
+        head = home.read_head()
+        if head is not None:
+            committed_height, committed_hash = head["height"], head["head_hash"]
+            if committed_height > self.ledger.height:
+                raise HomeError(
+                    "ledger head commitment is beyond the replayed rings — "
+                    "refusing to resume a truncated chain")
+            if self.ledger.hash_at(committed_height) != committed_hash:
+                raise HomeError(
+                    "ledger head commitment does not match the replayed chain "
+                    "— refusing to resume a forked chain")
+
+    def _replay_ring(self, entry: dict) -> None:
+        if entry.get("height") != self.ledger.height + 1:
+            raise HomeError(f"ledger log out of order near height {entry.get('height')}")
+        try:
+            ring = self.ledger.seal(
+                entry["ring_type"], entry["body"], author=entry["author"],
+                slot=entry["slot"], witnesses=entry.get("witnesses", []))
+        except (KeyError, ValueError) as exc:
+            raise HomeError(f"corrupt ledger ring on resume: {exc}") from None
+        if ring_hash(ring) != entry.get("ring_hash"):
+            raise HomeError(
+                f"ledger ring hash mismatch at height {ring['height']} — "
+                "refusing to resume a corrupt chain")
+
+    def _replay_header(self, entry: dict) -> None:
+        header = entry["header"]
+        validate("Header", header)
+        if header["prev_header_hash"] != self.last_header_hash:
+            raise HomeError("ledger header link broken on resume")
+        self._accept_header(header)
+
+    def _replay_slot_header(self, entry: dict) -> None:
+        from .slotheader import verify_slot_header
+        slot_header = entry["slot_header"]
+        leader = slot_header.get("leader")
+        result = verify_slot_header(
+            slot_header, space_units=self.space_table.get(leader, 0),
+            prev_slot_header=self.last_slot_header)
+        if not result["ok"]:
+            raise HomeError(f"stored slot header invalid on resume: {result['error_code']}")
+        self.last_slot_header = slot_header
+        self.slot_headers.append(slot_header)
 
     @staticmethod
     def _resolve_file_seal(space_path: str | None, space_seal: dict | None) -> dict | None:
@@ -242,6 +395,10 @@ class Node:
         body = {"event": "slot", "slot": slot, "leader": leader,
                 "issuance": slot_issuance_chronons(slot)}
         ring = self.ledger.seal("economic", body, author=leader, slot=slot)
+        self._persist_ring({
+            "ring_type": "economic", "body": body, "author": leader,
+            "slot": slot, "witnesses": [], "height": ring["height"],
+            "ring_hash": ring_hash(ring)})
         header = self.build_header(slot, leader)
         # Phase 6: attach a valid ProofOfSpace SlotHeader for this slot. The
         # difficulty uses the farmer's declared space (the same units the
@@ -254,6 +411,7 @@ class Node:
             prev_slot_header=self.last_slot_header)  # infusion chain
         self.last_slot_header = slot_header
         self.slot_headers.append(slot_header)
+        self._home_append({"t": "slot_header", "slot_header": slot_header})
         self._accept_header(header)
         return [
             # SlotHeader first: a follower verifies the proof before applying
@@ -268,6 +426,7 @@ class Node:
     def _accept_header(self, header: dict) -> None:
         self.headers.append(header)
         self.last_header_hash = self.header_hash(header)
+        self._home_append({"t": "header", "header": header})
 
     # -- gossip apply (follower path) --------------------------------------
     def on_gossip(self, sender: str, message: dict) -> None:
@@ -297,6 +456,7 @@ class Node:
             raise NodeError(f"slot rejected: {result['error_code']}")
         self.last_slot_header = slot_header
         self.slot_headers.append(slot_header)
+        self._home_append({"t": "slot_header", "slot_header": slot_header})
 
     def _apply_ring(self, msg: dict) -> None:
         # Apply only the next ring in order; re-seal it identically and check
@@ -311,6 +471,7 @@ class Node:
         if ring_hash(ring) != msg["ring_hash"]:
             raise NodeError(
                 f"gossiped ring hash mismatch at height {ring['height']} — rejecting fork")
+        self._persist_ring(msg)
 
     def _apply_header(self, msg: dict) -> None:
         header = msg["header"]
@@ -328,6 +489,8 @@ class Node:
             self.last_challenge = result
             self.last_challenge_pass_slot = max(
                 self.last_challenge_pass_slot, msg.get("slot", 0))
+            self._home_append({"t": "challenge", "result": result,
+                               "slot": msg.get("slot", 0)})
 
     # ------------------------------------------------------------------ RPC
     def rpc(self, method: str, params: dict) -> dict:
@@ -357,6 +520,10 @@ class Node:
         # written, so an admin_key body is rejected here (K18/G17).
         slot = int(params.get("slot", self.ledger.height + 1))
         ring = self.ledger.seal(ring_type, body, author=self.identity, slot=slot)
+        self._persist_ring({
+            "ring_type": ring_type, "body": body, "author": self.identity,
+            "slot": slot, "witnesses": [], "height": ring["height"],
+            "ring_hash": ring_hash(ring)})
         return {"height": ring["height"], "ring_hash": ring_hash(ring),
                 "head_hash": self.ledger.head_hash,
                 "gossip": {"kind": "ring", "ring_type": ring_type, "body": body,
@@ -399,6 +566,7 @@ class Node:
         if result["passed"]:
             self.last_challenge = result
             self.last_challenge_pass_slot = slot
+            self._home_append({"t": "challenge", "result": result, "slot": slot})
         return {"passed": result["passed"],
                 "consensus_grade": is_consensus_grade(result),
                 "gossip": {"kind": "challenge", "result": result, "slot": slot}}

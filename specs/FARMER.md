@@ -85,5 +85,10 @@ A node may also bind a disk pin lane with `pin_dir=` — a withheld pin is an
 I3 nervous event that never stops the node farming space; see
 [PINS.md](PINS.md).
 
+A node may boot with a durable `home=` directory so a stopped node comes back
+as the same organism — the home reopens the `.cseal` (or recovers the abstract
+units), reopens the pin lane, and replays the ledger. The ledger is JSONL node
+state and is **never** stored inside a `.cseal`. See [HOME.md](HOME.md).
+
 See [SPACEFILE.md](SPACEFILE.md) for the file format and
 [CHRONARCH_POST.md](CHRONARCH_POST.md) for the canonical primitive names.

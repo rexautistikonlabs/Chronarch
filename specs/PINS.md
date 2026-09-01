@@ -85,6 +85,12 @@ event.
 
 ---
 
+A node booted with a durable `home=` reopens `home/pins/` as this pin lane on
+resume. An abstract home node mirrors its boot CAS onto that lane so it honors
+its own committed `cas_root`; a file-backed node's lane stays operator-managed
+(its `.cseal` `cas_root` is authoritative). Either way a withheld pin after
+resume is still an I3 event, never a space defect. See [HOME.md](HOME.md).
+
 See [SPACEFILE.md](SPACEFILE.md) for the `.cseal` format,
 [FARMER.md](FARMER.md) for booting from a file, and
 [CHRONARCH_POST.md](CHRONARCH_POST.md) for the canonical names.

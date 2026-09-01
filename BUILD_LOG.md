@@ -511,6 +511,55 @@ the `cas_root` commitment. Additive: no lottery/space-proof/frozen changes.
 22 new tests (300 total; 278 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof); K18 AST scan clean.
 
+## Phase 13 — durable node home + resume
+
+A stopped node comes back as the **same organism**. `Node(..., home=DIR)` (CLI
+`--home`) persists identity, farmed space, the pin lane, and the ledger; a node
+with no home stays fully in-memory (tests stay fast). specs/HOME.md documents
+the layout; pointers from FARMER.md and PINS.md.
+
+- **Layout** (`chronarch_node.home.NodeHome`): `home/identity`,
+  `home/space_units`, `home/space.cseal` (file-backed only — a byte copy),
+  `home/pins/` (PinStore), `home/ledger/log.jsonl` (append-only sealed rings +
+  block headers + slot headers) + `home/ledger/head.json` (the O(1) resume
+  commitment), `home/boot.json` (the BootReport verbatim — **no extra keys**).
+- **Persist**: after `produce_slot` and after applying gossip, every new ring /
+  header / slot header is appended to the log and `head.json` is refreshed.
+  In-memory nodes no-op, so nothing slows down.
+- **Resume**: on an existing home the home is authoritative — identity loaded,
+  `.cseal` reopened (or abstract `space_units` recovered), pin lane reopened,
+  ledger replayed through the frozen Timechain (Ring 0 rebuilt from the current
+  kernel; each stored ring re-sealed and hash-checked; O(1) `head.json`
+  commitment checked last). An abstract home node mirrors its boot CAS onto
+  `home/pins/` so it honors its own `cas_root`; a file-backed node's pin lane
+  stays operator-managed.
+- **Fail closed**: a truncated / corrupt log line, a hash-broken ring, or a
+  `head.json` that disagrees with the replayed rings all raise `HomeError` and
+  the node does not resume. A kernel / Ring 0 hash that drifts from `boot.json`
+  is **`HOME_KERNEL_MISMATCH`** (and a genuinely different-kernel home also
+  fails on the first ring's prev-link). Scars are carried forward, never wiped.
+- **CLI**: `chronarch serve --home DIR [--space ...]` (space optional on an
+  existing home) and `chronarch home inspect --home DIR` → `{identity, height,
+  pins_ok, space_units}` (BAD_HOME on an uninitialized dir, which it never
+  creates).
+
+### Rejected (kept rejected)
+
+- **Ledger inside a .cseal** — no. The ledger is JSONL node state under
+  `home/ledger/`; a `.cseal` body stays reserved zeros and never holds rings
+  (`log.jsonl` starts with JSON, never the `CSL1` magic). "Plots as a database"
+  stays a category error.
+- **Silent kernel drift on resume** — no. A home whose recorded kernel / Ring 0
+  hash differs from the booting kernel is `HOME_KERNEL_MISMATCH`, never a quiet
+  re-genesis onto a new kernel.
+- **Wiping scars on resume** — no. Replay carries the sealed chain forward
+  exactly (G5); resume never prunes history.
+- **Rewards / chiapos here** — no. Reward issuance (Phase 14) and real
+  plot/VDF backends stay out of scope.
+
+16 new tests (316 total; 300 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
