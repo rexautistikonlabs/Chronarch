@@ -89,6 +89,9 @@ job that would not attest — the pulse's own job always attests). All JSON.
 
 ---
 
+To run more than one home and watch them converge, scale the pulse up to a
+two-home local net: `chronarch net --homes DIR1,DIR2` ([NET.md](NET.md)).
+
 See [HOME.md](HOME.md) for the durable layout the pulse opens,
 [REWARDS.md](REWARDS.md) for the credits it writes, and
 [COMPUTE.md](COMPUTE.md) for the attestation its DummyMind job goes through.

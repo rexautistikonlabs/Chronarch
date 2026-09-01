@@ -8,6 +8,7 @@ Everything routes through the frozen kernel machinery.
 from .cluster import STEWARD_LOCK_CHRONONS, Cluster
 from .home import NodeHome
 from .leader import plot_challenge_proof, slot_leader, verify_leader
+from .net import net_run
 from .node import HomeError, Node, NodeError
 from .pulse import pulse
 from .slotheader import (
@@ -27,6 +28,7 @@ __all__ = [
     "HomeError",
     "NodeHome",
     "pulse",
+    "net_run",
     "slot_leader",
     "verify_leader",
     "plot_challenge_proof",

@@ -697,6 +697,49 @@ reward_slot all unchanged).
 13 new tests (381 total; 368 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
 
+## Phase 17 — two-home local net
+
+Two (or N) durable homes gossip slots on the existing in-process bus and
+converge on one head. Still not a public network — one process, N home dirs,
+the InProcessBus. specs/NET.md; pointer from PULSE.md. New module
+`chronarch_node.net` + CLI `net` verb; composes what exists (frozen
+`slot_leader`, the Cluster gossip pattern, `Node(home=)`, attested DummyMind
+receipts) and rewrites none of it.
+
+- **`net_run(homes, slots=6)`**: plan each home (fresh → distinct identity
+  `net-node-i` + distinct abstract units; existing → identity + units recovered
+  from the home), share one HearthState/CouncilState/InProcessBus, self-bond and
+  refresh each node's cadence, then run `slots` rounds — `slot_leader` elects a
+  leader, the leader attests a DummyMind job and `produce_slot` seals + gossips,
+  followers re-seal identically. Each home persists its own ledger + rewards.
+  Returns `{homes:[{identity, height, won_slots, credits_by_reason, head_hash}],
+  leaders, converged}`; `converged` = every home has the same head_hash AND
+  height. Deterministic (only the lottery is stochastic, and it is deterministic
+  per slot+table).
+- **Resume**: a second net_run on the same dirs recovers identities/units and
+  continues from the persisted height; a drifted kernel is still
+  HOME_KERNEL_MISMATCH (fail-closed). Validating a net home in isolation needs
+  the peer space table (the validator set) to replay peer-led slot headers —
+  normal, and net_run supplies it.
+- **CLI**: `chronarch net --homes DIR1,DIR2 [--slots N]` → JSON; codes BAD_HOME
+  / SPACE_UNITS_MISMATCH / HOME_KERNEL_MISMATCH; exits non-zero if not converged.
+- The single-home `pulse()` is untouched (net composes the same primitives).
+
+### Rejected (kept rejected)
+
+- **Public-mainnet** — no. In-process bus only; no TCP discovery, no internet.
+  (The frozen TcpTransport speaks the same envelope as a later opt-in; tests
+  stay on the in-process bus.)
+- **Pulse-as-admin** — no. Each node self-bonds its OWN Hearth position and
+  drives only frozen machinery; no key, no override, no privileged verb, no
+  live-faculty registration, no proposal (upgrades stay Proposal + Ballot).
+- **Credits-on-chain** — no. Credits go to each home's rewards.jsonl; the
+  consensus log carries only economic rings (tested). SPACE credits land only
+  in the actual leader's home; followers issue none.
+
+13 new tests (394 total; 381 pre-existing still pass, 1 chiapos skipped).
+Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

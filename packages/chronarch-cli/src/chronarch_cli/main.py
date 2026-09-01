@@ -227,6 +227,33 @@ def _cmd_home(args) -> int:
     return 1
 
 
+def _cmd_net(args) -> int:
+    # A two-home (N-home) local net (Phase 17): durable homes gossip slots on
+    # the in-process bus and converge on one head. JSON out. Existing error
+    # codes: BAD_HOME / SPACE_UNITS_MISMATCH / HOME_KERNEL_MISMATCH.
+    from chronarch_node import NodeError, net_run
+
+    homes = [h for h in args.homes.split(",") if h]
+    if len(homes) < 2:
+        _print({"ok": False, "error_code": "BAD_REQUEST",
+                "result": {"detail": "--homes needs at least two comma-separated dirs"}})
+        return 1
+    try:
+        result = net_run(homes, slots=args.slots)
+    except NodeError as exc:
+        detail = str(exc)
+        if "HOME_KERNEL_MISMATCH" in detail:
+            code = "HOME_KERNEL_MISMATCH"
+        elif "SPACE_UNITS_MISMATCH" in detail:
+            code = "SPACE_UNITS_MISMATCH"
+        else:
+            code = "BAD_HOME"
+        _print({"ok": False, "error_code": code, "result": {"detail": detail}})
+        return 1
+    _print({"ok": True, "result": result})
+    return 0 if result["converged"] else 1
+
+
 def _cmd_pulse(args) -> int:
     # The organism pulse (Phase 16): one deterministic loop that farms, checks
     # pins, attests a DummyMind compute job, and credits Chronos on a home.
@@ -390,6 +417,12 @@ def build_parser() -> argparse.ArgumentParser:
     h_inspect = home_sub.add_parser("inspect", help="resume a home read-only and report state")
     h_inspect.add_argument("--home", required=True)
     h_inspect.set_defaults(func=_cmd_home, home_verb="inspect")
+
+    net = sub.add_parser("net", help="run a two-home local net (in-process bus); JSON out")
+    net.add_argument("--homes", required=True,
+                     help="comma-separated home dirs, e.g. /tmp/a,/tmp/b")
+    net.add_argument("--slots", type=int, default=6)
+    net.set_defaults(func=_cmd_net)
 
     pulse = sub.add_parser("pulse", help="run one organism pulse on a home; JSON out")
     pulse.add_argument("--home", required=True)
