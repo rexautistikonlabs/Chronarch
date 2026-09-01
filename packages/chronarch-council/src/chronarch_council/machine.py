@@ -350,6 +350,37 @@ class CouncilState:
             "granted_at_slot": at_slot,
         }
 
+    def make_peer_grant(self, proposal_id: str, *, at_slot: int) -> dict:
+        """The bridge for a ratified peer-set change (Phase 19), analogous to
+        make_activation_grant for M3. Returns the peer-change body from the
+        stored, voted-on proposal — the body comes from Council storage, not the
+        caller, so a forged proposal cannot reach here. Gated on an approved
+        outcome and the activation height, exactly like the M3 grant. There is
+        no self-enact: without a passed, slashing-backed ballot this raises."""
+        result = self._results.get(proposal_id)
+        if result is None:
+            raise CouncilError("no tally result for this proposal")
+        if result["outcome"] != "approved":
+            raise CouncilError(f"proposal outcome is {result['outcome']!r}, not approved")
+        if at_slot < result["activation_slot"]:
+            raise CouncilError(
+                f"activation height not reached ({at_slot} < {result['activation_slot']})"
+            )
+        proposal = self._proposals[proposal_id]["proposal"]
+        if proposal["major_class"] != "M6":
+            raise CouncilError("peer grants require an M6 (membership) proposal")
+        changes = proposal["changes"]
+        if not isinstance(changes, dict) or set(changes) != {"peer_change"}:
+            raise CouncilError("proposal changes are not a peer_change")
+        return {
+            "proposal_id": proposal_id,
+            "major_class": "M6",
+            "peer_change": copy.deepcopy(changes["peer_change"]),
+            "result_ring_hash": result["result_ring_hash"],
+            "activation_slot": result["activation_slot"],
+            "granted_at_slot": at_slot,
+        }
+
     def verify_activation_grant(self, grant: dict, *, code_hash: str) -> None:
         """Called by the registry. Re-verifies against stored results —
         a forged grant dict fails here."""

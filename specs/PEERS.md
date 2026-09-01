@@ -51,6 +51,54 @@ When the caller passes an explicit `space_table` (as `net_run` does while
 driving a round), that table is used directly; `net_run` still does its own
 peers agreement check.
 
+## 3a. Join is a vote (Phase 19)
+
+After genesis, the fleet does **not** change by editing `peers.json` — that is a
+`PEERS_MISMATCH`. Adding or removing a peer is a **major change**: a Proposal
+ring plus a slashing-backed Council vote (G14), the same path as any other
+major change. There is no admin peer key, no helm that adds a validator, and no
+AI rewrite of the fleet.
+
+A **PeerChange** is a closed, K18-screened body carried in a Council Proposal's
+`changes` under the key `peer_change`:
+
+```json
+{"kind": "peer_add" | "peer_remove", "identity": "…", "space_units": N}
+```
+
+It rides as an **M6** membership proposal (`council_thresholds_or_membership_floors`),
+an existing major class — so no kernel module or genesis hash changes. The flow:
+
+1. **Draft** — `chronarch peers propose --home DIR --kind … --identity ID
+   --units N` builds and validates the Proposal; it returns the `proposal_id`
+   and `MAJOR_NEEDS_COUNCIL`. Proposing enacts nothing (the `peers.json` file is
+   untouched). A `peer_add` of a peer already in the fleet, or a `peer_remove`
+   of one that is absent, is `PEERS_MISMATCH`.
+2. **Vote** — the proposal goes through the Council machine exactly like any
+   other: `submit_proposal` → `attach_reports` → `cast_ballot` (bonded seats,
+   ballot liens) → `tally` (≥2/3 eligible weight **and** a seat majority).
+3. **Ratify** — once `tally` returns `approved` and the activation height
+   (`ACTIVATION_DELAY_SLOTS`) is reached, `net.ratify_peer_change(homes,
+   council, proposal_id, at_slot=…)` obtains the Council's `make_peer_grant`
+   bridge (the body comes from Council storage, so a forged proposal cannot
+   reach here) and applies the add/remove to `home/peers.json` on every
+   established member — identical bytes on all of them. The lottery then weighs
+   the new fleet.
+
+**Fail closed, and slash the abuse.** No tally, a rejected/expired outcome, or
+the wrong height is `PEERS_MISMATCH` and leaves every `peers.json` unchanged. An
+**illegal** peer change (a value that trips `check_legality`, e.g. an identity
+crafted to read like a G1 repeal) is caught in `tally`: outcome `invalid`, every
+yes-voter slashed, and an **I8** scar sealed — exactly as for any illegal
+ratification (G16). Chronarch may *draft* a PeerChange (Cambium, inert) but has
+no verb that activates it (there is no peer-apply verb in the agent's
+`ALLOWED_VERBS`) — it can never self-enact one (G15).
+
+Ratification amends an **established** fleet; it does not conjure a `peers.json`
+on a home that has none. A brand-new peer's home is initialised and synced
+separately — joining an already-running net is not the same as being voted into
+its fleet.
+
 ## 4. Why it does not change who wins
 
 `peers.json` only **persists** the same integer space units the lottery already

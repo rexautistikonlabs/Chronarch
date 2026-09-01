@@ -781,6 +781,55 @@ keys are all unchanged (net_status adds new keys only).
 18 new tests (412 total; 394 pre-existing still pass, 1 chiapos skipped).
 Frozen files untouched (git diff proof on frozen paths); K18 AST scan clean.
 
+## Phase 19 — a peer-set change is a proposal ring plus a vote
+
+After genesis, the net fleet changes only through the Council: a Proposal ring
+plus a slashing-backed ballot (G14), never an admin key and never an AI
+self-enact. specs/PEERS.md gains "join is a vote". PeerChange logic in
+chronarch_node.peers + net.ratify_peer_change + a `make_peer_grant` bridge on
+the Council machine.
+
+- **PeerChange body** (closed schema, K18): `{kind: peer_add|peer_remove,
+  identity, space_units}`, integer units. It rides in a Council Proposal's
+  free-form `changes` under `peer_change`, as an **M6** membership change — an
+  EXISTING major class, so the kernel manifest / genesis hashes are unchanged (a
+  new major class would alter K14 and re-hash genesis).
+- **Ratification** — `CouncilState.make_peer_grant(proposal_id, at_slot=)`
+  mirrors the M3 `make_activation_grant`: the peer body comes from Council
+  storage (a forged proposal cannot reach it), gated on an `approved` outcome
+  and the activation height. `net.ratify_peer_change(homes, council,
+  proposal_id, at_slot=)` applies the add/remove to `home/peers.json` on every
+  established member (identical bytes); the lottery then weighs the new fleet.
+  An ILLEGAL peer change is caught in the existing `tally` (`check_legality`):
+  outcome `invalid`, every yes-voter slashed, an I8 scar sealed (G16). Chronarch
+  has no peer-apply verb — it can draft but never activate a PeerChange.
+- **net_run** — already refuses to add an unknown home (the planned fleet
+  disagrees with an existing peers.json → PEERS_MISMATCH); genesis first-run
+  (no peers.json) still writes the initial lab-net fleet. After a ratified add,
+  running the old home set now disagrees with the grown peers.json → the fleet
+  really changed.
+- **CLI** — `chronarch peers propose --home DIR --kind peer_add|peer_remove
+  --identity ID --units N` → `{proposal_id, status: MAJOR_NEEDS_COUNCIL, …}` or
+  PEERS_MISMATCH / BAD_HOME. It drafts + validates only; the ballot runs on the
+  Council machine API (+ tests) and net.ratify_peer_change.
+
+### Rejected (kept rejected)
+
+- **Silent peer rewrite** — no. peers.json changes only via a ratified
+  PeerChange or the genesis first-run; net_run refuses to overwrite a
+  disagreeing file, and ratification without a passed ballot leaves it unchanged
+  (tested).
+- **Helm adds a validator** — no. Adding/removing a peer is M6, a Proposal +
+  slashing-backed ballot at ≥2/3 weight and a seat majority; there is no admin
+  key, no helm, no privileged verb that mutates the fleet.
+- **AI rewrite of peers** — no. Chronarch may draft a PeerChange (inert) but has
+  no verb that writes peers.json; an un-balloted / rejected / illegal proposal
+  never applies, and an illegal one slashes its yes-voters and scars at I8.
+
+18 new tests (430 total; 412 pre-existing still pass, 1 chiapos skipped).
+Frozen genesis hashes unchanged; K18 AST scan clean. (machine.py extended with
+make_peer_grant — a new proposal-kind bridge, no admin key, no self-enact.)
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

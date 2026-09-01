@@ -188,3 +188,54 @@ def net_status(homes) -> dict:
                 entry["peers_ok"] = False
         out.append(entry)
     return {"homes": out}
+
+
+def ratify_peer_change(homes, council, proposal_id: str, *, at_slot: int) -> dict:
+    """Apply a RATIFIED peer-set change to home/peers.json on every home.
+
+    This is the ONLY path that mutates a net's fleet after genesis, and it never
+    self-enacts: the change takes effect only when the Council has APPROVED the
+    proposal (a slashing-backed ballot, existing turnout/lien/slash rules) and
+    the activation height has been reached — obtained through the Council's own
+    `make_peer_grant` bridge (the body comes from Council storage, so a forged
+    proposal cannot reach here). Anything short of that — no tally, a
+    rejected/expired/invalid outcome, or the wrong height — is PEERS_MISMATCH
+    and leaves every peers.json byte-for-byte unchanged.
+
+    An ILLEGAL peer change never reaches here: `council.tally` runs
+    `check_legality` and, on a violation, marks the outcome `invalid`, slashes
+    every yes-voter, and seals an I8 scar — so no grant is produced.
+    """
+    from chronarch_council import CouncilError
+
+    from .peers import (
+        PeersError,
+        apply_peer_change,
+        canonical_peers,
+        space_table_from_peers,
+        verify_peer_change,
+    )
+
+    try:
+        grant = council.make_peer_grant(proposal_id, at_slot=at_slot)
+    except CouncilError as exc:
+        raise PeersError(
+            f"PEERS_MISMATCH: {proposal_id!r} is not a ratified peer change: {exc}") from None
+    body = verify_peer_change(grant["peer_change"])  # closed schema
+
+    homes = list(homes)
+    applied = []
+    for home in homes:
+        node_home = NodeHome(home)
+        # Ratification amends an EXISTING fleet on each established member — it
+        # never invents a peers.json on a home that has none (a joining node's
+        # home is initialised + synced separately, not conjured here).
+        if not node_home.has_peers():
+            raise PeersError(
+                f"PEERS_MISMATCH: {home} has no peers.json to amend "
+                "(ratification amends an established fleet, it does not create one)")
+        current = space_table_from_peers(node_home.read_peers())
+        updated = apply_peer_change(current, body)  # add/remove; PEERS_MISMATCH on a bad op
+        node_home.write_peers(canonical_peers(updated))
+        applied.append(home)
+    return {"proposal_id": proposal_id, "applied": body, "homes": len(applied)}

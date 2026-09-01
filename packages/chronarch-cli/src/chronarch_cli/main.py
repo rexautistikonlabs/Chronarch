@@ -271,6 +271,61 @@ def _cmd_net_status(args) -> int:
     return 0 if all(h["peers_ok"] for h in result["homes"]) else 1
 
 
+def _cmd_peers(args) -> int:
+    # Draft a peer-set-change proposal (Phase 19). A peer change is a MAJOR
+    # change (M6): it activates ONLY via a passed, slashing-backed Council
+    # ballot — never an admin key, never self-enact. This verb validates and
+    # drafts the Proposal; ratification runs on the Council machine API +
+    # net.ratify_peer_change (see specs/PEERS.md). JSON out.
+    from chronarch_node import (
+        NodeHome,
+        PeersError,
+        apply_peer_change,
+        peer_change_proposal,
+        space_table_from_peers,
+        verify_peer_change,
+    )
+    from chronarch_spec import SchemaError, validate
+
+    if args.peers_verb != "propose":
+        _print({"ok": False, "error_code": "UNKNOWN_VERB"})
+        return 1
+
+    home = NodeHome(args.home)
+    if not home.is_initialized():
+        _print({"ok": False, "error_code": "BAD_HOME",
+                "result": {"detail": f"no node home at {args.home}"}})
+        return 1
+
+    body = {"kind": args.kind, "identity": args.identity, "space_units": args.units}
+    try:
+        body = verify_peer_change(body)
+        # The change must be a legal add/remove against the home's current fleet.
+        if home.has_peers():
+            apply_peer_change(space_table_from_peers(home.read_peers()), body)
+    except PeersError as exc:
+        _print({"ok": False, "error_code": "PEERS_MISMATCH", "result": {"detail": str(exc)}})
+        return 1
+
+    proposer = f"councilor:{home.read_identity()}"
+    proposal_id = f"peer-{body['kind']}-{body['identity']}"
+    proposal = peer_change_proposal(proposal_id, proposer, body, slot=0)
+    try:
+        validate("Proposal", proposal)  # closed schema + K18; a Council-legal shape
+    except SchemaError as exc:
+        _print({"ok": False, "error_code": "PROPOSAL_INVALID", "result": {"detail": str(exc)}})
+        return 1
+
+    _print({"ok": True, "result": {
+        "proposal_id": proposal_id, "status": "MAJOR_NEEDS_COUNCIL",
+        "major_class": proposal["major_class"], "proposer": proposer,
+        "kind": body["kind"], "identity": body["identity"],
+        "space_units": body["space_units"],
+        "note": "a peer-set change activates only via a passed, slashing-backed "
+                "Council ballot (M6) — there is no self-enact path"}})
+    return 0
+
+
 def _cmd_pulse(args) -> int:
     # The organism pulse (Phase 16): one deterministic loop that farms, checks
     # pins, attests a DummyMind compute job, and credits Chronos on a home.
@@ -511,6 +566,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_verify.add_argument("--space", required=True)
     p_verify.add_argument("--dir", required=True)
     p_verify.set_defaults(func=_cmd_pin, pin_verb="verify")
+
+    peers = sub.add_parser("peers", help="propose a peer-set change (needs a Council ballot); JSON out")
+    peers_sub = peers.add_subparsers(dest="peers_verb", required=True)
+    pp = peers_sub.add_parser("propose", help="draft a PeerChange proposal (M6, needs a ballot)")
+    pp.add_argument("--home", required=True)
+    pp.add_argument("--kind", choices=("peer_add", "peer_remove"), required=True)
+    pp.add_argument("--identity", required=True)
+    pp.add_argument("--units", type=int, required=True)
+    pp.set_defaults(func=_cmd_peers, peers_verb="propose")
 
     return parser
 
