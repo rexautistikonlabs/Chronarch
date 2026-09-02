@@ -23,6 +23,7 @@ home/
     log.jsonl     append-only sealed rings + block headers + slot headers
     head.json     the O(1) resume commitment {height, head_hash}
   boot.json       the last boot-ok receipt (a BootReport, no extra keys)
+  journal.jsonl   optional operator notes (off-chain; never replayed, LAB.md)
 ```
 
 `boot.json` is the boot receipt **verbatim** — exactly the `BootReport` fields
@@ -105,6 +106,9 @@ error and never creates a home.
   `HOME_KERNEL_MISMATCH`, never a quiet re-genesis.
 - **Not rewards, not chiapos.** Reward issuance and real plot/VDF backends are
   out of scope here.
+- **Not the journal.** `home/journal.jsonl` is operator notes beside the home
+  (`chronarch journal`): off-chain, never replayed, never sealed, K18-screened
+  so a Proposal body cannot hide in it. See [../docs/LAB.md](../docs/LAB.md).
 
 ---
 

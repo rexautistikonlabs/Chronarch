@@ -17,6 +17,7 @@ from .council_home import (
     load_council,
     save_council,
 )
+from .journal import JOURNAL_KEYS, JournalError, journal_append, journal_list
 from .memory import MEMORY_KEYS, memory
 from .net import net_run, net_status, ratify_peer_change
 from .tcpnet import tcp_net_run, tcp_serve
@@ -53,6 +54,10 @@ __all__ = [
     "pulse",
     "memory",
     "MEMORY_KEYS",
+    "JournalError",
+    "JOURNAL_KEYS",
+    "journal_append",
+    "journal_list",
     "net_run",
     "net_status",
     "ratify_peer_change",

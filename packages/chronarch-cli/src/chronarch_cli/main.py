@@ -9,6 +9,7 @@ Lab verbs (JSON out, fail-closed, docs/LAB.md):
   chronarch status              # what lab-v0 is (STATUS.md) + git describe
   chronarch pulse  --home DIR   # one organism pulse on a home
   chronarch memory --home DIR   # read-only: what the home remembers
+  chronarch journal --home DIR append --text "..." | list   # operator notes, off-chain
 
 where <verb> is one of the RPC verbs: init, seal, verify, pin, challenge,
 propose, ballot, health, submit-tx. The CLI is a thin transport: every verb
@@ -665,6 +666,38 @@ def _cmd_memory(args) -> int:
     return 0
 
 
+def _cmd_journal(args) -> int:
+    # Operator notes beside a home (off-chain: not Timechain, not memory, not
+    # consensus). append screens the text (K18 + tool-call / Proposal shape)
+    # and writes one canonical JSON line to home/journal.jsonl; list reads
+    # them back fail-closed. Error codes: BAD_HOME / JOURNAL_REJECTED /
+    # BAD_JOURNAL.
+    from chronarch_node import NodeError, journal_append, journal_list
+
+    try:
+        if args.journal_verb == "append":
+            result = journal_append(args.home, args.text, slot_hint=args.slot_hint)
+            _print({"ok": True, "result": result})
+            return 0
+        if args.journal_verb == "list":
+            entries = journal_list(args.home)
+            _print({"ok": True, "result": {"entries": entries, "count": len(entries)}})
+            return 0
+    except NodeError as exc:
+        detail = str(exc)
+        if detail.startswith("JOURNAL_REJECTED"):
+            code = "JOURNAL_REJECTED"
+        elif detail.startswith("BAD_JOURNAL"):
+            code = "BAD_JOURNAL"
+        else:
+            code = "BAD_HOME"
+        _print({"ok": False, "error_code": code, "result": {"detail": detail}})
+        return 1
+
+    _print({"ok": False, "error_code": "UNKNOWN_VERB"})
+    return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="chronarch", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -733,6 +766,17 @@ def build_parser() -> argparse.ArgumentParser:
     memory = sub.add_parser("memory", help="read-only: what a home remembers; JSON out")
     memory.add_argument("--home", required=True)
     memory.set_defaults(func=_cmd_memory)
+
+    journal = sub.add_parser("journal", help="operator notes beside a home (off-chain, not Timechain); JSON out")
+    journal.add_argument("--home", required=True)
+    journal_sub = journal.add_subparsers(dest="journal_verb", required=True)
+    j_append = journal_sub.add_parser("append", help="append one note (K18-screened) to home/journal.jsonl")
+    j_append.add_argument("--text", required=True)
+    j_append.add_argument("--slot-hint", type=int, default=None, dest="slot_hint",
+                          help="integer slot hint (default: the home's persisted height)")
+    j_append.set_defaults(func=_cmd_journal, journal_verb="append")
+    j_list = journal_sub.add_parser("list", help="list every note, in order (fail-closed)")
+    j_list.set_defaults(func=_cmd_journal, journal_verb="list")
 
     compute = sub.add_parser("compute", help="attest + submit compute receipts; JSON out")
     compute_sub = compute.add_subparsers(dest="compute_verb", required=True)

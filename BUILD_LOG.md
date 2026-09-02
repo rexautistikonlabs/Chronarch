@@ -1104,6 +1104,47 @@ Genesis hashes unchanged; K18 AST scan clean; every frozen path untouched (the
 only STATUS.md edit is a reading-order pointer — the "not a public blockchain"
 sentence is verbatim).
 
+## Lab journal — operator notes beside a home (off-chain)
+
+Lab journal only. Off-chain. Not Timechain. Not L1.
+
+- **`chronarch journal --home DIR append --text "..."` / `list`** — operator
+  notes in `home/journal.jsonl`, one canonical JSON line per note
+  (`canonical_bytes`: sorted keys, ASCII, floats impossible):
+  `{slot_hint, ts_unix_int, text, text_hash}`. Integer time only; `slot_hint`
+  defaults to the home's persisted height (read from `head.json`, the only
+  thing the journal reads from the home). Library: `chronarch_node.journal`
+  (new module, additive) — `journal_append`, `journal_list`, `JournalError`.
+- **Off-chain by construction** — appending seals no ring, submits no tx,
+  drafts no proposal, pins no object, boots no Node. An AST scan
+  (`test_journal.py`) proves the module names no seal / submit_tx / propose /
+  PinStore / Node API; a CLI test proves the ledger log is byte-identical and
+  `memory` reports the same height, head_hash, ring_count and credits after
+  three appends.
+- **The K18 screen, reused** — a note that parses as JSON (whole or embedded)
+  runs through `screen_keys`, the same forbidden-key screen every consensus
+  object gets; a tool-call shape (`name`+`arguments`, `tool_calls`, ...) or a
+  Proposal body (`proposal_id`, `major_class`, ...) is `JOURNAL_REJECTED`.
+  Prose that merely mentions those words is a note.
+- **Fail closed** — a missing home is `BAD_HOME` and is never created; a
+  tampered, non-canonical, or non-integer line makes `list` raise
+  `BAD_JOURNAL` rather than skip it.
+- **docs** — LAB.md §4 (journal is operator notes, not memory, not
+  consensus); HOME.md layout + "what the home is not".
+
+### Rejected (kept rejected)
+
+- **A journal ring** — no. Notes are not consensus; nothing an operator types
+  is sealed into the Timechain.
+- **A journal as memory** — no. Memory is the Timechain + home + pins, read by
+  `memory`; the journal is what the operator wrote about it.
+- **Float timestamps** — no. Integer seconds; the codec refuses floats.
+- **Proposals via the journal** — no. A Proposal body is refused; a proposal
+  goes to the Council (`peers propose`, ballot, tally).
+
+2 new test modules (14 tests; 506 total, 2 chiapos skipped by default).
+Genesis hashes unchanged; K18 AST scan clean; every frozen path untouched.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

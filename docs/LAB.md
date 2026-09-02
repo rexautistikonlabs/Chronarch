@@ -64,7 +64,28 @@ memory" — a scar is metabolized by a *new* ring after review (M7, a Council
 matter), never deleted. `ring_count` counts Ring 0; `credits_by_reason` comes
 from `home/rewards.jsonl`, the blood ledger, not from the rings.
 
-## 4. The operator path — two homes and a vote
+## 4. Journal — operator notes (not memory)
+
+```
+chronarch journal --home /tmp/lab/solo append --text "pulsed 3 slots; pins ok"
+chronarch journal --home /tmp/lab/solo list
+```
+
+A lab journal is what *you* write down about a session. It lives beside the
+home as `home/journal.jsonl`, one canonical JSON line per note:
+`{slot_hint, ts_unix_int, text, text_hash}` — integer time only, no floats.
+
+It is **off-chain**. The journal is not the organism's memory (that is the
+Timechain + home + pins, read by `memory`), not consensus, and not an input to
+anything: appending a note seals no ring, submits no tx, drafts no proposal,
+pins no object, and boots no node — the Timechain height is unchanged before
+and after. A note that *looks* like a consensus object is refused
+(`JOURNAL_REJECTED`): a JSON body is run through the same K18 forbidden-key
+screen every consensus object gets, and a tool-call shape or a Proposal body is
+turned away — a proposal goes to the Council, never into the journal. A missing
+home is `BAD_HOME`; a tampered line makes `list` fail closed.
+
+## 5. The operator path — two homes and a vote
 
 The full loop — pulse a home, stand up a two-home net, propose a peer-set
 change, ballot it from each steward, tally and ratify, read status — is a
@@ -73,7 +94,7 @@ the same sequence runs as a test (`tests/test_operator_path.py`). A lab session
 that follows it ends with two homes that agree on one head and a fleet that
 changed only by a slashing-backed ballot (G14, M6).
 
-## 5. What a lab session is not
+## 6. What a lab session is not
 
 - **Not a public chain.** In-process bus or loopback `127.0.0.1` only; no
   discovery, no bootstrap peers, no `0.0.0.0`.
@@ -81,6 +102,8 @@ changed only by a slashing-backed ballot (G14, M6).
   conscience (G2). There is no listing, no market, no issuance schedule claim.
 - **Not a memory you can clean.** Scars stay. `memory` reads; nothing in the
   lab surface rewrites a ring or deletes a scar.
+- **Not a journal on chain.** `journal` is operator notes beside the home —
+  off-chain, not memory, not consensus, never sealed.
 - **Not written by an LLM.** The agent runtime is DummyMind by default; an
   optional LLM backend is a library-injection path that *reads* and *proposes*.
   Nothing an LLM emits is sealed into the Timechain without the same admission
