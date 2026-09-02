@@ -874,6 +874,42 @@ Frozen genesis hashes unchanged; G14 verbatim; K18 AST scan clean. (machine.py
 extended with export_state/import_state — serialization only, the frozen
 lien/slash/tally math and make_peer_grant are untouched.)
 
+## Phase 21 — the operator path is a test, not prose
+
+The whole operator loop is now an executable sequence: pulse a home, stand up a
+two-home net, propose a peer-set change, ballot it from each steward, tally +
+ratify, read status. No new consensus primitive — this is docs + a test module
+driving the existing CLI, nothing more.
+
+- **specs/OPERATOR.md** — numbered `chronarch` commands with the JSON keys each
+  returns, stated plainly as a **lab net, not mainnet** (in-process bus, no
+  public network, no chiapos, no AMM, no DHT; no CHIP-48 / Chia-mainnet /
+  consciousness claims).
+- **tests/test_operator_path.py** — drives the same sequence through
+  `chronarch_cli.main` and asserts the mechanics: two homes converge; a proposal
+  enacts nothing until tallied; a passing ballot ratifies the PeerChange onto
+  every home and the lottery sees the new units; the single-home pulse still
+  works afterward. The illegal-ratification path is already covered
+  (test_council_home / test_peer_change) and is not repeated.
+- **README** — a short "Operator path" section pointing at OPERATOR.md, with the
+  no-marketing disclaimer.
+- Documented gotcha: a pulsed home is already ahead of a fresh peer, so the
+  operator path pulses a home of its own and runs the net on fresh homes (a
+  pulse-then-net on the SAME home fails SLOT_HEADER_INFUSION_MISMATCH by design).
+
+### Rejected (kept rejected)
+
+- **Marketing claims** — no. OPERATOR.md and the README say lab net, not
+  mainnet, and make no CHIP-48 / Chia-mainnet / consciousness claim. The test
+  asserts only mechanics that actually run.
+- **Skipping the vote** — no. The operator path ratifies a peer change ONLY
+  after a real ballot + tally (G14); the test asserts a bare proposal leaves
+  peers.json untouched and shows `voting`/`outcome: null` until the fleet votes.
+
+2 new tests (449 total; 447 pre-existing still pass, 1 chiapos skipped). No
+consensus code touched (docs + a test module + README); frozen genesis hashes
+unchanged; K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

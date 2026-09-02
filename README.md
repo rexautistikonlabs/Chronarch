@@ -64,6 +64,17 @@ ledger. The pulse never uses an admin key, never creates a live faculty or a
 proposal, and never seals a Chronos credit into the Timechain — see
 [specs/PULSE.md](specs/PULSE.md).
 
+### Operator path
+
+The full operator loop — pulse a home, stand up a two-home net, propose a
+peer-set change, ballot it from each steward, tally and ratify, read status — is
+a numbered command sequence in [specs/OPERATOR.md](specs/OPERATOR.md), and the
+same sequence runs as a test (`tests/test_operator_path.py`): the loop is
+executable, not prose. It is a **local lab net** — one process, a few home
+directories, the in-process bus. It is **not** a public network, it is not
+CHIP-48, not Chia mainnet, and not a claim about consciousness; it is a working
+model of the protocol's mechanics.
+
 What the suite proves today (the Phase-0/Phase-1 testing bar):
 
 - kernel + disk + compute → `boot-ok` with **zero extra keys**; the golden
