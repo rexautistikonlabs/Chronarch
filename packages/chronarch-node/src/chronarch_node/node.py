@@ -36,7 +36,7 @@ from chronarch_core import (
 from chronarch_council import CouncilState
 from chronarch_hearth import HearthState
 from chronarch_nervous import prestress_ok
-from chronarch_spec import build_kernel, build_ring0, chash, validate
+from chronarch_spec import build_kernel, build_ring0, chash, hash_bytes, validate
 from chronarch_spec.constants import MIN_PINSET_SIZE, WITNESS_K, WITNESS_N
 
 from .leader import plot_challenge_proof, slot_leader, verify_leader
@@ -46,6 +46,15 @@ from .leader import plot_challenge_proof, slot_leader, verify_leader
 SEALABLE_RING_TYPES = frozenset({
     "experience", "decision", "learning", "task_head", "dream", "economic",
 })
+
+
+def _parses_as_object(data: bytes) -> bool:
+    """True when bytes decode to a JSON object (a consensus-object candidate)."""
+    import json
+    try:
+        return isinstance(json.loads(data), dict)
+    except (ValueError, TypeError):
+        return False
 
 
 class NodeError(ValueError):
@@ -531,6 +540,61 @@ class Node:
             self._apply_slot_header(message)
         elif kind == "challenge":
             self._apply_challenge(message)
+        elif kind == "pin_offer":
+            self._apply_pin_offer(message)
+
+    # -- pin gossip (Phase 22, CAS lane — NOT consensus) -------------------
+    def make_pin_offers(self) -> list[dict]:
+        """Offer every object this node holds on its pin lane (the pins its
+        cas_root commits to). In-process bus only — each offer carries the
+        object bytes so a follower that lacks a committed pin can put it. A
+        node with no pin lane offers nothing."""
+        if self.pin_store is None:
+            return []
+        offers = []
+        for object_hash in self.pin_store.pins():
+            data = self.pin_store.get(object_hash)
+            if data is None:  # withheld between listing and read — never crash
+                continue
+            offers.append({
+                "kind": "pin_offer",
+                "from_id": self.identity,
+                "object_hash": object_hash,
+                "pin_kind": "object" if _parses_as_object(data) else "opaque",
+                "bytes": data.hex(),
+                "cas_root": self.pin_store.cas_root(),
+            })
+        return offers
+
+    def _apply_pin_offer(self, msg: dict) -> None:
+        """A follower receives a pin object from the leader. Put it into the
+        local PinStore if K18 allows and the bytes hash to the offered id.
+        Never consensus: a pin offer touches no ring, no header, no lottery.
+
+        Fail soft: no pin lane, missing/malformed bytes, an integrity mismatch,
+        or a K18-forbidden object all DECLINE the offer without crashing. A pin
+        the follower still lacks stays a local PIN_MISSING (I3), surfaced by
+        verify_pins — a nervous event, not a lost consensus object."""
+        if self.pin_store is None:
+            return
+        payload = msg.get("bytes")
+        object_hash = msg.get("object_hash")
+        if not isinstance(payload, str) or not isinstance(object_hash, str):
+            return  # an advertisement without bytes: we cannot fetch (no DHT)
+        try:
+            data = bytes.fromhex(payload)
+        except (ValueError, TypeError):
+            return  # malformed offer — decline
+        if hash_bytes(data) != object_hash:
+            return  # integrity: bytes do not match the offered id — decline
+        from chronarch_core import PinError
+        from chronarch_spec import SchemaError
+        try:
+            self.pin_store.put(data, kind=msg.get("pin_kind", "opaque"))
+        except (PinError, SchemaError):
+            # A K18-forbidden object (or a bad kind) is declined — never stored,
+            # never a crash. The pin simply is not offered here.
+            return
 
     def _apply_slot_header(self, msg: dict) -> None:
         """Phase 6: verify the leader's ProofOfSpace. Reject the slot if the

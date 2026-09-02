@@ -910,6 +910,43 @@ driving the existing CLI, nothing more.
 consensus code touched (docs + a test module + README); frozen genesis hashes
 unchanged; K18 AST scan clean.
 
+## Phase 22 — pin gossip on the local net
+
+A pin object the leader holds is offered to followers on the in-process bus, so
+a follower that lacks a committed pin can fetch it. The CAS lane only — no ring,
+no header, no lottery — and in-process only (no TCP, no DHT, no public net).
+specs/PINS.md gains a "gossip" section.
+
+- **PinOffer** `{kind: "pin_offer", from_id, object_hash, pin_kind, bytes,
+  cas_root}` — `Node.make_pin_offers()` offers every object the leader's pin
+  lane holds, carrying the object bytes (hex) because there is no DHT to fetch
+  from. `net_run` broadcasts the leader's offers after each produced slot.
+- **`Node._apply_pin_offer`** puts the object into the follower's PinStore iff
+  K18 allows AND the bytes hash to `object_hash`. Fail soft: no pin lane,
+  missing/malformed bytes, an integrity mismatch, or a K18-forbidden object all
+  DECLINE the offer without crashing; a pin still lacking stays a local
+  PIN_MISSING (I3) via verify_pins.
+- Gossip HEALS a follower that lacks a committed pin (its I3 clears once the
+  leader delivers it). A pin no home serves stays I3.
+
+### Rejected (kept rejected)
+
+- **Pins-inside-.cseal** — no. A pin object is never sealed into the Timechain
+  and never put in a `.cseal` body; the ledger log carries only economic rings
+  (tested). The CAS lane is a separate PinStore directory.
+- **Pin-fail-flips-lottery** — no. A withheld pin is I3 on the retrieval
+  interface only. Tested: a net with a pin withheld across the fleet converges
+  on the same head_hash AND elects the identical leaders as a clean net over the
+  same units.
+- **DHT** — no. Offers carry the bytes on the in-process bus; a follower cannot
+  fetch a bytes-less advertisement (no discovery, no network). This is not TCP
+  and not a public network.
+
+8 new tests (457 total; 449 pre-existing still pass, 1 chiapos skipped). Frozen
+consensus math / genesis hashes / lottery / .cseal / attest_compute / council
+tally untouched; K18 AST scan clean; agent still has no execute_upgrade /
+tally-activate verb.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

@@ -135,6 +135,13 @@ def net_run(homes, slots: int = 6) -> dict:
             continue
         for message in messages:
             bus.broadcast(leader, message)
+        # Phase 22: after producing the slot, the leader offers the pins it
+        # holds (the objects its cas_root commits to) so a follower that lacks
+        # a committed pin can fetch it. This is the CAS lane, NOT consensus — a
+        # pin offer touches no ring, no header, and no lottery, and a withheld
+        # pin stays a follower-local I3 (verify_pins), never a fork.
+        for offer in leader_node.make_pin_offers():
+            bus.broadcast(leader, offer)
         leaders.append(leader)
         won[leader] += 1
 

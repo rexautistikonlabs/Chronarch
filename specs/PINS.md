@@ -76,12 +76,36 @@ JSON out. (The group is `pins`; `pin` is already a node-RPC verb.) A K18
 violation on `put` is `PIN_REJECTED`; `verify` returns the code and, on
 failure, the I3 restriction.
 
-## 6. What the pin lane is not
+## 6. Gossip (Phase 22)
+
+On the local net ([NET.md](NET.md)), pins ride the **in-process bus** so a
+follower that lacks a committed object can fetch it from the leader.
+
+- **PinOffer** — after producing a slot, the leader offers every object its pin
+  lane holds (the objects its `cas_root` commits to). Each offer is
+  `{kind: "pin_offer", from_id, object_hash, pin_kind, bytes, cas_root}`; the
+  `bytes` carry the object itself (hex), because there is **no DHT** to fetch it
+  from elsewhere.
+- **A follower** puts the object into its own `PinStore` iff K18 allows it and
+  the bytes hash to `object_hash`. It **fails soft**: no pin lane, missing or
+  malformed bytes, an integrity mismatch, or a K18-forbidden object all
+  **decline** the offer without crashing. A pin the follower still lacks stays a
+  local `PIN_MISSING` (I3), surfaced by `verify_pins` — a nervous event, never a
+  lost consensus object.
+- **Withhold is still I3, never a lottery change.** A pin no home serves cannot
+  be healed by gossip; a follower committed to it reports `PIN_MISSING` + I3 and
+  keeps farming. The net still converges on one `head_hash` and the lottery
+  winners are identical — the CAS lane touches no ring, no header, and no draw.
+
+Pin gossip is the CAS lane only. It never seals an object into the Timechain,
+and it is **in-process only** — no TCP, no peer discovery, no public network.
+
+## 7. What the pin lane is not
 
 Not a hidden plot: the Timechain is never stored in the pin dir as a
-disguised plot, and a `.cseal` body never holds these blobs. Not chiapos. A
-pin failure is never a consensus-invalid space proof — only an I3 nervous
-event.
+disguised plot, and a `.cseal` body never holds these blobs. Not chiapos, not a
+DHT. A pin failure is never a consensus-invalid space proof, and never changes
+who wins a slot — only an I3 nervous event.
 
 ---
 
