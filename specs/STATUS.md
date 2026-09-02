@@ -66,6 +66,8 @@ dependencies, and the lottery inputs are unchanged. Chronarch does not vendor
 
 ## Reading order
 
+- [../docs/LAB.md](../docs/LAB.md) — what a lab session is (`pulse`, `memory`,
+  the operator path) and what it is not (a public chain).
 - [OPERATOR.md](OPERATOR.md) — the operator path (pulse, net, vote a peer,
   status), which is itself a test.
 - [ARCHITECTURE.md](ARCHITECTURE.md) — the design.

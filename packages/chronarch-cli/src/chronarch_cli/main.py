@@ -4,6 +4,12 @@
   chronarch cluster --nodes 4 --slots 6
   chronarch <verb>  [--host --port] [--json '{...}']
 
+Lab verbs (JSON out, fail-closed, docs/LAB.md):
+
+  chronarch status              # what lab-v0 is (STATUS.md) + git describe
+  chronarch pulse  --home DIR   # one organism pulse on a home
+  chronarch memory --home DIR   # read-only: what the home remembers
+
 where <verb> is one of the RPC verbs: init, seal, verify, pin, challenge,
 propose, ballot, health, submit-tx. The CLI is a thin transport: every verb
 maps to a node RPC, which routes through the frozen kernel. There is no
@@ -541,6 +547,124 @@ def _cmd_agent(args) -> int:
     return 0 if envelope.get("ok") else 1
 
 
+LAB_RELEASE = "lab-v0"
+# Used only when specs/STATUS.md cannot be located (a non-editable install far
+# from the repo). Says the same thing STATUS.md's first paragraph says, shorter.
+LAB_SUMMARY = ("Chronarch lab-v0 is a research organism that runs on an "
+               "in-process or loopback net. It is not a public blockchain.")
+
+
+def _find_status_md():
+    """specs/STATUS.md from the CWD or from the checkout this CLI was
+    installed from (an editable install keeps the source tree). None if
+    neither exists — the caller then falls back to LAB_SUMMARY."""
+    import os
+
+    here = os.path.dirname(os.path.abspath(__file__))
+    repo = os.path.abspath(os.path.join(here, "..", "..", "..", ".."))
+    for root in (os.getcwd(), repo):
+        path = os.path.join(root, "specs", "STATUS.md")
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def status_summary(status_path: str) -> str:
+    """The first paragraph of STATUS.md (the prose after the H1, up to the
+    first blank line), with markdown emphasis stripped. Fail-closed on
+    language: this verb never says "mainnet", so a paragraph containing that
+    word is refused rather than echoed (STATUS_CLAIM_REFUSED)."""
+    with open(status_path, "r", encoding="utf-8") as f:
+        lines = f.read().splitlines()
+    para: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if not para and (stripped == "" or stripped.startswith("#")):
+            continue  # skip the title and any leading blanks
+        if stripped == "":
+            break
+        para.append(stripped)
+    text = " ".join(para).replace("**", "")
+    if not text:
+        raise ValueError("STATUS_EMPTY: STATUS.md has no opening paragraph")
+    if "mainnet" in text.lower():
+        raise ValueError("STATUS_CLAIM_REFUSED: the status paragraph names mainnet")
+    return text
+
+
+def _git_describe(cwd) -> str | None:
+    """`git describe --tags --always` for the checkout, or None when git or a
+    checkout is unavailable. Never raises."""
+    import subprocess
+
+    try:
+        proc = subprocess.run(["git", "describe", "--tags", "--always"],
+                              cwd=cwd, capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if proc.returncode != 0:
+        return None
+    out = proc.stdout.strip()
+    return out or None
+
+
+def _cmd_status(args) -> int:
+    # What lab-v0 is: STATUS.md's first paragraph + the checkout's git describe.
+    # JSON out. Read-only. It cannot say "mainnet": status_summary refuses a
+    # paragraph that does, and the fallback summary is fixed text.
+    import os
+
+    path = _find_status_md()
+    try:
+        if path is not None:
+            summary = status_summary(path)
+            with open(path, "r", encoding="utf-8") as f:
+                not_public = "not a public blockchain" in f.read()
+            rel = os.path.relpath(path)
+            source = path if rel.startswith("..") else rel  # absolute when outside the CWD
+        else:
+            summary, not_public, source = LAB_SUMMARY, True, "builtin"
+    except ValueError as exc:
+        code = str(exc).split(":", 1)[0]
+        _print({"ok": False, "error_code": code, "result": {"detail": str(exc)}})
+        return 1
+    except OSError as exc:
+        _print({"ok": False, "error_code": "STATUS_UNREADABLE", "result": {"detail": str(exc)}})
+        return 1
+    cwd = os.path.dirname(os.path.dirname(path)) if path is not None else os.getcwd()
+    _print({"ok": True, "result": {
+        "lab": LAB_RELEASE,
+        "status": summary,
+        "not_a_public_blockchain": not_public,
+        "git_describe": _git_describe(cwd),
+        "source": source,
+    }})
+    return 0 if not_public else 1
+
+
+def _cmd_memory(args) -> int:
+    # Read-only: what a home remembers (Timechain + home + pins). Resumes the
+    # home through the frozen fail-closed replay, re-walks the chain, checks
+    # pins, and prints exactly MEMORY_KEYS. Rewrites no ring, wipes no scar.
+    # Error codes: BAD_HOME / LEDGER_INVALID / PEERS_MISMATCH.
+    from chronarch_node import NodeError, memory
+
+    try:
+        result = memory(args.home)
+    except NodeError as exc:
+        detail = str(exc)
+        if "PEERS_MISMATCH" in detail:
+            code = "PEERS_MISMATCH"
+        elif "LEDGER_INVALID" in detail:
+            code = "LEDGER_INVALID"
+        else:
+            code = "BAD_HOME"
+        _print({"ok": False, "error_code": code, "result": {"detail": detail}})
+        return 1
+    _print({"ok": True, "result": result})
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="chronarch", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -602,6 +726,13 @@ def build_parser() -> argparse.ArgumentParser:
     pulse.add_argument("--slots", type=int, default=3,
                        help="slots to run (this identity wins its own slots)")
     pulse.set_defaults(func=_cmd_pulse)
+
+    status = sub.add_parser("status", help="what lab-v0 is (STATUS.md + git describe); JSON out")
+    status.set_defaults(func=_cmd_status)
+
+    memory = sub.add_parser("memory", help="read-only: what a home remembers; JSON out")
+    memory.add_argument("--home", required=True)
+    memory.set_defaults(func=_cmd_memory)
 
     compute = sub.add_parser("compute", help="attest + submit compute receipts; JSON out")
     compute_sub = compute.add_subparsers(dest="compute_verb", required=True)

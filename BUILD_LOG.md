@@ -1054,6 +1054,56 @@ consensus primitives added — packaging, CI, docs, and one test.
 hashes unchanged; K18 AST scan clean; all frozen paths untouched; no chia
 vendored, no external bind.
 
+## Lab excellence — `status` + `memory` verbs, docs/LAB.md
+
+Lab excellence only. Not an L1. The door stays open; nobody walks through it.
+
+**Why.** Pulse worked only after eleven editable installs; specs were files,
+not a verb; and the Timechain + home + pins — the organism's persistent memory
+— were not exposed as one lab command.
+
+- **One install** — the root `pyproject.toml` (previous entry) already bundles
+  all eleven packages (`spec core hearth nervous gym sim farm council node agent
+  cli`) with `chronarch = chronarch_cli.main:main`; `tests/test_lab_packaging.py`
+  now pins that (pyproject `where` → exactly eleven packages; after a real
+  `pip install -e ".[dev]"` the dist's `top_level.txt` names them all; all
+  eleven import).
+- **`chronarch status`** — STATUS.md's first paragraph + `git describe --tags`
+  (null when no checkout). JSON out. It cannot say "mainnet": a status
+  paragraph naming it is refused (`STATUS_CLAIM_REFUSED`), never echoed.
+- **`chronarch memory --home DIR`** — read-only. Resumes the home through the
+  frozen fail-closed replay (Phase 13), re-walks the chain (`verify_full`),
+  checks pins, and prints exactly `{identity, height, head_hash, ring_count,
+  scar_count, pins_ok, i3, credits_by_reason}`. Rewrites no ring, wipes no scar
+  (G5), refreshes no head, credits nothing; a missing home is `BAD_HOME` and is
+  never created. Library: `chronarch_node.memory` (new module, additive).
+- **CI** — the `package` job now runs `python -m pytest -q` against the
+  installed distribution, then `pulse --home $RUNNER_TEMP/solo --slots 1`,
+  then `memory --home $RUNNER_TEMP/solo`, then `chronarch status` via the
+  console script.
+- **docs/LAB.md** — one page: what a lab session is (install, pulse, memory,
+  the operator path) and what it is not (a public chain). Pointed to from
+  README.md and STATUS.md's reading order.
+
+### Rejected (kept rejected)
+
+- **Production L1** — no. Lab excellence only; no readiness, throughput, or
+  interoperability claim anywhere.
+- **Token listing** — no. Chronos is a node-local credit ledger — blood, not
+  conscience (G2); no market, no listing, no issuance-schedule claim.
+- **Public discovery** — no. In-process bus or loopback `127.0.0.1` only; no
+  bootstrap peers, no `0.0.0.0`.
+- **Wiping scars for "clean memory"** — no. `memory` reads; scars cannot
+  vanish (G5) and are retired only by a new ring after review (M7).
+- **LLM writes to the Timechain** — no. DummyMind by default; an LLM backend
+  reads and proposes, and nothing it emits bypasses admission, K18, or
+  Proposal + Ballot (G15).
+
+3 new test modules (18 tests; 492 total, 2 chiapos skipped by default).
+Genesis hashes unchanged; K18 AST scan clean; every frozen path untouched (the
+only STATUS.md edit is a reading-order pointer — the "not a public blockchain"
+sentence is verbatim).
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

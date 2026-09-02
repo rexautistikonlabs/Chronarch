@@ -39,7 +39,13 @@ jobs:
           python-version: "3.12"
       - name: Editable install with dev extra
         run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+      - name: Full suite against the installed distribution
+        # Also runs the pip-metadata test for real: top_level.txt must name
+        # all eleven workspace packages.
+        run: python -m pytest -q
       - name: One pulse on a fresh home (loopback lab, not a public network)
         run: python -m chronarch_cli pulse --home "$RUNNER_TEMP/solo" --slots 1
+      - name: Read the home's memory back (read-only)
+        run: python -m chronarch_cli memory --home "$RUNNER_TEMP/solo"
       - name: The console_script entry point also runs
-        run: chronarch pulse --home "$RUNNER_TEMP/solo2" --slots 1
+        run: chronarch status && chronarch pulse --home "$RUNNER_TEMP/solo2" --slots 1

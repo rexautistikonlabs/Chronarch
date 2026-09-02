@@ -18,9 +18,10 @@ metabolized into a scar.*
 
 **Status:** Chronarch is frozen at **lab-v0** — a research organism on an
 in-process or loopback net, **not a public blockchain**. See
-[specs/STATUS.md](specs/STATUS.md) for what is frozen vs. live, and
-[specs/OPERATOR.md](specs/OPERATOR.md) for the operator path (which is itself a
-test).
+[specs/STATUS.md](specs/STATUS.md) for what is frozen vs. live,
+[docs/LAB.md](docs/LAB.md) for what a lab session is (`pulse`, `memory`, the
+operator path) and is not, and [specs/OPERATOR.md](specs/OPERATOR.md) for the
+operator path (which is itself a test).
 
 ## Layout
 
