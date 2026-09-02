@@ -66,3 +66,9 @@ cryptography.
 Lineage: Chia-family Proof of Space and Time physics inspired this body
 ([ATTRIBUTION.md](ATTRIBUTION.md), K17); the objects and names above are
 Chronarch's own.
+
+Optional extra (lab-v0): the default proof-of-space verifier is the hash
+stand-in; when `CHRONARCH_CHIAPOS=1` and the optional `chiapos` package imports,
+an optional cross-check may additionally reject a proof — an optional extra, not
+an interoperability claim, with unchanged lottery inputs (see
+[STATUS.md](STATUS.md)).

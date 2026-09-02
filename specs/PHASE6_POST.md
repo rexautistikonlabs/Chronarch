@@ -87,3 +87,9 @@ Lineage: Chia-family Proof of Space and Time physics
 ([ATTRIBUTION.md](ATTRIBUTION.md), K17). See [DUAL_FARM.md](DUAL_FARM.md) for
 the plot-lane / CAS-lane split — a plot still never stores rings, weights, or
 vectors.
+
+Optional extra (lab-v0): when `CHRONARCH_CHIAPOS=1` and the optional `chiapos`
+package imports, `verify_pospace` may consult an optional cross-check
+(`verify_pospace_extra`) — an optional extra, not an interoperability claim; the
+default stays the hash stand-in, the lottery inputs are unchanged, and its tests
+`pytest.importorskip("chiapos")` (see [STATUS.md](STATUS.md)).

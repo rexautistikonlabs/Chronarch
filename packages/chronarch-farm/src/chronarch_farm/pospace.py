@@ -29,6 +29,7 @@ POSPACE_BAD_STRUCTURE = "POSPACE_BAD_STRUCTURE"
 POSPACE_QUALITY_MISMATCH = "POSPACE_QUALITY_MISMATCH"
 POSPACE_BELOW_DIFFICULTY = "POSPACE_BELOW_DIFFICULTY"  # quality >= difficulty threshold
 POSPACE_ZERO_SPACE = "POSPACE_ZERO_SPACE"
+POSPACE_CHIAPOS_REJECT = "POSPACE_CHIAPOS_REJECT"  # opt-in extra rejected (never in default CI)
 
 _POSPACE_FIELDS = ("challenge", "plot_id", "proof_bytes", "quality_string")
 _MAX_GRIND = 100_000  # a positive-space farmer passes within a couple of tries
@@ -87,7 +88,15 @@ def _leading_zero_bits(hex_hash: str) -> int:
 
 def verify_pospace(pospace: dict, space_units: int) -> dict:
     """Verify a ProofOfSpace against a claimed space. Returns
-    {ok, error_code, quality}. Stable codes; never raises on a bad proof."""
+    {ok, error_code, quality}. Stable codes; never raises on a bad proof.
+
+    The hash stand-in below is the DEFAULT and stands entirely on its own. When
+    (and only when) `CHRONARCH_CHIAPOS=1` and the optional `chiapos` package
+    imports, an OPTIONAL cross-check may additionally reject the proof
+    (`verify_pospace_extra`) — an opt-in extra, never a compatibility claim, and
+    it never changes the lottery (it can only make a proof stricter). With no
+    opt-in the extra returns None and this function is the frozen Phase-6
+    verifier — the signature is unchanged."""
     if not isinstance(pospace, dict) or set(pospace) != set(_POSPACE_FIELDS):
         return {"ok": False, "error_code": POSPACE_BAD_STRUCTURE, "quality": ""}
     for field in _POSPACE_FIELDS:
@@ -100,6 +109,9 @@ def verify_pospace(pospace: dict, space_units: int) -> dict:
         return {"ok": False, "error_code": POSPACE_QUALITY_MISMATCH, "quality": recomputed}
     if int(recomputed, 16) >= difficulty_from_space_units(space_units):
         return {"ok": False, "error_code": POSPACE_BELOW_DIFFICULTY, "quality": recomputed}
+    from .chiapos_backend import verify_pospace_extra
+    if verify_pospace_extra(pospace) is False:  # None (default, no opt-in) → no change
+        return {"ok": False, "error_code": POSPACE_CHIAPOS_REJECT, "quality": recomputed}
     return {"ok": True, "error_code": POSPACE_OK, "quality": recomputed}
 
 

@@ -60,3 +60,27 @@ class ChiaposBackend:
     def verify_proof(self, plot_id: str, challenge: str, proof_bytes: str) -> bool:  # pragma: no cover
         raise NotImplementedError(
             "real chiapos proof verification is wired at opt-in time (Phase 7+)")
+
+
+def verify_pospace_extra(pospace: dict, env: dict | None = None) -> bool | None:
+    """OPTIONAL cross-check for a ProofOfSpace (lab-v0 freeze).
+
+    Returns None when the extra is inactive — the DEFAULT — so the hash
+    stand-in (`verify_pospace`) stands entirely on its own and the whole suite
+    runs with zero extra dependencies. Only when `CHRONARCH_CHIAPOS=1` AND the
+    `chiapos` package imports does this consult the chiapos backend, returning
+    its True/False verdict. It is an optional extra, not a compatibility claim,
+    and it never changes the lottery: it can only make a proof stricter, never
+    elect a different leader. Never raises — a not-yet-wired backend (or any
+    error) returns None, leaving the stand-in in charge."""
+    if active_backend(env) != BACKEND_CHIAPOS:
+        return None
+    if not (isinstance(pospace, dict)
+            and {"plot_id", "challenge", "proof_bytes"} <= set(pospace)):
+        return None
+    try:
+        backend = ChiaposBackend(env)
+        return bool(backend.verify_proof(
+            pospace["plot_id"], pospace["challenge"], pospace["proof_bytes"]))
+    except Exception:
+        return None  # backend not wired / any error → the stand-in stands alone

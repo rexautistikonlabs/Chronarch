@@ -75,6 +75,7 @@ from .chiapos_backend import (
     active_backend,
     chiapos_available,
     chiapos_enabled,
+    verify_pospace_extra,
 )
 
 __all__ = [
@@ -146,6 +147,7 @@ __all__ = [
     "PIN_MISMATCH",
     # Phase 7 optional real-tables backend (off by default)
     "active_backend",
+    "verify_pospace_extra",
     "chiapos_available",
     "chiapos_enabled",
     "BACKEND_STANDIN",

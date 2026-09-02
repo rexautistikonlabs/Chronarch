@@ -16,6 +16,12 @@ vote, not an AI rewrite and not an admin key.*
 **Security slogan:** *Tampering is detectable, expensive, incomplete, and
 metabolized into a scar.*
 
+**Status:** Chronarch is frozen at **lab-v0** — a research organism on an
+in-process or loopback net, **not a public blockchain**. See
+[specs/STATUS.md](specs/STATUS.md) for what is frozen vs. live, and
+[specs/OPERATOR.md](specs/OPERATOR.md) for the operator path (which is itself a
+test).
+
 ## Layout
 
 ```

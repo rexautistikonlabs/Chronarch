@@ -988,6 +988,36 @@ unchanged and stays the default.
 consensus math / genesis hashes / lottery / .cseal / attest_compute / council
 tally untouched; the in-process net_run still converges; K18 AST scan clean.
 
+## Lab freeze — lab-v0
+
+A research freeze of a working model. specs/STATUS.md states plainly that
+Chronarch lab-v0 is a research organism on an in-process or loopback net — **not
+a public blockchain, not Chia mainnet, not CHIP-48, not AGI** — with the
+frozen/live table (kernel hashed; Council/Hearth/gym, agent, .cseal+pins+gossip,
+home resume + rewards + attested compute, pulse/net/voted-peers/council-CLI,
+operator-path-as-a-test, loopback TCP all live; chiapos an optional extra).
+README points at STATUS.md and OPERATOR.md.
+
+- **Optional chiapos wrap** — the EXISTING `chiapos_backend.py` seam is extended
+  with `verify_pospace_extra`: `verify_pospace` / `verify_space_proof` stay the
+  hash stand-in by default (byte-identical, signature unchanged — the additive
+  guard still pins `(pospace, space_units)`), and only when `CHRONARCH_CHIAPOS=1`
+  AND `chiapos` imports may the extra additionally reject a proof. It never
+  changes the lottery inputs, never raises (an unwired backend returns None),
+  and its opt-in test uses `pytest.importorskip("chiapos")` so default CI keeps
+  skipping. Not vendored, not an interoperability claim (STATUS.md,
+  PHASE6_POST.md, CHRONARCH_POST.md each say so in one sentence).
+
+### Rejected (kept rejected)
+
+- **Marketing claims** — no positive "mainnet ready" / "CHIP-48 compatible" /
+  "Chia-compatible" language; the CHIP-48 guard and a new STATUS test enforce it.
+- **DHT / 0.0.0.0** — unchanged from Phase 22–23: loopback only, no discovery.
+
+Tagged `lab-v0`. 7 new tests (471 total; 464 pre-existing still pass, 2 chiapos
+skipped by default). Genesis hashes unchanged; K18 AST scan clean; all frozen
+paths untouched.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
