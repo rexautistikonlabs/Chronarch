@@ -79,11 +79,40 @@ Same homes + same inputs → the same `leaders` sequence and the same converged
 head. The only entropy is the space lottery, a deterministic function of the
 slot and the space table. No wall clock, no OS randomness, no network I/O.
 
+## 4a. Loopback TCP (Phase 23)
+
+The in-process bus is the default; the same messages also travel over **real TCP
+sockets** as line-delimited JSON (reusing the transport's `_send_line` /
+`_recv_line` framing). Two homes run as two OS threads (or two `chronarch net
+tcp` processes), each with a gossip listener and a send connection to its peer.
+They gossip **slot headers, rings, and pin offers** and converge on the same
+rule — same height AND head_hash. Over the same fleet, the TCP net reaches the
+**identical head** as the in-process net (tested).
+
+```
+chronarch net tcp --home A --listen 127.0.0.1:8801 --peer 127.0.0.1:8802 --slots 6
+chronarch net tcp --home B --listen 127.0.0.1:8802 --peer 127.0.0.1:8801 --slots 6
+```
+
+Establish the fleet once with the in-process `chronarch net --homes A,B` (which
+writes `peers.json` to both); each `net tcp` node then reads its fleet from
+`peers.json`. JSON out per node: `{identity, listen, peer, height, head_hash,
+garbled, verify}`.
+
+- **Loopback only.** The listener binds `127.0.0.1` — a non-loopback host
+  (`0.0.0.0`, an external IP) is refused (`NOT_LOOPBACK`). There is no peer
+  discovery, no DHT, no public network.
+- **A garbled line is rejected, never fatal.** A reader that hits bad JSON, a
+  non-object, or a forged/out-of-order message counts it (`garbled`) and keeps
+  the stream and the ledger alive — the net still converges and every ledger
+  still `verify_full`s (tested). Tampering is detectable, not fatal.
+- `tcp_net_run(homes, slots)` runs both nodes on threads with ephemeral ports —
+  what the tests use. The in-process `net_run` is unchanged.
+
 ## 5. What a net is NOT
 
-- **Not a public network.** In-process bus only; no TCP discovery. (The frozen
-  `TcpTransport` carries the same envelope and is a later opt-in — tests stay on
-  the in-process bus.)
+- **Not a public network.** The default is the in-process bus; the loopback TCP
+  path (§4a) binds `127.0.0.1` only — no discovery, no DHT, no external bind.
 - **Not an admin path.** Nodes self-bond their own positions; there is no key,
   override, or privileged verb.
 - **Not self-enactment.** No node registers a live faculty or submits a proposal

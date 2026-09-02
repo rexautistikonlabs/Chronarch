@@ -271,6 +271,36 @@ def _cmd_net_status(args) -> int:
     return 0 if all(h["peers_ok"] for h in result["homes"]) else 1
 
 
+def _cmd_net_tcp(args) -> int:
+    # Run ONE node of a loopback TCP net (Phase 23): listen on --listen, gossip
+    # slot headers + pin offers with the peer at --peer over line-JSON. Loopback
+    # only (127.0.0.1); the in-process `net --homes` stays the default. The
+    # fleet is read from the home's peers.json (establish it once with
+    # `net --homes A,B`). JSON out.
+    from chronarch_node import NodeError, tcp_serve
+
+    try:
+        result = tcp_serve(args.home, args.listen, args.peer, slots=args.slots)
+    except NodeError as exc:
+        detail = str(exc)
+        if "BAD_HOME" in detail:
+            code = "BAD_HOME"
+        elif "PEERS_MISMATCH" in detail or "no fleet" in detail:
+            code = "PEERS_MISMATCH"
+        elif "loopback only" in detail:
+            code = "NOT_LOOPBACK"
+        else:
+            code = "BAD_REQUEST"
+        _print({"ok": False, "error_code": code, "result": {"detail": detail}})
+        return 1
+    except (ConnectionError, OSError) as exc:
+        _print({"ok": False, "error_code": "PEER_UNREACHABLE",
+                "result": {"detail": str(exc)}})
+        return 1
+    _print({"ok": True, "result": result})
+    return 0 if result["verify"] else 1
+
+
 def _cmd_peers(args) -> int:
     # Draft a peer-set-change proposal (Phase 19). A peer change is a MAJOR
     # change (M6): it activates ONLY via a passed, slashing-backed Council
@@ -554,6 +584,12 @@ def build_parser() -> argparse.ArgumentParser:
     net.add_argument("--slots", type=int, default=6)
     net.set_defaults(func=_cmd_net)
     net_sub = net.add_subparsers(dest="net_verb")
+    net_tcp = net_sub.add_parser("tcp", help="run one node of a loopback TCP net; JSON out")
+    net_tcp.add_argument("--home", required=True)
+    net_tcp.add_argument("--listen", required=True, help="loopback HOST:PORT to bind (127.0.0.1)")
+    net_tcp.add_argument("--peer", required=True, help="the peer's loopback HOST:PORT")
+    net_tcp.add_argument("--slots", type=int, default=6)
+    net_tcp.set_defaults(func=_cmd_net_tcp)
     net_status = net_sub.add_parser("status", help="read-only net status; JSON out")
     net_status.add_argument("--homes", required=True,
                             help="comma-separated home dirs, e.g. /tmp/a,/tmp/b")

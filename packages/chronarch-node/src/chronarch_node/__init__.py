@@ -18,6 +18,7 @@ from .council_home import (
     save_council,
 )
 from .net import net_run, net_status, ratify_peer_change
+from .tcpnet import tcp_net_run, tcp_serve
 from .node import HomeError, Node, NodeError
 from .peers import (
     PEER_CHANGE_KINDS,
@@ -52,6 +53,8 @@ __all__ = [
     "net_run",
     "net_status",
     "ratify_peer_change",
+    "tcp_net_run",
+    "tcp_serve",
     "PeersError",
     "canonical_peers",
     "verify_peers",

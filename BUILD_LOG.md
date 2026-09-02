@@ -947,6 +947,47 @@ consensus math / genesis hashes / lottery / .cseal / attest_compute / council
 tally untouched; K18 AST scan clean; agent still has no execute_upgrade /
 tally-activate verb.
 
+## Phase 23 — two-process loopback TCP net
+
+The same slot headers, rings, and pin offers the in-process net gossips now also
+travel over real TCP sockets as line-JSON (reusing the transport's
+`_send_line`/`_recv_line` framing). Two homes on two OS threads (or two CLI
+processes) converge on the same rule — same height AND head_hash — and over the
+same fleet reach the IDENTICAL head as the in-process net. specs/NET.md gains
+"loopback TCP". New module `chronarch_node.tcpnet`; the in-process `net_run` is
+unchanged and stays the default.
+
+- **`TcpGossipServer`** — a line-JSON gossip listener bound to a node
+  (`127.0.0.1` only). Each accepted connection is a stream of gossip messages
+  applied via `node.on_gossip` under a per-node lock. A garbled line (bad JSON,
+  non-object) or a rejected gossip (forged/out-of-order) is counted (`garbled`)
+  and skipped — never a crash, never a dropped connection, ledger still
+  verifies.
+- **`TcpPeer`** — a send-only line-JSON connection (lazy connect + reconnect).
+  Each node autonomously runs its slot loop (`_node_loop`): elected leader
+  produces and sends the slot's gossip + pin offers; a follower waits for its
+  listener to apply the slot.
+- **`tcp_net_run(homes, slots, garble=?)`** runs both nodes on threads with
+  ephemeral ports (what tests use); **`tcp_serve(home, listen, peer, slots)`**
+  runs ONE node (the CLI path), reading the fleet from the home's peers.json.
+- **CLI**: `chronarch net tcp --home DIR --listen HOST:PORT --peer HOST:PORT
+  [--slots N]` → JSON `{identity, listen, peer, height, head_hash, garbled,
+  verify}`; a non-loopback `--listen` is `NOT_LOOPBACK`.
+
+### Rejected (kept rejected)
+
+- **Public discovery** — no. The peer address is given explicitly; there is no
+  DHT, no discovery, no announce. This is not the internet.
+- **Binding 0.0.0.0 as default** — no. The listener binds `127.0.0.1`; a
+  non-loopback host (`0.0.0.0`, an external IP) is refused (`NOT_LOOPBACK`,
+  tested). Loopback only.
+- **chiapos** — no. Space is still the abstract/.cseal lottery; no plot format,
+  no VDF, no networked physics.
+
+7 new tests (464 total; 457 pre-existing still pass, 1 chiapos skipped). Frozen
+consensus math / genesis hashes / lottery / .cseal / attest_compute / council
+tally untouched; the in-process net_run still converges; K18 AST scan clean.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
