@@ -8,6 +8,15 @@ Everything routes through the frozen kernel machinery.
 from .cluster import STEWARD_LOCK_CHRONONS, Cluster
 from .home import NodeHome
 from .leader import plot_challenge_proof, slot_leader, verify_leader
+from .council_home import (
+    CouncilHomeError,
+    council_cast,
+    council_propose,
+    council_status,
+    council_tally,
+    load_council,
+    save_council,
+)
 from .net import net_run, net_status, ratify_peer_change
 from .node import HomeError, Node, NodeError
 from .peers import (
@@ -53,6 +62,13 @@ __all__ = [
     "peer_change_from_proposal",
     "PEER_CHANGE_KINDS",
     "PEER_CHANGE_MAJOR_CLASS",
+    "CouncilHomeError",
+    "council_propose",
+    "council_cast",
+    "council_tally",
+    "council_status",
+    "load_council",
+    "save_council",
     "slot_leader",
     "verify_leader",
     "plot_challenge_proof",

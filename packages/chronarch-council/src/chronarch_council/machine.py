@@ -401,6 +401,28 @@ class CouncilState:
         if grant.get("granted_at_slot", -1) < result["activation_slot"]:
             raise CouncilError("activation height not reached")
 
+    # -- serialization (Phase 20: persist a council on a home) ------------------
+    def export_state(self) -> dict:
+        """A deep copy of the dynamic voting state (proposals, results, slashes)
+        for durable storage. Seats and the Hearth are reconstructed by the
+        caller (from the fleet + bonds); this carries only what a session
+        produced. It does NOT change any lien/slash/tally math — it only moves
+        state out."""
+        return copy.deepcopy({
+            "proposals": self._proposals,
+            "results": self._results,
+            "slash_log": self.slash_log,
+        })
+
+    def import_state(self, state: dict) -> None:
+        """Restore the dynamic voting state produced by a prior session. The
+        caller has already registered seats and reconstructed the Hearth (bonds,
+        durable slashes, open liens); this only reinstalls the proposals,
+        results, and slash log."""
+        self._proposals = copy.deepcopy(state.get("proposals", {}))
+        self._results = copy.deepcopy(state.get("results", {}))
+        self.slash_log = copy.deepcopy(state.get("slash_log", []))
+
     # -- misc -------------------------------------------------------------------
     def _require(self, proposal_id: str) -> dict:
         if proposal_id not in self._proposals:

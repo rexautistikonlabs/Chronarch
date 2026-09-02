@@ -316,14 +316,72 @@ def _cmd_peers(args) -> int:
         _print({"ok": False, "error_code": "PROPOSAL_INVALID", "result": {"detail": str(exc)}})
         return 1
 
+    # Phase 20: submit the proposal to the home's persistent Council and open
+    # voting, so `council ballot`/`status`/`tally` can act on it. Proposing
+    # enacts nothing — the peers.json fleet is untouched.
+    from chronarch_council import CouncilError
+    from chronarch_node import CouncilHomeError, council_propose
+    try:
+        council_propose(args.home, proposal)
+    except (CouncilError, CouncilHomeError) as exc:
+        _print({"ok": False, "error_code": "MAJOR_NEEDS_COUNCIL",
+                "result": {"detail": str(exc), "proposal_id": proposal_id}})
+        return 1
+
     _print({"ok": True, "result": {
         "proposal_id": proposal_id, "status": "MAJOR_NEEDS_COUNCIL",
         "major_class": proposal["major_class"], "proposer": proposer,
         "kind": body["kind"], "identity": body["identity"],
         "space_units": body["space_units"],
-        "note": "a peer-set change activates only via a passed, slashing-backed "
-                "Council ballot (M6) — there is no self-enact path"}})
+        "note": "submitted + voting open; a peer-set change activates only via a "
+                "passed, slashing-backed Council ballot (M6) — no self-enact"}})
     return 0
+
+
+def _cmd_council(args) -> int:
+    # Council operator CLI (Phase 20): status / ballot / tally on a home's
+    # persisted Council. G14 unchanged — this only CALLS the frozen Council
+    # machine (real Ballot path: liens, weight, eligibility; illegal → slash +
+    # I8). JSON out.
+    from chronarch_council import CouncilError
+    from chronarch_node import (
+        CouncilHomeError,
+        council_cast,
+        council_status,
+        council_tally,
+    )
+
+    try:
+        if args.council_verb == "status":
+            _print({"ok": True, "result": council_status(args.home)})
+            return 0
+        if args.council_verb == "ballot":
+            identity = args.identity or NodeHome_identity(args.home)
+            result = council_cast(args.home, args.proposal_id, identity, args.vote)
+            _print({"ok": True, "result": result})
+            return 0
+        if args.council_verb == "tally":
+            homes = [h for h in (args.homes or "").split(",") if h] or None
+            result = council_tally(args.home, args.proposal_id, homes_to_ratify=homes)
+            _print({"ok": True, "result": result})
+            return 0
+    except CouncilHomeError as exc:
+        code = "BAD_HOME" if "BAD_HOME" in str(exc) else "COUNCIL_UNAVAILABLE"
+        _print({"ok": False, "error_code": code, "result": {"detail": str(exc)}})
+        return 1
+    except CouncilError as exc:
+        detail = str(exc)
+        code = "PEERS_MISMATCH" if "PEERS_MISMATCH" in detail else "COUNCIL_ERROR"
+        _print({"ok": False, "error_code": code, "result": {"detail": detail}})
+        return 1
+
+    _print({"ok": False, "error_code": "UNKNOWN_VERB"})
+    return 1
+
+
+def NodeHome_identity(home: str) -> str:
+    from chronarch_node import NodeHome
+    return NodeHome(home).read_identity()
 
 
 def _cmd_pulse(args) -> int:
@@ -569,12 +627,31 @@ def build_parser() -> argparse.ArgumentParser:
 
     peers = sub.add_parser("peers", help="propose a peer-set change (needs a Council ballot); JSON out")
     peers_sub = peers.add_subparsers(dest="peers_verb", required=True)
-    pp = peers_sub.add_parser("propose", help="draft a PeerChange proposal (M6, needs a ballot)")
+    pp = peers_sub.add_parser("propose", help="submit a PeerChange proposal (M6, needs a ballot)")
     pp.add_argument("--home", required=True)
     pp.add_argument("--kind", choices=("peer_add", "peer_remove"), required=True)
     pp.add_argument("--identity", required=True)
     pp.add_argument("--units", type=int, required=True)
     pp.set_defaults(func=_cmd_peers, peers_verb="propose")
+
+    council = sub.add_parser("council", help="Council operator CLI (status/ballot/tally); JSON out")
+    council_sub = council.add_subparsers(dest="council_verb", required=True)
+    c_status = council_sub.add_parser("status", help="show a home's persisted Council")
+    c_status.add_argument("--home", required=True)
+    c_status.set_defaults(func=_cmd_council, council_verb="status")
+    c_ballot = council_sub.add_parser("ballot", help="cast a ballot (real path: liens, weight, eligibility)")
+    c_ballot.add_argument("--home", required=True)
+    c_ballot.add_argument("--proposal-id", required=True, dest="proposal_id")
+    c_ballot.add_argument("--vote", choices=("yes", "no", "abstain"), required=True)
+    c_ballot.add_argument("--identity", default="",
+                          help="steward casting (default: the home's own identity)")
+    c_ballot.set_defaults(func=_cmd_council, council_verb="ballot")
+    c_tally = council_sub.add_parser("tally", help="tally a proposal (illegal → slash + I8)")
+    c_tally.add_argument("--home", required=True)
+    c_tally.add_argument("--proposal-id", required=True, dest="proposal_id")
+    c_tally.add_argument("--homes", default="",
+                         help="comma-separated homes to ratify an approved PeerChange onto")
+    c_tally.set_defaults(func=_cmd_council, council_verb="tally")
 
     return parser
 

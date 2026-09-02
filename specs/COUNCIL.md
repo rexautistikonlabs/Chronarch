@@ -190,6 +190,35 @@ Vote weight is **bonded, slashable Chronos** — the Hearth `bond_leg` standing 
 
 ---
 
+## 10. Operator CLI (Phase 20)
+
+An operator drives the Council from the command line; the voting state persists
+in `home/council.json` (a closed schema, K18-screened, fail-closed on a corrupt
+file) so ballots survive process exit. Council is JSON node state — it is
+**never** put inside a `.cseal`. The fleet in `home/peers.json` is the steward
+set: each peer is a bonded seat, and bonds, durable slashes, and open ballot
+liens are reconstructed each session from the fleet + the persisted slash log.
+
+```
+chronarch peers   propose --home DIR --kind peer_add|peer_remove --identity ID --units N
+chronarch council status  --home DIR
+chronarch council ballot  --home DIR --proposal-id ID --vote yes|no [--identity STEWARD]
+chronarch council tally   --home DIR --proposal-id ID [--homes DIR1,DIR2]
+```
+
+The CLI only **calls** the frozen state machine — it does not reimplement any
+of it. `ballot` goes through the real `cast_ballot` path (eligibility snapshot,
+bonded weight, a ballot lien, a **double vote slashes**); `tally` runs the exact
+`tally()` above, so an **illegal** proposal is `invalid`, every yes-voter is
+slashed, and an **I8** scar is sealed (G16) — and no peers.json is touched. When
+`tally` approves a peer change (M6) and `--homes` is given, it applies the change
+via `ratify_peer_change` (§5, through `make_peer_grant`); otherwise `status`
+shows `needs_ratify`. There is **no admin tally key**, no agent tally verb, and
+no self-enact: the agent's tool surface has `propose` and `ballot` but never
+`tally` or `execute_upgrade` ([BUILD_LOG.md](../BUILD_LOG.md)).
+
+---
+
 ## 10. Cross-references
 
 - [GENESIS.md](GENESIS.md) — Genesis Law G1..G18, covenant seed, Ring 0, reject list, testing bar (T2, T3, T4, T10).

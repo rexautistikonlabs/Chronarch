@@ -45,6 +45,7 @@ class NodeHome:
         self.boot_path = os.path.join(path, "boot.json")
         self.rewards_path = os.path.join(path, "rewards.jsonl")
         self.peers_path = os.path.join(path, "peers.json")
+        self.council_path = os.path.join(path, "council.json")
 
     # -- lifecycle ----------------------------------------------------------
     def is_initialized(self) -> bool:
@@ -187,6 +188,28 @@ class NodeHome:
         the same fleet."""
         from .peers import peers_bytes
         _atomic_write(self.peers_path, peers_bytes(peers))
+
+    # -- council state (Phase 20) ------------------------------------------
+    def has_council(self) -> bool:
+        return os.path.exists(self.council_path)
+
+    def read_council(self) -> dict | None:
+        """Parse home/council.json (the durable Council voting state). Absent →
+        None; corrupt → fail closed. The caller validates the closed schema."""
+        if not os.path.exists(self.council_path):
+            return None
+        try:
+            with open(self.council_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise HomeError(f"unreadable council.json: {exc}") from None
+        return data
+
+    def write_council(self, state: dict) -> None:
+        """Write the Council state as canonical bytes. Council is JSONL/JSON
+        node state — it is NEVER stored inside a .cseal."""
+        from chronarch_spec import canonical_bytes
+        _atomic_write(self.council_path, canonical_bytes(state))
 
     def copy_space_seal(self, src_path: str) -> None:
         """Copy the farmed .cseal into the home so a resume can reopen it even

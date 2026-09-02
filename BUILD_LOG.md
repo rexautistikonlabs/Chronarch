@@ -830,6 +830,50 @@ the Council machine.
 Frozen genesis hashes unchanged; K18 AST scan clean. (machine.py extended with
 make_peer_grant — a new proposal-kind bridge, no admin key, no self-enact.)
 
+## Phase 20 — Council operator CLI (cast, tally, status)
+
+An operator drives the Council from the CLI; the voting state persists in
+`home/council.json` so ballots survive process exit. G14 is untouched — the CLI
+only CALLS the frozen Council machine (submit_proposal / attach_reports /
+cast_ballot / tally / make_peer_grant), never rewriting the lien/slash/tally
+math. specs/COUNCIL.md §10 "Operator CLI". New module
+`chronarch_node.council_home`; CouncilState extended with export_state /
+import_state (additive serialization, no math change).
+
+- **home/council.json** — a closed schema `{version, proposals, results,
+  slash_log}`, K18-screened, floats banned; a corrupt/tampered file fails
+  closed. Council is JSON node state — NEVER put inside a `.cseal` (the file
+  starts with JSON, never CSL1). The fleet in peers.json is the steward set:
+  bonds, durable slashes, and open ballot liens are reconstructed each session
+  from the fleet + the persisted slash log; only the voting state is stored.
+- **council_home**: `load_council`/`save_council`, and `council_propose`
+  (submit + open voting), `council_cast` (the REAL cast_ballot path — weight,
+  eligibility snapshot, lien, double-vote slash persisted), `council_tally`
+  (the frozen tally(); illegal → invalid + slash + I8, no ratify; approved
+  peer change → ratify_peer_change when `homes_to_ratify` given, else
+  needs_ratify), `council_status` (read-only).
+- **CLI**: `chronarch council status|ballot|tally --home DIR …` (+ `peers
+  propose` now submits + persists). Codes MAJOR_NEEDS_COUNCIL, PEERS_MISMATCH,
+  BAD_HOME, COUNCIL_UNAVAILABLE, plus existing Council errors.
+- **Agent still cannot self-enact**: the tool surface keeps `propose`/`ballot`
+  but has no `tally` or `execute_upgrade` (execute_upgrade stays FORBIDDEN).
+
+### Rejected (kept rejected)
+
+- **Admin tally key** — no. Tally runs the frozen tally() with the real turnout
+  + weight + seat thresholds and slashing; there is no key that ratifies, and
+  the CLI cannot approve what the ballots did not.
+- **Agent auto-tally** — no. `tally`/`activate` are not in the agent's
+  ALLOWED_VERBS; the agent may propose and ballot (a bonded steward votes) but
+  can never tally or self-enact (tested).
+- **Council-in-cseal** — no. Council persists as home/council.json (JSON), never
+  inside a `.cseal`; a `.cseal` body stays reserved zeros.
+
+17 new tests (447 total; 430 pre-existing still pass, 1 chiapos skipped).
+Frozen genesis hashes unchanged; G14 verbatim; K18 AST scan clean. (machine.py
+extended with export_state/import_state — serialization only, the frozen
+lien/slash/tally math and make_peer_grant are untouched.)
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
