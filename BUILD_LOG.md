@@ -1018,6 +1018,42 @@ Tagged `lab-v0`. 7 new tests (471 total; 464 pre-existing still pass, 2 chiapos
 skipped by default). Genesis hashes unchanged; K18 AST scan clean; all frozen
 paths untouched.
 
+## Lab freeze — packaging + release hygiene
+
+Make lab-v0 installable from a clean venv and document how a lab tag is cut. No
+consensus primitives added — packaging, CI, docs, and one test.
+
+- **Root `pyproject.toml`** — a real editable-installable distribution:
+  `[build-system]` setuptools, a `chronarch` **console_script**
+  (`chronarch = chronarch_cli.main:main`), `[project.optional-dependencies]`
+  `dev = ["pytest>=7"]` (and an OFF-by-default `chiapos` extra), and
+  `[tool.setuptools.packages.find]` over every `packages/*/src`. `pip install -e
+  ".[dev]"` then exposes all eleven workspace packages and the `chronarch` CLI;
+  the no-install conftest workflow still works (the pytest config is preserved).
+  Zero third-party RUNTIME deps (G11).
+- **CI** — the existing no-install `test` job stays; a new `package` job does
+  `pip install -e ".[dev]"` and runs `python -m chronarch_cli pulse --home
+  $RUNNER_TEMP/solo --slots 1` (and the `chronarch` entry point) to prove the
+  clean-venv path.
+- **docs/RELEASE.md** — how to cut a lab tag (pre-tag checklist, `git tag -a`,
+  the frozen surface that never changes without a G14 vote) and what a lab tag
+  is NOT.
+- **tests/test_packaging_entry.py** — `import chronarch_cli`, the console-script
+  target resolves, and the `pulse` helper returns `height >= 0`.
+
+### Rejected (kept rejected)
+
+- **"Production mainnet"** — no. lab-v0 is a research organism on an in-process
+  or loopback net; STATUS.md and RELEASE.md say so, and no doc claims a public
+  or production network.
+- **"Industrial L1 ready"** — no. There is no readiness, throughput, or
+  interoperability claim anywhere; a lab tag is a green-test freeze, nothing
+  more.
+
+1 new test module (3 tests; 474 total, 2 chiapos skipped by default). Genesis
+hashes unchanged; K18 AST scan clean; all frozen paths untouched; no chia
+vendored, no external bind.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

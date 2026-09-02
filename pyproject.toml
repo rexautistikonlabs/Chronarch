@@ -1,8 +1,45 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "chronarch-workspace"
+name = "chronarch"
 version = "0.0.1"
-description = "Chronarch: a decentralized autonomous cognitive organism (DACO). Workspace root."
+description = "Chronarch lab-v0: a decentralized autonomous cognitive organism (DACO) research organism. Not a public blockchain, not mainnet."
 requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "See LICENSE" }
+
+# The whole workspace has zero runtime third-party dependencies (kernel law
+# G11: a node self-configures from the kernel blob with no privileged setup).
+dependencies = []
+
+[project.optional-dependencies]
+# `pip install -e ".[dev]"` from a clean venv brings up the test + CLI toolchain.
+dev = ["pytest>=7"]
+# The optional real-tables PoSpace extra (OFF by default; tests importorskip it).
+# See specs/STATUS.md — an optional extra, not an interoperability claim.
+chiapos = ["chiapos"]
+
+[project.scripts]
+chronarch = "chronarch_cli.main:main"
+
+# One editable install exposes every workspace package (each lives under its own
+# packages/<name>/src) and the `chronarch` console script.
+[tool.setuptools.packages.find]
+where = [
+    "packages/chronarch-spec/src",
+    "packages/chronarch-core/src",
+    "packages/chronarch-nervous/src",
+    "packages/chronarch-hearth/src",
+    "packages/chronarch-council/src",
+    "packages/chronarch-gym/src",
+    "packages/chronarch-farm/src",
+    "packages/chronarch-agent/src",
+    "packages/chronarch-node/src",
+    "packages/chronarch-cli/src",
+    "packages/chronarch-sim/src",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "packages"]

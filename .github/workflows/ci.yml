@@ -26,3 +26,20 @@ jobs:
         # hashes and the two named invariants (no admin key in the kernel;
         # upgrade path is Proposal + Ballot only).
         run: pytest -q
+
+  package:
+    # Prove the lab-v0 packaging works from a clean venv: an editable install
+    # exposes the `chronarch` console script, and one pulse runs end to end.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Editable install with dev extra
+        run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+      - name: One pulse on a fresh home (loopback lab, not a public network)
+        run: python -m chronarch_cli pulse --home "$RUNNER_TEMP/solo" --slots 1
+      - name: The console_script entry point also runs
+        run: chronarch pulse --home "$RUNNER_TEMP/solo2" --slots 1
