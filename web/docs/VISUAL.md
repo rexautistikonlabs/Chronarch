@@ -55,8 +55,8 @@ breathing, no drift, no orbit-by-itself, no looping shader time.
   GPU is idle. OrbitControls have damping off so releasing the mouse stops the
   view exactly where it is.
 - Route changes move the camera once (a 0.9 s ease) to the subsystem in focus.
-- Monaco's cursor is `solid` (no blink) and smooth scrolling/caret animation are
-  off, so nothing on the page repeats.
+- The loaded JSON is plain text in a `<pre>`: no editor, no blinking cursor,
+  no worker, no lazy chunk. An instrument, not an IDE.
 
 ### prefers-reduced-motion
 
@@ -78,6 +78,15 @@ every route renders under it.
 - IBM Plex Sans for prose, IBM Plex Mono (`.readout`, tabular numerals) for
   every number, hash, identifier and command. Fonts are bundled
   (`@fontsource`), not fetched.
+
+### Fail-closed rendering
+
+A viewer, scene or page crash is caught by an error boundary and shown as a
+still ivory "failed closed" panel where the failed part was; the banner, nav,
+readouts and the rest of the page stay. **Law:** `tests/lab-resilience.test.tsx`
+— with the JSON viewer mocked to throw, `/lab` still has its banner, nav,
+fixture buttons, readouts and viewport. The panel is never amber: a viewer
+failure is not a scar and not an I3.
 
 ## 5. STATUS honesty
 
@@ -105,3 +114,6 @@ network". **Law:** `tests/honesty.test.ts`.
   `chronarch` and never reads a filesystem. Sessions arrive as fixtures or paste.
 - **Spinning logos, partner carousels** — no.
 - **Amber as an accent colour** — no. Amber means a scar or a fault.
+- **An editor on the critical path** — no. Monaco's workers failed under
+  `vite dev` and, with no boundary, blanked `/lab`. The console shows JSON as
+  text; nothing a viewer does can take the page down.

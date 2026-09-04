@@ -18,7 +18,7 @@ npm run dev          # http://localhost:5173
 
 ```
 npm run build        # typecheck + vite build → dist/
-npm test             # vitest (jsdom): landing honesty, reduced motion, fixture load, animation law
+npm test             # vitest (jsdom): landing honesty, reduced motion, fixture load, animation law, /lab resilience
 npm run check:loops  # the doctrine grep as a script
 ```
 
@@ -27,7 +27,7 @@ npm run check:loops  # the doctrine grep as a script
 | Route | What it shows |
 |---|---|
 | `/` | landing + viewport, readouts, legend, what this is not |
-| `/lab` | console: load a fixture or paste `memory` / `pulse` / `net status` / session JSON → the scene redraws; read-only Monaco of the loaded session |
+| `/lab` | console: load a fixture or paste `memory` / `pulse` / `net status` / session JSON → the scene redraws; the loaded session as read-only plain text |
 | `/timechain` | stacked rings, scars as sealed rim lesions |
 | `/council` | seats + the proposal that docks only when approved and ratified |
 | `/hearth` | the self-bond as a tensegrity; credits by reason (chronons, not a price) |
@@ -56,5 +56,13 @@ Timechain-as-gallery, browser-spawned nodes).
 ## Stack
 
 Vite · React 19 · react-three-fiber + drei · GSAP (one-shot only) · React Aria
-Components + Tailwind v4 · IBM Plex (bundled) · Monaco (bundled, read-only) ·
-Lucide · vitest + Testing Library.
+Components + Tailwind v4 · IBM Plex (bundled) · Lucide · vitest + Testing Library.
+No editor: the loaded JSON is a `<pre>` — an instrument, not an IDE.
+
+## Fail-closed rendering
+
+Every route renders inside an error boundary, and so does the scene's canvas
+and the console's JSON viewer. A crash in any of them shows a still ivory
+"failed closed" panel in its place; the STATUS banner, nav, readouts and the
+rest of the page stay. `/lab` cannot go black because of its viewer
+(`tests/lab-resilience.test.tsx`).

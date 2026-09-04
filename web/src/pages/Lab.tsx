@@ -1,6 +1,8 @@
-import { lazy, Suspense, useState } from "react";
+import { useState } from "react";
 import { Button, Label, TextArea, TextField } from "react-aria-components";
 
+import { ErrorBoundary } from "../components/ErrorBoundary";
+import JsonViewer from "../components/JsonViewer";
 import { Legend } from "../components/Legend";
 import { MotionBadge } from "../components/MotionBadge";
 import { PageHeader, Section } from "../components/Page";
@@ -8,8 +10,6 @@ import { SessionMeta } from "../components/SessionMeta";
 import { StatBar } from "../components/StatBar";
 import { Viewport } from "../scene/Scene";
 import { FIXTURES, useSession, type FixtureName } from "../state/SessionContext";
-
-const JsonViewer = lazy(() => import("../components/JsonViewer"));
 
 const EXAMPLE = `{"ok": true, "result": {"identity": "chronarch-pulse", "height": 3, "head_hash": "<64 hex>", "ring_count": 4, "scar_count": 0, "pins_ok": true, "i3": null, "credits_by_reason": {"space": 1}}}`;
 
@@ -25,7 +25,7 @@ export function Lab() {
 
   return (
     <div>
-      <PageHeader eyebrow="lab console" title="Paste a session. Drive the scene." lede={<>Paste the JSON that <code className="readout text-ivory">chronarch memory</code>, <code className="readout text-ivory">pulse</code>, <code className="readout text-ivory">net status</code> or a captured session envelope printed, and the instrument redraws from it. The console never runs a node, never reads your disk, and refuses anything that is not a well-formed lab output.</>} />
+      <PageHeader eyebrow="lab console" title="Paste a session. Drive the scene." lede={<>Paste the JSON that <code className="readout text-ivory">chronarch memory</code>, <code className="readout text-ivory">pulse</code>, <code className="readout text-ivory">net status</code> or a captured session envelope printed, and the instrument redraws from it. The console never runs a node, never reads your disk, and refuses anything that is not a well-formed lab output. The loaded session is shown as plain text: an instrument, not an IDE.</>} />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <div className="flex flex-col gap-4">
@@ -60,9 +60,9 @@ export function Lab() {
       </div>
 
       <Section title="loaded session (read-only)">
-        <Suspense fallback={<pre className="readout border hair bg-ink p-3 text-xs text-dim">loading viewer…</pre>}>
-          <JsonViewer value={JSON.stringify(session.steps.length ? { label: session.label, focus_home: session.focus_home, steps: session.steps } : session.state, null, 2)} height={420} />
-        </Suspense>
+        <ErrorBoundary name="viewer">
+          <JsonViewer value={JSON.stringify(session.steps.length ? { label: session.label, focus_home: session.focus_home, steps: session.steps } : session.state, null, 2)} />
+        </ErrorBoundary>
       </Section>
 
       <Section title="legend">

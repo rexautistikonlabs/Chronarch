@@ -1187,6 +1187,11 @@ A scientific-instrument UI, not a crypto marketing site. Lives entirely under
 - **Timechain as an NFT gallery** — no. Rings are consensus objects with a
   closed schema, not items to browse or own.
 - **Browser-spawned nodes** — no. `web/` is a static viewer of session JSON.
+- **An editor on the critical path** — no (fix-up). Monaco's workers failed
+  under `vite dev` and, with no error boundary, `/lab` unmounted to black.
+  Monaco is removed; the loaded JSON is a `<pre>`; every route, the scene
+  canvas and the viewer render inside error boundaries that fail closed to a
+  still ivory panel. The lab is an instrument, not an IDE.
 
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 

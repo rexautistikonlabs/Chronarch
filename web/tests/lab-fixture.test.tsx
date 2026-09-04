@@ -1,12 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { renderAt } from "./render";
-
-// Monaco needs a real DOM + workers; the console's JSON viewer is stubbed here.
-vi.mock("../src/components/JsonViewer", () => ({
-  default: ({ value }: { value: string }) => <pre data-testid="json-viewer">{value.slice(0, 40)}</pre>,
-}));
 
 describe("lab console", () => {
   it("loading a fixture changes ring_count in the readout", () => {
@@ -14,6 +9,7 @@ describe("lab console", () => {
     expect(screen.getByTestId("ring-count")).toHaveTextContent("4"); // session-solo.json
     fireEvent.click(screen.getByTestId("load-session-opa.json"));
     expect(screen.getByTestId("ring-count")).toHaveTextContent("5"); // operator path: height 4 + Ring 0
+    expect(screen.getByTestId("json-viewer")).toHaveTextContent(/peer-peer_add-net-node-2/); // plain <pre>, no editor
     expect(screen.getByTestId("peer-count")).toHaveTextContent("3");
     expect(screen.getByTestId("head-hash")).toHaveTextContent(/^ecdbe6b08f/);
     fireEvent.click(screen.getByTestId("load-session-solo.json"));

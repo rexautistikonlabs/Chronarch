@@ -2,6 +2,7 @@ import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useMemo } from "react";
 
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { usePrefersReducedMotion } from "../lib/motion";
 import { derivePose, posePalette } from "../lib/pose";
 import type { SceneState } from "../lib/session";
@@ -45,6 +46,7 @@ export function Viewport({ state, focus = "overview", className = "" }: { state:
 
   return (
     <div className={`relative border hair bg-void ${className}`} data-testid="viewport" data-seed={pose.seed} data-reduced-motion={reduced ? "true" : "false"}>
+      <ErrorBoundary name="scene" className="absolute inset-0 flex items-center justify-center">
       <Canvas frameloop="demand" dpr={[1, 2]} camera={{ position: start.position, fov: 34, near: 0.1, far: 100 }} gl={{ antialias: true, alpha: false }}>
         <color attach="background" args={["#07090C"]} />
         <fog attach="fog" args={["#07090C", 14, 26]} />
@@ -67,6 +69,7 @@ export function Viewport({ state, focus = "overview", className = "" }: { state:
         <OrbitControls makeDefault enableDamping={false} enablePan={false} minDistance={2.5} maxDistance={18} maxPolarAngle={Math.PI / 2 - 0.05} target={start.target} />
         <CameraRig focus={focus} pose={pose} reduced={reduced} />
       </Canvas>
+      </ErrorBoundary>
       <div className="pointer-events-none absolute bottom-2 left-3 readout text-[10px] uppercase tracking-wider text-dim">
         seed {pose.seed.slice(0, 8)} · {reduced ? "motion off (reduced)" : "one-shot events · still at rest"}
       </div>

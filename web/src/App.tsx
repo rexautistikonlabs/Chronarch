@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Shell } from "./components/Shell";
 import { Consortium } from "./pages/Consortium";
 import { Council } from "./pages/Council";
@@ -17,18 +18,20 @@ export function App() {
   return (
     <SessionProvider>
       <Shell>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/lab" element={<Lab />} />
-          <Route path="/timechain" element={<Timechain />} />
-          <Route path="/council" element={<Council />} />
-          <Route path="/hearth" element={<Hearth />} />
-          <Route path="/farm" element={<Farm />} />
-          <Route path="/gym" element={<Gym />} />
-          <Route path="/consortium" element={<Consortium />} />
-          <Route path="/operator" element={<Operator />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <ErrorBoundary name="page">
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/lab" element={<Lab />} />
+            <Route path="/timechain" element={<Timechain />} />
+            <Route path="/council" element={<Council />} />
+            <Route path="/hearth" element={<Hearth />} />
+            <Route path="/farm" element={<Farm />} />
+            <Route path="/gym" element={<Gym />} />
+            <Route path="/consortium" element={<Consortium />} />
+            <Route path="/operator" element={<Operator />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ErrorBoundary>
       </Shell>
     </SessionProvider>
   );
