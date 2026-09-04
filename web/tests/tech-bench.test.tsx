@@ -43,18 +43,26 @@ describe("operator bench", () => {
     fireEvent.click(screen.getByTestId("select-work-pz-register-structure"));
     fireEvent.click(screen.getByTestId("action-converge"));
     expect(status()).toHaveTextContent(/ok · converge · kind overlap · ok/);
-    // readable first: both titles, both snippets, a stable percent — JSON under a closed details
+    // the eight-section note: headings, both titles, snippets, the pinned percent, the negations — JSON closed
     const card = screen.getByTestId("result-card");
+    const headings = Array.from(card.querySelectorAll("h3")).map((h) => h.textContent?.replace(/^\d+ · /, ""));
+    expect(headings).toEqual(["Question", "Objects", "What was compared", "Findings", "Assumptions used", "What would falsify this reading", "What this is not", "Appendix"]);
+    expect(screen.getByTestId("note-question")).toHaveTextContent(/Which identifiers and terms do/);
     expect(card).toHaveTextContent(/Assumption ledger \(structure only\)/);
     expect(card).toHaveTextContent(/Falsification register \(structure only\)/);
     expect(screen.getByTestId("jaccard")).toHaveTextContent("16%");
     expect(card).toHaveTextContent(/An assumption ledger lists every assumption/);
+    expect(screen.getByTestId("note-findings")).toHaveTextContent(/15 tokens are shared/);
+    expect(screen.getByTestId("note-findings")).toHaveTextContent(/\[work-pz-ledger-structure, work-pz-register-structure, metric:jaccard\]/);
+    expect(screen.getByTestId("note-assumptions")).toHaveTextContent(/assumption-1 · conjectural/);
+    expect(screen.getByTestId("note-is-not")).toHaveTextContent(/not an individual score/);
+    expect(screen.getByTestId("note-is-not")).toHaveTextContent(/not a fitted model/);
     expect(screen.getByTestId("result-json")).not.toHaveAttribute("open");
-    const child = JSON.parse(screen.getByTestId("result-child").textContent ?? "{}");
-    expect(child.kind).toBe("overlap");
-    expect(child.parents).toHaveLength(2);
+    const json = JSON.parse(screen.getByTestId("result-child").textContent ?? "{}");
+    expect(json.child.kind).toBe("overlap");
+    expect(json.note.findings.every((f: { cites: string[] }) => f.cites.length > 0)).toBe(true);
     expect(within(screen.getByTestId("results-list")).getAllByRole("listitem")).toHaveLength(1);
-    expect(screen.getByTestId("results-list")).toHaveTextContent(/overlap · 16%/);
+    expect(screen.getByTestId("results-list")).toHaveTextContent(/overlap · 16% · note/);
 
     fireEvent.click(screen.getByTestId("select-work-pz-register-structure")); // deselect
     fireEvent.click(screen.getByTestId("select-work-stub-doi-example"));
@@ -62,12 +70,15 @@ describe("operator bench", () => {
     expect(status()).toHaveTextContent(/refused · compare · STUB_NO_FULLTEXT/);
     expect(screen.getByTestId("result-card").textContent).not.toMatch(/\d+%/); // no fake percent
     expect(screen.queryByTestId("overlap-bar")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("note-findings")).not.toBeInTheDocument(); // a refusal has no note body
 
     fireEvent.click(screen.getByTestId("select-work-pz-ledger-structure")); // deselect
     fireEvent.click(screen.getByTestId("select-work-stub-title-only"));
     fireEvent.click(screen.getByTestId("action-analyze"));
     expect(status()).toHaveTextContent(/ok · analyze · kind question · ok/);
-    expect(screen.getByTestId("result-question")).toHaveTextContent(/could stand beside/);
+    expect(screen.getByTestId("note-question")).toHaveTextContent(/could stand beside/);
+    expect(screen.getByTestId("note-findings")).toHaveTextContent(/No findings: a stub is among the parents/);
+    expect(screen.getByTestId("note-falsify")).toHaveTextContent(/a body appearing on the stub/);
     expect(screen.queryByTestId("overlap-bar")).not.toBeInTheDocument();
     expect(within(screen.getByTestId("results-list")).getAllByRole("listitem")).toHaveLength(2);
     expect(screen.getByTestId("results-list")).toHaveTextContent(/question · —/);

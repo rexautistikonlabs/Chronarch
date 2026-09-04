@@ -1463,6 +1463,32 @@ Bug: the technician room still exposed a second product — /council,
   snippets are the first 160 characters of a body, the question sentence is a
   template over the parents' titles and the declared path.
 
+## RexMetrix — the result is an AnalysisNote
+
+- `web/src/lib/analysisNote.ts` + `specs/ANALYSIS.md`: after a successful
+  Converge / Compare / Analyze the default result is a scientific note built in
+  code from the works, the metrics already computed and the accepted child:
+  question · objects (with roles ledger/register/note/body/stub) · what was
+  compared (path, grants, metric line) · findings (every sentence cites a work
+  id or `metric:jaccard`; no causal language) · assumptions used (only labels
+  already in programme-zero.json, only for the ledger/register pair; else
+  "none declared on these pins") · what would falsify this reading · what this
+  is not (always: not a fitted model, not peer review, not a clinical claim,
+  not an individual score) · appendix (bar + closed JSON). A stub-bearing
+  question has no findings. A refusal has no note body.
+- Copy law on notes is code (`NOTE_BANS`, `noteBanHits`) and tested.
+- The bench card renders the eight sections; the session list adds "note".
+
+### Rejected (kept rejected)
+
+- **LLM-authored findings** — no. No model writes a sentence here. Findings
+  are templates over counts the reader can recompute and ids the reader can
+  open; the one question sentence is a template over titles and the declared
+  path.
+- **"PhD analyzes everything"** — no. The note says only what two bodies and a
+  token ratio can support, names what would falsify that, and lists what it is
+  not. Where the bodies cannot support a section, the section says so.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

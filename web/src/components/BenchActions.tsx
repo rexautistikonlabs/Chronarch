@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { Button } from "react-aria-components";
 
+import { buildNote, type AnalysisNote } from "../lib/analysisNote";
 import { ACTIONS, runAction, type ActionKind, type BenchResult } from "../lib/bench";
 import { percent } from "../lib/metrics";
 import { worksMap } from "../lib/works";
@@ -14,14 +15,15 @@ import { ResultCard } from "./ResultCard";
 
 export function BenchActions({ selected }: { selected: ReadonlySet<string> }) {
   const { works, catalogue, files, results, addResult } = useProgramme();
-  const [result, setResult] = useState<BenchResult | null>(null);
+  const [result, setResult] = useState<{ r: BenchResult; note: AnalysisNote | null } | null>(null);
 
   const run = (action: ActionKind) => {
     const map = worksMap(works);
     const chosen = works.filter((w) => selected.has(w.id));
     const r = runAction(action, chosen, catalogue, files, map);
-    setResult(r);
-    if (r.ok) addResult(r);
+    const note = r.ok ? buildNote(r, map, files) : null;
+    setResult({ r, note });
+    if (r.ok && note) addResult({ ...r, note });
   };
 
   return (
@@ -40,7 +42,7 @@ export function BenchActions({ selected }: { selected: ReadonlySet<string> }) {
 
       <div className="mt-4" data-testid="result-panel">
         <p className="readout text-[11px] uppercase tracking-wider text-dim">result</p>
-        {result === null ? <p className="mt-1 text-xs text-dim">No action run yet.</p> : <div className="mt-2"><ResultCard result={result} /></div>}
+        {result === null ? <p className="mt-1 text-xs text-dim">No action run yet.</p> : <div className="mt-2"><ResultCard result={result.r} note={result.note} /></div>}
       </div>
 
       {results.length > 0 && (
@@ -50,7 +52,7 @@ export function BenchActions({ selected }: { selected: ReadonlySet<string> }) {
             {results.map((r) => (
               <li key={r.child.id}>
                 <span className="text-ivory">{r.parents.map((p) => p.title.split(" — ")[0]).join(" + ")}</span>
-                <span className="readout"> · {r.child.kind} · {r.metrics ? percent(r.metrics.jaccard) : "—"}</span>
+                <span className="readout"> · {r.child.kind} · {r.metrics ? percent(r.metrics.jaccard) : "—"} · note</span>
               </li>
             ))}
           </ul>

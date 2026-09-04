@@ -69,6 +69,11 @@ glossary. Fewer than two selected works is `NEED_PARENTS`. The bench calls no
 model and fetches nothing. The well is the visitor's instrument, not the
 operator's wallpaper.
 
+A successful result is an **AnalysisNote** ([ANALYSIS.md](ANALYSIS.md)): a
+scientific note built in code — question, objects, what was compared,
+findings that each cite a work or a metric, assumptions used, what would
+falsify the reading, what it is not, and an appendix. No model writes it.
+
 A successful result is **readable before it is JSON**: a card with the action,
 kind and verdict; the two parents with title, field, licence and the first 160
 characters of each body; a bar of shared versus unique tokens with the Jaccard
@@ -89,4 +94,4 @@ corpus, no scraping, no PDF ingest. See [WORKS.md](WORKS.md).
 
 [FIELDS.md](FIELDS.md) → [BRIDGES.md](BRIDGES.md) →
 [PROGRAMMES.md](PROGRAMMES.md) → [SYNTHESIS.md](SYNTHESIS.md) →
-[WORKS.md](WORKS.md) → [LEGAL.md](LEGAL.md).
+[WORKS.md](WORKS.md) → [ANALYSIS.md](ANALYSIS.md) → [LEGAL.md](LEGAL.md).
