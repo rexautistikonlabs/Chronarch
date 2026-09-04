@@ -69,6 +69,15 @@ glossary. Fewer than two selected works is `NEED_PARENTS`. The bench calls no
 model and fetches nothing. The well is the visitor's instrument, not the
 operator's wallpaper.
 
+A successful result is **readable before it is JSON**: a card with the action,
+kind and verdict; the two parents with title, field, licence and the first 160
+characters of each body; a bar of shared versus unique tokens with the Jaccard
+ratio as a whole percent — deterministic token counts, never a finding, and
+shown only when both parents have bodies; on a `couple`, the caption "lexical
+overlap only — not a fitted model."; on a stub-bearing `question`, the question
+sentence and no bar. The child's JSON sits under a closed details. The session
+list shows titles, kind and the percent (or none).
+
 ## Works
 
 Only legal works enter RexMetrix: a few preloaded starter works with a licence

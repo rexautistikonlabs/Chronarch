@@ -21,13 +21,13 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-full text-ivory">
       {!isTech && <Well />}
-      <HudTop />
+      <HudTop fixed={!isTech} />
       <Iris />
       <ErrorBoundary name="palette" fallback={() => null}>
         <Palette />
       </ErrorBoundary>
       {isTech ? (
-        <div className="min-h-screen bg-void pt-[176px]" data-testid="tech-bench">
+        <div className="min-h-screen bg-void" data-testid="tech-bench">
           <main className="mx-auto max-w-6xl px-6 pb-16 pt-2">{children}</main>
           <footer className="mx-auto max-w-6xl px-6 pb-8 text-[11px] text-dim">
             <p>web/ is a static viewer of saved JSON fixtures. It spawns no node, opens no socket, reads no filesystem and calls no model.</p>

@@ -73,6 +73,14 @@ describe("acceptUpload (model only)", () => {
   it("bytes claimed without the rights declaration → RIGHTS_UNDECLARED", () => {
     expect(acceptUpload({ title: "Mine", license: "cc-by-4.0", claimsBytes: true, rights: false })).toMatchObject({ ok: false, code: "RIGHTS_UNDECLARED" });
   });
+  it("optional text is a claim of full text: stored under an allowing licence with rights, refused otherwise", () => {
+    const ok = acceptUpload({ title: "My note", license: "cc0", claimsBytes: false, rights: true, text: "  a short body  " });
+    expect(ok.ok).toBe(true);
+    if (ok.ok) expect(ok.work).toMatchObject({ bytes: "present", text: "a short body" });
+    expect(acceptUpload({ title: "Not mine", license: "all-rights-reserved", claimsBytes: false, text: "pasted chapter" })).toMatchObject({ ok: false, code: "FULLTEXT_FORBIDDEN" });
+    expect(acceptUpload({ title: "Mine?", license: "cc-by-4.0", claimsBytes: false, text: "body" })).toMatchObject({ ok: false, code: "RIGHTS_UNDECLARED" });
+  });
+
   it("a legal upload becomes an upload-source work; reserved metadata without bytes is a citation", () => {
     const a = acceptUpload({ title: "My cc-by preprint", license: "cc-by-4.0", claimsBytes: true, rights: true });
     expect(a.ok).toBe(true);

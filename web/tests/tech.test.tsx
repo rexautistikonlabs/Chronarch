@@ -28,16 +28,14 @@ describe("technician room", () => {
     }
   });
 
-  it("sections come in the bench's order: works, actions, programmes, paste, hashes, refuse glossary; the substrate is a closed details", () => {
+  it("sections come in the bench's order: works, actions, refuse glossary, programmes; the substrate is a closed details", () => {
     renderAt("/tech");
     const titles = Array.from(document.querySelectorAll("main > div > section > h2")).map((h) => h.textContent ?? "");
     const idx = (re: RegExp) => titles.findIndex((t) => re.test(t));
     expect(idx(/works/)).toBeGreaterThanOrEqual(0);
     expect(idx(/works/)).toBeLessThan(idx(/actions/));
-    expect(idx(/actions/)).toBeLessThan(idx(/programmes and fixtures/));
-    expect(idx(/programmes and fixtures/)).toBeLessThan(idx(/paste session json/));
-    expect(idx(/paste session json/)).toBeLessThan(idx(/hashes/));
-    expect(idx(/hashes/)).toBeLessThan(idx(/refuse glossary/));
+    expect(idx(/actions/)).toBeLessThan(idx(/refuse glossary/));
+    expect(idx(/refuse glossary/)).toBeLessThan(idx(/^programmes$/));
     const details = screen.getByTestId("substrate-details") as HTMLDetailsElement;
     expect(details.open).toBe(false);
     expect(details).toHaveTextContent(/internal code name Chronarch — not the product/);

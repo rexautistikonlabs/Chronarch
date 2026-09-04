@@ -33,6 +33,7 @@ closed when full text is claimed under a licence that does not allow it.
 | `bytes?` | `false` or `"present"` — a **flag**, never the bytes. No PDF or full text is ever stored in a git fixture; a browser upload is held in memory only |
 | `programme?` | the programme the work belongs to |
 | `field?` | the catalogue field the work is shelved in; a work parents a child only when shelved (`UNKNOWN_FIELD` otherwise) |
+| `text?` | the body, present only when `bytes: "present"` under an allowing licence. In fixtures a body is a short structure-only stand-in written for this repository (≤ 80 words); stubs have none. An upload may carry `text`, and giving one is claiming full text (licence and rights rules apply) |
 
 ## Licence law
 

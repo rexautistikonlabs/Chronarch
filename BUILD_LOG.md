@@ -1434,6 +1434,35 @@ Bug: the technician room still exposed a second product — /council,
   table is decoration that costs a GPU and says nothing the table does not.
   The well is the visitor's instrument; the operator gets a bench.
 
+## RexMetrix — the bench result is readable
+
+- Preload works with bytes present carry a body (`text`): three structure-only
+  stand-ins written for this repository, ≤ 80 words each — no book prose. Stubs
+  stay text-less. `acceptUpload` may take optional `text`; giving one is a
+  claim of full text and meets the same licence and rights rules.
+- `web/src/lib/metrics.ts`: lowercase `[a-z0-9]+` tokens, set Jaccard,
+  shared / onlyLeft / onlyRight, sorted. Same inputs → same outputs; the two
+  Programme Zero stand-ins are pinned at 15 shared of 95 (0.15789…, "16%").
+- The result card: action + kind + ok|code; two parent columns (title, field,
+  licence, 160-char snippet); an SVG bar of shared vs unique tokens with the
+  Jaccard percent — only when both parents have bodies; "lexical overlap only —
+  not a fitted model." on a couple; the question sentence and no bar on a
+  stub-bearing question. Child JSON under a closed details. The session list
+  shows titles, kind and the percent, or "—".
+- /tech: works → actions → readable result → refuse glossary → programmes; the
+  header is in flow on the bench (nothing overlays the glossary); session
+  fixtures, the paste box and the hashes sit under the closed substrate
+  details. Still 0 canvases.
+
+### Rejected (kept rejected)
+
+- **Invented findings** — no. A percent appears only when two bodies exist
+  and it is a token ratio the reader can recompute; a stub yields no number,
+  and a couple says in its caption that it is lexical overlap, not a model.
+- **LLM copy** — no. No model writes a summary, a snippet or a sentence here;
+  snippets are the first 160 characters of a body, the question sentence is a
+  template over the parents' titles and the declared path.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

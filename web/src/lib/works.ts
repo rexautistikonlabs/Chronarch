@@ -25,6 +25,7 @@ export interface Work {
   bytes?: false | "present";
   programme?: string;
   field?: string; // the catalogue field the work is shelved in; a parent needs one
+  text?: string; // the body, when bytes are present under an allowing licence — short, and only ever a stand-in in fixtures
   rights_declared?: boolean;
 }
 
@@ -68,6 +69,7 @@ export interface UploadRequest {
   year?: number;
   programme?: string;
   field?: string;
+  text?: string; // optional body; giving one is claiming full text
 }
 
 export type UploadResult = { ok: true; work: Work } | { ok: false; code: "FULLTEXT_FORBIDDEN" | "LICENSE_MISSING" | "RIGHTS_UNDECLARED"; detail: string };
@@ -78,8 +80,10 @@ let uploadSeq = 0;
  *  the session catalogue in memory; no file is written anywhere. */
 export function acceptUpload(req: UploadRequest): UploadResult {
   if (!isLicense(req.license)) return { ok: false, code: "LICENSE_MISSING", detail: "a licence is required on every record" };
-  if (req.claimsBytes && !allowsFullText(req.license)) return { ok: false, code: "FULLTEXT_FORBIDDEN", detail: `full text may not be claimed under ${req.license}` };
-  if (req.claimsBytes && !req.rights) return { ok: false, code: "RIGHTS_UNDECLARED", detail: "declare that you have rights to this file before claiming its full text" };
+  const text = req.text?.trim() || undefined;
+  const claimsBytes = req.claimsBytes || text !== undefined; // a body is a claim of full text
+  if (claimsBytes && !allowsFullText(req.license)) return { ok: false, code: "FULLTEXT_FORBIDDEN", detail: `full text may not be claimed under ${req.license}` };
+  if (claimsBytes && !req.rights) return { ok: false, code: "RIGHTS_UNDECLARED", detail: "declare that you have rights to this file before claiming its full text" };
   const title = req.title.trim();
   if (!title) return { ok: false, code: "LICENSE_MISSING", detail: "a title is required beside the licence" };
   uploadSeq += 1;
@@ -91,9 +95,10 @@ export function acceptUpload(req: UploadRequest): UploadResult {
     license: req.license,
     oa: allowsFullText(req.license),
     source: "upload",
-    bytes: req.claimsBytes ? "present" : false,
+    bytes: claimsBytes ? "present" : false,
     ...(req.programme ? { programme: req.programme } : {}),
     ...(req.field ? { field: req.field } : {}),
+    ...(text !== undefined ? { text } : {}),
     rights_declared: !!req.rights,
   };
   return { ok: true, work };

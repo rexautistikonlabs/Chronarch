@@ -9,6 +9,7 @@
  *  pin from the selection, finds the declared bridges between the parents'
  *  fields, and lets validateChild accept or refuse it. */
 import { validateChild, type Catalogue, type ChildPin, type JobKind, type LicenseGrant, type ProgrammeFile } from "./programme";
+import { comparePair, snippet, type PairMetrics } from "./metrics";
 import { hasFullText, type Work } from "./works";
 
 export type ActionKind = "converge" | "compare" | "analyze";
@@ -19,7 +20,38 @@ export const ACTIONS: readonly { key: ActionKind; label: string; help: string }[
   { key: "analyze", label: "Analyze", help: "couple models, or open a question if a parent is only a stub." },
 ];
 
-export type BenchResult = { ok: true; child: ChildPin; walk: string[]; bridges: string[] } | { ok: false; code: string; detail: string };
+export interface ParentView {
+  id: string;
+  title: string;
+  field: string;
+  license: string;
+  snippet: string | null; // first 160 chars of the body; null for a stub
+}
+
+export interface BenchOk {
+  ok: true;
+  action: ActionKind;
+  child: ChildPin;
+  walk: string[];
+  bridges: string[];
+  parents: ParentView[];
+  /** Present only when exactly two parents both have bodies. Never invented. */
+  metrics: PairMetrics | null;
+  /** The question a stub-bearing analyze asks; null otherwise. */
+  question: string | null;
+}
+export interface BenchRefused {
+  ok: false;
+  action: ActionKind;
+  code: string;
+  detail: string;
+  parents: ParentView[];
+}
+export type BenchResult = BenchOk | BenchRefused;
+
+export function parentView(w: Work): ParentView {
+  return { id: w.id, title: w.title, field: w.field ?? "—", license: w.license, snippet: w.text && hasFullText(w) ? snippet(w.text) : null };
+}
 
 /** Shortest path of live bridges between two fields, as bridge ids. Null when none. */
 export function bridgePath(cat: Catalogue, from: string, to: string): string[] | null {
@@ -58,11 +90,13 @@ export function kindFor(action: ActionKind, parents: Work[]): JobKind {
 let seq = 0;
 
 export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, files: ProgrammeFile[], works: Map<string, Work>): BenchResult {
-  if (selected.length < 2) return { ok: false, code: "NEED_PARENTS", detail: "select at least two works; a child needs parents" };
+  const views = selected.map(parentView);
+  const refuse = (code: string, detail: string): BenchRefused => ({ ok: false, action, code, detail, parents: views });
+  if (selected.length < 2) return refuse("NEED_PARENTS", "select at least two works; a child needs parents");
   const kind = kindFor(action, selected);
   const parents = selected.map((w) => ({ pin: `pin:${w.id}`, field: w.field ?? "", work: w.id }));
   for (const p of parents) {
-    if (!p.field) return { ok: false, code: "UNKNOWN_FIELD", detail: `work ${p.work} is not shelved in a field; give it one before it parents a child` };
+    if (!p.field) return refuse("UNKNOWN_FIELD", `work ${p.work} is not shelved in a field; give it one before it parents a child`);
   }
   // The declared connection: shortest live path between consecutive parent fields.
   const fields = parents.map((p) => p.field);
@@ -98,14 +132,24 @@ export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, 
     subject: "cohort-level literature",
     writes_to: null,
   };
-  if (noBridge !== null) return { ok: false, code: "NO_BRIDGE", detail: `no declared live path between ${noBridge}` };
+  if (noBridge !== null) return refuse("NO_BRIDGE", `no declared live path between ${noBridge}`);
   try {
     const r = validateChild(cat, child, works);
-    return { ok: true, child, ...r };
+    const [l, rgt] = selected;
+    const bothBodies = selected.length === 2 && !!l?.text && hasFullText(l) && !!rgt?.text && hasFullText(rgt);
+    const metrics = bothBodies ? comparePair(l!.text!, rgt!.text!) : null;
+    const question = kind === "question" ? questionFor(selected, path) : null;
+    return { ok: true, action, child, ...r, parents: views, metrics, question };
   } catch (e) {
     const err = e as { code?: string; message: string };
-    return { ok: false, code: err.code ?? "REFUSED", detail: err.message };
+    return refuse(err.code ?? "REFUSED", err.message);
   }
+}
+
+function questionFor(selected: Work[], path: string[]): string {
+  const [a, b] = selected;
+  const along = path.length ? ` along ${path.join(" → ")}` : "";
+  return `What in “${a?.title ?? "?"}” could stand beside what in “${b?.title ?? "?"}”${along}? A stub is among the parents, so this pin asks and claims nothing.`;
 }
 
 function methodFor(action: ActionKind, kind: JobKind, selected: Work[]): string {

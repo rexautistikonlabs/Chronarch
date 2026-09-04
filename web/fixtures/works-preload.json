@@ -1,6 +1,6 @@
 {
   "schema": "rexmetrix.works/1",
-  "note": "A few legal starter works. Hand-written; metadata and licence on every row; no PDF bytes anywhere in this repository \u2014 `bytes` is a flag. Programme Zero rows are structure-only stand-ins in our own words, not book chapters. `field` shelves a work in a catalogue field so it may parent a synthesis; the public-domain named work is left unshelved on purpose.",
+  "note": "A few legal starter works. Hand-written; metadata and licence on every row; no PDF bytes anywhere in this repository \u2014 `bytes` is a flag. Programme Zero rows are structure-only stand-ins in our own words, not book chapters. `field` shelves a work in a catalogue field so it may parent a synthesis; the public-domain named work is left unshelved on purpose. Bodies (`text`) are short structure-only stand-ins written for this repository, at most 80 words each; stubs have none.",
   "works": [
     {
       "id": "work-pz-ledger-structure",
@@ -11,7 +11,8 @@
       "source": "preload",
       "bytes": "present",
       "programme": "programme-zero",
-      "field": "autistikon-programme-zero"
+      "field": "autistikon-programme-zero",
+      "text": "An assumption ledger lists every assumption a bridge rests on. Each entry names the assumption, the fields it spans, the evidence it leans on, and a rating: conjectural, supported, contested or established. No entry starts as established. Re-rating an entry is an amendment: the old rating stays beside the new with a date and a reason. A ledger is read before any synthesis job runs, and a job may claim no more than the lowest rating on its path allows."
     },
     {
       "id": "work-pz-register-structure",
@@ -22,7 +23,8 @@
       "source": "preload",
       "bytes": "present",
       "programme": "programme-zero",
-      "field": "autistikon-programme-zero"
+      "field": "autistikon-programme-zero",
+      "text": "A falsification register lists what would break a bridge. Each entry names the falsifier, the pre-registered check that would show it, the consequence the programme must carry out when it does, and an anti-rescue rule: the bridge may not be saved afterwards by redefining its terms. Consequences are costly by design: retire the bridge, re-rate an assumption, drop an item from the locked array, or stop the programme early under its clock."
     },
     {
       "id": "work-toy-materials-note",
@@ -33,7 +35,8 @@
       "source": "preload",
       "bytes": "present",
       "programme": "programme-toy",
-      "field": "toy-materials"
+      "field": "toy-materials",
+      "text": "A toy materials note for the invented demo field. It lists stiffness and strength values in megapascals for three made-up samples, states the units, and records nothing about any real material. The note exists so the demo programme has one body to read beside its stubs. Its locked array has four items; changing that list is an amendment, never a silent edit."
     },
     {
       "id": "work-darwin-1859",

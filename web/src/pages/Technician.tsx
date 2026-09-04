@@ -55,7 +55,7 @@ export function Technician() {
 
   return (
     <div>
-      <PageHeader eyebrow="rexmetrix · technician room · operator bench" title="One room for the operator." lede={<>A flat bench: works and their licences, a selection, three actions that each write one child pin or refuse, the programmes and fixtures, a paste box for session JSON, the hashes when a session is loaded, and the refuse glossary. HTML only — no well on this route. The bench calls no model, fetches nothing, and refuses anything that is not a well-formed input.</>} />
+      <PageHeader eyebrow="rexmetrix · technician room · operator bench" title="One room for the operator." lede={<>A flat bench: works and their licences, a selection, three actions that each write one child pin or refuse, and a readable result — the two parents, their snippets, a token-overlap bar when both have bodies. HTML only — no well on this route. The bench calls no model, fetches nothing, and refuses anything that is not a well-formed input. Session fixtures, the paste box and the hashes sit under the substrate details.</>} />
 
       <Section title="works · only legal works enter">
         <WorksPanel selected={selected} onToggle={toggle} />
@@ -63,46 +63,6 @@ export function Technician() {
 
       <Section title="actions · converge, compare, analyze">
         <BenchActions selected={selected} />
-      </Section>
-
-      <Section title="programmes and fixtures">
-        <p>The programme well (the visitor route) draws one programme at a time; pick it here or there. These are static fixtures, not a live catalogue.</p>
-        <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="tech-programmes">
-          <span className="readout text-[11px] uppercase tracking-wider text-dim">programme</span>
-          {PROGRAMME_CHIPS.map((chip) => (
-            <Button key={chip.fixture} onPress={() => loadProgramme(chip.fixture as ProgrammeName)} className={`readout border hair px-2.5 py-1 text-xs ${programmeName === chip.fixture ? "bg-panel text-ivory" : "text-mute hover:text-ivory"}`} data-testid={`tech-${chip.fixture}`} aria-pressed={programmeName === chip.fixture}>
-              {chip.label} <span className="text-dim">· {chip.fixture}</span>
-            </Button>
-          ))}
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="readout text-[11px] uppercase tracking-wider text-dim">session fixtures (substrate records)</span>
-          {(Object.keys(FIXTURES) as FixtureName[]).map((name) => (
-            <Button key={name} onPress={() => { loadFixture(name); setApplied(null); }} className="readout border hair bg-panel px-2.5 py-1 text-xs text-ivory hover:bg-line pressed:bg-line" data-testid={`load-${name}`}>
-              {name}
-            </Button>
-          ))}
-        </div>
-        <div className="mt-2"><SessionMeta /></div>
-      </Section>
-
-      <Section title="paste session json">
-        <TextField className="flex flex-col gap-1" aria-label="Session JSON">
-          <Label className="readout text-[11px] uppercase tracking-wider text-dim">session json</Label>
-          <TextArea value={text} onChange={(e) => setText(e.target.value)} placeholder={EXAMPLE} rows={10} spellCheck={false} className="readout w-full resize-y border hair bg-ink p-3 text-xs text-ivory placeholder:text-dim" data-testid="json-input" />
-        </TextField>
-        <div className="mt-2 flex items-center gap-3">
-          <Button onPress={apply} isDisabled={!text.trim()} className="border hair bg-panel px-3 py-1.5 text-sm text-ivory hover:bg-line disabled:opacity-40" data-testid="apply-json">Apply pasted JSON</Button>
-          <Button onPress={() => { setText(""); setApplied(null); }} className="px-2 py-1.5 text-sm text-mute hover:text-ivory">Clear</Button>
-          {applied === "applied" && <span className="readout text-xs text-verdigris" data-testid="apply-result">applied</span>}
-          {applied === "refused" && <span className="readout text-xs text-ivory" data-testid="apply-result">refused — {error}</span>}
-          <span className="ml-auto"><MotionBadge /></span>
-        </div>
-      </Section>
-
-      <Section title="hashes (loaded session)">
-        <StatBar state={s} />
-        <p className="readout mt-2 break-all text-[11px] text-dim" data-testid="head-hash-full">head_hash {s.head_hash || "—"}</p>
       </Section>
 
       <Section title="refuse glossary">
@@ -114,13 +74,52 @@ export function Technician() {
         <p className="mt-2 text-xs">Refusals are hard errors: a refused job writes nothing. The written rules: <code className="readout">specs/SYNTHESIS.md</code>, <code className="readout">specs/WORKS.md</code>, <code className="readout">specs/LEGAL.md</code>; for institutions, <Link to="/about" className="text-ivory underline underline-offset-2">About</Link>.</p>
       </Section>
 
+      <Section title="programmes">
+        <p>The programme well (the visitor route) draws one programme at a time; pick it here or there. These are static fixtures, not a live catalogue.</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="tech-programmes">
+          <span className="readout text-[11px] uppercase tracking-wider text-dim">programme</span>
+          {PROGRAMME_CHIPS.map((chip) => (
+            <Button key={chip.fixture} onPress={() => loadProgramme(chip.fixture as ProgrammeName)} className={`readout border hair px-2.5 py-1 text-xs ${programmeName === chip.fixture ? "bg-panel text-ivory" : "text-mute hover:text-ivory"}`} data-testid={`tech-${chip.fixture}`} aria-pressed={programmeName === chip.fixture}>
+              {chip.label} <span className="text-dim">· {chip.fixture}</span>
+            </Button>
+          ))}
+        </div>
+      </Section>
+
       <details className="mt-8 border hair bg-ink" data-testid="substrate-details">
         <summary className="cursor-pointer px-4 py-2 text-xs text-mute">
           <span className="readout uppercase tracking-wider text-dim">substrate instrument</span>
           <span className="ml-2">internal code name Chronarch — not the product</span>
         </summary>
         <div className="px-4 pb-4 text-sm text-mute">
-          <p className="mt-2 text-xs">Under RexMetrix sits a research substrate: an append-only history of pins, a forbidden-key screen, a fail-closed replay. The technician well draws its instrument when a session record is loaded. None of this is offered to a tenant as a feature; it is here so an operator can read what the node JSON says.</p>
+          <p className="mt-2 text-xs">Under RexMetrix sits a research substrate: an append-only history of pins, a forbidden-key screen, a fail-closed replay. None of this is offered to a tenant as a feature; it is here so an operator can read what the node JSON says.</p>
+          <Section title="session fixtures (substrate records)">
+            <div className="flex flex-wrap items-center gap-2">
+              {(Object.keys(FIXTURES) as FixtureName[]).map((name) => (
+                <Button key={name} onPress={() => { loadFixture(name); setApplied(null); }} className="readout border hair bg-panel px-2.5 py-1 text-xs text-ivory hover:bg-line pressed:bg-line" data-testid={`load-${name}`}>
+                  {name}
+                </Button>
+              ))}
+            </div>
+            <div className="mt-2"><SessionMeta /></div>
+          </Section>
+          <Section title="paste session json">
+            <TextField className="flex flex-col gap-1" aria-label="Session JSON">
+              <Label className="readout text-[11px] uppercase tracking-wider text-dim">session json</Label>
+              <TextArea value={text} onChange={(e) => setText(e.target.value)} placeholder={EXAMPLE} rows={10} spellCheck={false} className="readout w-full resize-y border hair bg-ink p-3 text-xs text-ivory placeholder:text-dim" data-testid="json-input" />
+            </TextField>
+            <div className="mt-2 flex items-center gap-3">
+              <Button onPress={apply} isDisabled={!text.trim()} className="border hair bg-panel px-3 py-1.5 text-sm text-ivory hover:bg-line disabled:opacity-40" data-testid="apply-json">Apply pasted JSON</Button>
+              <Button onPress={() => { setText(""); setApplied(null); }} className="px-2 py-1.5 text-sm text-mute hover:text-ivory">Clear</Button>
+              {applied === "applied" && <span className="readout text-xs text-verdigris" data-testid="apply-result">applied</span>}
+              {applied === "refused" && <span className="readout text-xs text-ivory" data-testid="apply-result">refused — {error}</span>}
+              <span className="ml-auto"><MotionBadge /></span>
+            </div>
+          </Section>
+          <Section title="hashes (loaded session)">
+            <StatBar state={s} />
+            <p className="readout mt-2 break-all text-[11px] text-dim" data-testid="head-hash-full">head_hash {s.head_hash || "—"}</p>
+          </Section>
           <Section title="credits by reason (counts, not a price)">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <Readout label="space" value={fmtChronons(c.space)} />

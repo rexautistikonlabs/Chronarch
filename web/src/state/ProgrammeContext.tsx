@@ -8,6 +8,7 @@ import zeroFixture from "../../fixtures/programme-zero.json";
 import childFixture from "../../fixtures/synthesis-child.json";
 import worksFixture from "../../fixtures/works-preload.json";
 import { catalogueOf, programmeCounts, Refusal, validateChild, type Catalogue, type ChildPin, type ProgrammeFile } from "../lib/programme";
+import type { BenchOk } from "../lib/bench";
 import { acceptUpload, worksMap, type UploadRequest, type UploadResult, type Work, type WorksFile } from "../lib/works";
 
 export const PROGRAMMES = {
@@ -31,8 +32,8 @@ interface ProgrammeCtx {
   preloadCount: number;
   upload: (req: UploadRequest) => UploadResult;
   files: ProgrammeFile[];
-  results: ChildPin[]; // children the bench produced this session (memory only)
-  addResult: (c: ChildPin) => void;
+  results: BenchOk[]; // what the bench produced this session (memory only)
+  addResult: (r: BenchOk) => void;
 }
 
 const Ctx = createContext<ProgrammeCtx | null>(null);
@@ -40,8 +41,8 @@ const Ctx = createContext<ProgrammeCtx | null>(null);
 export function ProgrammeProvider({ children, initial = "programme-zero.json" }: { children: ReactNode; initial?: ProgrammeName }) {
   const [programmeName, setName] = useState<ProgrammeName>(initial);
   const [uploads, setUploads] = useState<Work[]>([]);
-  const [results, setResults] = useState<ChildPin[]>([]);
-  const addResult = useCallback((c: ChildPin) => setResults((r) => [...r, c]), []);
+  const [results, setResults] = useState<BenchOk[]>([]);
+  const addResult = useCallback((r: BenchOk) => setResults((rs) => [...rs, r]), []);
   const files = useMemo(() => Object.values(PROGRAMMES), []);
   const works = useMemo(() => [...PRELOAD_WORKS, ...uploads], [uploads]);
   const catalogue = useMemo(() => catalogueOf(Object.values(PROGRAMMES)), []);

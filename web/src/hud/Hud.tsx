@@ -12,11 +12,11 @@ import { useWell } from "../state/WellContext";
 export const PLAIN_STATUS =
   "RexMetrix is research software for hypothesis-led programmes: an array of fields, the bridges a group declares between them, and syntheses that name their parents. It is not a diagnostic, it is not Foundation-endorsed, and it is not a public chain.";
 
-export function HudTop() {
+export function HudTop({ fixed = true }: { fixed?: boolean }) {
   const { isTech, setPaletteOpen } = useWell();
   const { session } = useSession();
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-30">
+    <header className={fixed ? "pointer-events-none fixed inset-x-0 top-0 z-30" : "relative z-30 border-b hair pb-4"} data-testid="hud-top" data-fixed={String(fixed)}>
       <div className="hud-strip pointer-events-auto flex flex-wrap items-baseline gap-x-5 gap-y-1 px-5 py-1.5 text-[11px]" data-testid="status-banner">
         <span className="hud-label">status</span>
         <span className="text-mute">{HONESTY}</span>
