@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import type { Group } from "three";
 
 import { ONE_SHOT } from "../lib/motion";
+import { hold } from "./renderPolicy";
 import type { Pose } from "../lib/pose";
 
 /** The Timechain as stacked rings. Ring 0 (genesis) is the thick base ring;
@@ -20,12 +21,14 @@ export function Timechain({ pose, palette, reduced }: { pose: Pose; palette: { r
       return;
     }
     groups.forEach((g) => g.scale.setScalar(0.001));
-    const tl = gsap.timeline({ ...ONE_SHOT, onUpdate: invalidate, onComplete: invalidate });
+    const release = hold("rings");
+    const tl = gsap.timeline({ ...ONE_SHOT, onUpdate: invalidate, onComplete: () => { release(); invalidate(); } });
     groups.forEach((g, i) => {
       tl.to(g.scale, { x: 1, y: 1, z: 1, duration: 0.45, ease: "power2.out" }, i * 0.05);
     });
     return () => {
       tl.kill();
+      release();
     };
   }, [pose.seed, reduced]);
 

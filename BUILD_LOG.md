@@ -1265,6 +1265,33 @@ phosphor HUD. Two audiences stay: the floor (`/`) and the technician room
 - **Hide the disclaimer** — no. Plain words above the fold, the STATUS strip
   at the very top, the footer again.
 
+## web/ — smooth the well: a render policy, not an idle loop
+
+Bug: camera ease, iris, record switch and bloom spike looked stepped.
+`frameloop="demand"` does not paint GSAP ticks unless `invalidate()` runs on
+every one; toggling demand↔always mid-gesture hitched; the EffectComposer made
+the few frames that did paint expensive.
+
+- **Render policy** (`web/src/scene/renderPolicy.ts`): one ledger of holds.
+  The loop is `always` while anything holds it — pointer down, pointer moving
+  in the well, the focus tween, a record-switch settle, the iris, a bloom spike,
+  damping still converging — and returns to `demand` plus one final
+  `invalidate()` 200 ms after the last release. Every camera/iris/bloom tween
+  holds the ledger and invalidates on every tick (tested).
+- **No remount**: the Canvas camera prop is a stable ref, so a HUD re-render
+  (card open, bench hover, record switch) never re-applies it or touches the gl
+  (tested: same DOM node across all three).
+- **Cheap compositor**: EffectComposer mounts only during a spike and unmounts
+  after; plain render at rest. `dpr [1, 1.5]`, no shadows, multisampling 0.
+- Reduced motion unchanged: no holds, instant cuts, cards only.
+
+### Rejected (kept rejected)
+
+- **An idle loop as a smoothness cheat** — no. Leaving `frameloop="always"` on
+  would make every tween smooth and every idle second a lie: a still well must
+  draw nothing. Smoothness comes from holding the loop *for the duration of a
+  thing that is happening* and invalidating on every tick, then sleeping.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

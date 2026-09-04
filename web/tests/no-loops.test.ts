@@ -68,12 +68,34 @@ describe("animation law", () => {
     }
     const rig = readFileSync(join(ROOT, RIG), "utf8");
     expect(rig).toMatch(/useFrame\(\(_state, delta\)/); // delta in, clock never
-    expect(rig).toMatch(/setFrameloop\("demand"\)/); // it always goes back to sleep
-    expect(rig).toMatch(/POINTER_STOP_MS = 300/);
+    const well = readFileSync(join(ROOT, "src/scene/Well.tsx"), "utf8");
+    expect(well).toMatch(/subscribe\(\(awake\) => \{\s*setLoop\(awake \? "always" : "demand"\)/); // the loop mode follows the ledger …
+    expect(well).toMatch(/if \(!awake\) invalidate\(\)/); // … and sleeping paints one last frame
+    const policy = readFileSync(join(ROOT, "src/scene/renderPolicy.ts"), "utf8");
+    expect(policy).toMatch(/IDLE_MS = 200/);
   });
 
-  it("the well is drawn on demand", () => {
+  it("the well is drawn on demand, with a cheap compositor", () => {
     const well = readFileSync(join(ROOT, "src/scene/Well.tsx"), "utf8");
-    expect(well).toContain('frameloop="demand"');
+    expect(well).toContain("frameloop={loop}"); // the prop is the ledger's word, never a literal "always"
+    expect(well).toMatch(/useState<"always" \| "demand">\("demand"\)/); // and it starts asleep
+    expect(well).toContain("dpr={[1, 1.5]}");
+    expect(well).toContain("shadows={false}");
+    expect(well).not.toMatch(/castShadow|receiveShadow/);
+    const energy = readFileSync(join(ROOT, "src/scene/Energy.tsx"), "utf8");
+    expect(energy).toContain("if (!spiking) return null;"); // no EffectComposer at rest
+    expect(energy).toMatch(/multisampling=\{0\}/);
+  });
+
+  it("every tween that moves the camera, the iris or the bloom invalidates on every tick and holds the loop", () => {
+    for (const rel of ["src/scene/PointerRig.tsx", "src/hud/Iris.tsx", "src/scene/Energy.tsx", "src/scene/Timechain.tsx", "src/scene/Council.tsx", "src/scene/DummyMind.tsx"]) {
+      const text = readFileSync(join(ROOT, rel), "utf8");
+      const timelines = text.match(/gsap\.timeline\(\{[\s\S]*?\}\);/g) ?? [];
+      expect(timelines.length, rel).toBeGreaterThan(0);
+      for (const t of timelines) {
+        expect(t, `${rel}: ${t}`).toMatch(/onUpdate: (invalidate|\(\) => \{[\s\S]*invalidate\(\))/);
+      }
+      expect(text, rel).toMatch(/hold\("/);
+    }
   });
 });

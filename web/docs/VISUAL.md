@@ -47,6 +47,28 @@ zoom on wheel. That damping is the only per-frame code in `web/`, and it reads
   after the pointer stops** — held a little longer only until the damping has
   converged, capped at six checks, then it lands exactly and draws one last
   frame. With no pointer and no event, no frame is drawn.
+- **Render policy — invalidate on every tween tick.** `frameloop="demand"`
+  alone does not paint GSAP ticks: a tween that changes the camera, the iris or
+  the bloom must call `invalidate()` from `@react-three/fiber` on *every*
+  `onUpdate`, or it steps. And toggling demand↔always mid-gesture hitches. So
+  one ledger (`src/scene/renderPolicy.ts`) owns the loop: the loop is `always`
+  while anything **holds** it — pointer down, pointer moving in the well, the
+  camera focus tween, a record-switch settle, the iris, a bloom spike, the
+  damping still converging — and goes back to `demand` plus one final
+  `invalidate()` **200 ms after the last hold is released**. Every tween both
+  holds the ledger for its duration and invalidates on each tick (**law:**
+  `tests/no-loops.test.ts`, `tests/render-policy.test.ts`). The loop mode is
+  the Canvas `frameloop` prop itself, following the ledger — R3F re-applies that
+  prop on every render, so a runtime `setFrameloop()` would be undone by the
+  next HUD re-render and the loop would die mid-damping (it did). The Canvas
+  and its gl are never remounted by any of this: the loop *mode* changes,
+  nothing else;
+  a card opening or a bench hover re-renders the HUD, not the well
+  (`tests/remount.test.tsx`).
+- **Cheap compositor.** No EffectComposer at rest: it is mounted only while a
+  bloom/grain spike runs and unmounted when the spike ends, so the resting
+  frame is a plain render. `dpr` is capped at `[1, 1.5]`, shadows are off, the
+  composer's multisampling is 0.
 - **Law** (`tests/no-loops.test.ts`): the repeating-animation grep is still
   empty; `useFrame` exists only in `src/scene/PointerRig.tsx` and its signature
   reads `delta`; no file under `src/scene` or `src/hud` reads a clock

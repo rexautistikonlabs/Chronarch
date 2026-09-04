@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import type { Mesh } from "three";
 
 import { ONE_SHOT } from "../lib/motion";
+import { hold } from "./renderPolicy";
 import type { Pose } from "../lib/pose";
 
 /** Council: seats in an arc, and the proposal — a hex prism that docks at the
@@ -25,11 +26,13 @@ export function Council({ pose, palette, position, reduced }: { pose: Pose; pale
       return;
     }
     m.position.set(park[0], park[1], park[2]);
-    const tl = gsap.timeline({ ...ONE_SHOT, onUpdate: invalidate, onComplete: invalidate });
+    const release = hold("dock");
+    const tl = gsap.timeline({ ...ONE_SHOT, onUpdate: invalidate, onComplete: () => { release(); invalidate(); } });
     tl.to(m.position, { x: dock[0], y: dock[1] + 0.35, z: dock[2], duration: 0.6, ease: "power2.inOut" });
     tl.to(m.position, { y: dock[1], duration: 0.35, ease: "power3.in" });
     return () => {
       tl.kill();
+      release();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pose.seed, docked, reduced]);

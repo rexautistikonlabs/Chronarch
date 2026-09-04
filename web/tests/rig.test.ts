@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { cameraSpherical, damp, sphericalToPosition } from "../src/scene/focus";
-import { POINTER_STOP_MS } from "../src/scene/PointerRig";
+import { IDLE_MS } from "../src/scene/renderPolicy";
 import { derivePose } from "../src/lib/pose";
 import { emptyState } from "../src/lib/session";
 
@@ -17,8 +17,8 @@ describe("pointer rig maths (pure)", () => {
     expect(damp(0.5, 0.5, 0)).toBe(0.5);
   });
 
-  it("the rig sleeps 300 ms after the pointer stops", () => {
-    expect(POINTER_STOP_MS).toBe(300);
+  it("the loop sleeps 200 ms after the last hold is released", () => {
+    expect(IDLE_MS).toBe(200);
   });
 
   it("spherical goals are seeded by the pose and land where cameraGoal used to", () => {

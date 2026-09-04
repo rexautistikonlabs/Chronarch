@@ -3,8 +3,8 @@
  *  sealed box); what changed is how it is met — hover a bench for its edge
  *  and label, click to select — and that the camera is pointer-live.
  *  frameloop="demand": with no pointer and no event, no frame is drawn. */
-import { Canvas } from "@react-three/fiber";
-import { useMemo } from "react";
+import { Canvas, invalidate } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { BENCHES } from "../lib/human";
@@ -21,6 +21,7 @@ import { Hearth } from "./Hearth";
 import { VOID } from "./palette";
 import { PinsWell } from "./PinsWell";
 import { PointerRig } from "./PointerRig";
+import { subscribe } from "./renderPolicy";
 import { Timechain } from "./Timechain";
 
 export function webglAvailable(): boolean {
@@ -43,7 +44,23 @@ export function Well() {
   const pose = useMemo(() => derivePose(state), [state]);
   const palette = useMemo(() => posePalette(state), [state]);
   const ok = useMemo(() => webglAvailable(), []);
-  const start = cameraGoal(focus, pose);
+  // The camera prop is applied by R3F whenever it changes; keep it stable so a
+  // HUD re-render (hover, card open) never snaps the camera or touches the gl.
+  const initialCamera = useRef({ position: cameraGoal(focus, pose).position, fov: 34, near: 0.1, far: 100 });
+  // The loop mode IS the Canvas prop. R3F re-applies `frameloop` on every
+  // render, so a runtime setFrameloop() would be undone by the next HUD
+  // re-render; letting the prop follow the ledger keeps prop and store agreed.
+  // Awake → "always" (GSAP ticks and damping paint every frame); asleep →
+  // "demand" plus one final invalidate so the last state is painted.
+  const [loop, setLoop] = useState<"always" | "demand">("demand");
+  useEffect(
+    () =>
+      subscribe((awake) => {
+        setLoop(awake ? "always" : "demand");
+        if (!awake) invalidate();
+      }),
+    [],
+  );
   const ringsH = Math.max(0.6, pose.rings.length * 0.26);
 
   if (!ok) {
@@ -58,9 +75,9 @@ export function Well() {
   }
 
   return (
-    <div className="fixed inset-0 bg-void" data-testid="viewport" data-seed={pose.seed} data-focus={focus} data-reduced-motion={reduced ? "true" : "false"}>
+    <div className="fixed inset-0 bg-void" data-testid="viewport" data-seed={pose.seed} data-focus={focus} data-loop={loop} data-reduced-motion={reduced ? "true" : "false"}>
       <ErrorBoundary name="scene" className="absolute inset-0 flex items-center justify-center">
-        <Canvas frameloop="demand" dpr={[1, 1.75]} camera={{ position: start.position, fov: 34, near: 0.1, far: 100 }} gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}>
+        <Canvas frameloop={loop} dpr={[1, 1.5]} shadows={false} camera={initialCamera.current} gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}>
           <color attach="background" args={[VOID]} />
           <fog attach="fog" args={[VOID, 13, 27]} />
           <ambientLight intensity={0.45} />

@@ -145,5 +145,5 @@ a:focus-visible, button:focus-visible, [role="button"]:focus-visible, textarea:f
 
 /* Reduced motion: no camera follow, no spike, cards only — and no CSS motion. */
 @media (prefers-reduced-motion: reduce) {
-  .iris { display: none; }
+  .iris-ring { display: none; }
 }
