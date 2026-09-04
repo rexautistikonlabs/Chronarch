@@ -46,8 +46,15 @@ bridges, programmes and synthesis. It does not expose Council governance, rings
 as coins, a token, or a network. Operators may still read hashes and the
 operator path in the technician room; a visitor meets programmes.
 
+## Works
+
+Only legal works enter RexMetrix: a few preloaded starter works with a licence
+on every record, uploads a tenant has rights to (licence required; full text
+under a disallowed licence is refused), and metadata-only index stubs. No world
+corpus, no scraping, no PDF ingest. See [WORKS.md](WORKS.md).
+
 ## Reading order
 
 [FIELDS.md](FIELDS.md) → [BRIDGES.md](BRIDGES.md) →
 [PROGRAMMES.md](PROGRAMMES.md) → [SYNTHESIS.md](SYNTHESIS.md) →
-[LEGAL.md](LEGAL.md).
+[WORKS.md](WORKS.md) → [LEGAL.md](LEGAL.md).

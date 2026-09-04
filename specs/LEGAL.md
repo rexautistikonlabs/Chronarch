@@ -33,5 +33,11 @@ illustrative of the object's shape, not a real license.
 - No public blockchain, token, wallet, coin, or "digital organism" — the
   internal substrate is not the product ([PRODUCT.md](PRODUCT.md)).
 
+**Works.** Only legal works enter: every record carries a licence; full text
+may be flagged present only under `cc-by-4.0`, `cc0`, `mit`, `public-domain` or
+`arxiv-nonexclusive` (`FULLTEXT_FORBIDDEN` otherwise); a metadata stub is a
+citation, not a body (`STUB_NO_FULLTEXT`). No publisher PDFs, no scraped dumps,
+no "the literature" — see [WORKS.md](WORKS.md).
+
 **Visitor copy.** The same bans apply to every visitor-facing string in
 `web/` and are tested (`web/tests/rexmetrix-honesty.test.tsx`).

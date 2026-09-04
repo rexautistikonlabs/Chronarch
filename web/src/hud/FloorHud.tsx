@@ -9,7 +9,7 @@ import { useProgramme, type ProgrammeName } from "../state/ProgrammeContext";
 import { useWell } from "../state/WellContext";
 
 export function FloorHud() {
-  const { programme, programmeName, child, childVerdict, loadProgramme } = useProgramme();
+  const { programme, programmeName, child, childVerdict, loadProgramme, preloadCount } = useProgramme();
   const { bench, hovered, selectBench, setHovered } = useWell();
   const active = BENCHES.find((b) => b.key === bench) ?? null;
   const card = active?.card(programme, child, childVerdict) ?? null;
@@ -33,6 +33,7 @@ export function FloorHud() {
         </div>
       )}
 
+      <p className="pointer-events-auto self-start text-[11px] text-dim" data-testid="works-line">A few legal starter works. You add what you have rights to.</p>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="pointer-events-auto flex flex-wrap items-center gap-2" data-testid="programme-chips">
           <span className="hud-label">programme</span>
@@ -67,6 +68,10 @@ export function FloorHud() {
             <div className={`readout text-lg leading-tight ${r.tone === "amber" ? "text-amber" : r.tone === "mute" ? "text-mute" : "text-phosphor"}`} data-testid={r.testId}>{r.value}</div>
           </div>
         ))}
+        <div className="hud-readout" title="A few legal starter works. You add what you have rights to.">
+          <div className="text-[10px] text-dim">starter works</div>
+          <div className="readout text-lg leading-tight text-phosphor" data-testid="works-count">{preloadCount}</div>
+        </div>
         <div className="ml-auto self-end"><MotionBadge /></div>
       </div>
     </main>

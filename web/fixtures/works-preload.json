@@ -1,0 +1,73 @@
+{
+  "schema": "rexmetrix.works/1",
+  "note": "A few legal starter works. Hand-written; metadata and licence on every row; no PDF bytes anywhere in this repository — `bytes` is a flag. Programme Zero rows are structure-only stand-ins in our own words, not book chapters.",
+  "works": [
+    {
+      "id": "work-pz-ledger-structure",
+      "title": "Assumption ledger (structure only) — Programme Zero control-document stand-in",
+      "year": 2026,
+      "license": "cc-by-4.0",
+      "oa": true,
+      "source": "preload",
+      "bytes": "present",
+      "programme": "programme-zero"
+    },
+    {
+      "id": "work-pz-register-structure",
+      "title": "Falsification register (structure only) — Programme Zero control-document stand-in",
+      "year": 2026,
+      "license": "cc-by-4.0",
+      "oa": true,
+      "source": "preload",
+      "bytes": "present",
+      "programme": "programme-zero"
+    },
+    {
+      "id": "work-toy-materials-note",
+      "title": "Toy materials demo note (invented; stands for nothing real)",
+      "year": 2026,
+      "license": "cc0",
+      "oa": true,
+      "source": "preload",
+      "bytes": "present",
+      "programme": "programme-toy"
+    },
+    {
+      "id": "work-darwin-1859",
+      "title": "On the Origin of Species (1859) — public-domain named work, metadata only",
+      "year": 1859,
+      "license": "public-domain",
+      "oa": true,
+      "source": "preload",
+      "bytes": false
+    },
+    {
+      "id": "work-arxiv-style-example",
+      "title": "arXiv-style metadata row (example; title and year only, no bytes)",
+      "year": 2024,
+      "license": "arxiv-nonexclusive",
+      "oa": true,
+      "source": "preload",
+      "bytes": false
+    },
+    {
+      "id": "work-stub-doi-example",
+      "title": "Index stub with an example DOI (metadata only)",
+      "doi": "10.0000/rexmetrix.example.stub",
+      "year": 2023,
+      "license": "stub-metadata",
+      "oa": false,
+      "source": "preload",
+      "bytes": false
+    },
+    {
+      "id": "work-stub-title-only",
+      "title": "Index stub, title and year only",
+      "year": 2021,
+      "license": "stub-metadata",
+      "oa": false,
+      "source": "preload",
+      "bytes": false
+    }
+  ]
+}

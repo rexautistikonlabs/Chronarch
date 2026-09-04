@@ -58,7 +58,7 @@ export interface ChildPin {
   schema?: "rexmetrix.child/1";
   id: string;
   kind: JobKind;
-  parents: { pin: string; field: string }[];
+  parents: { pin: string; field: string; work?: string }[];
   path?: string[];
   clique?: string[];
   method: string;
@@ -73,7 +73,7 @@ export interface Catalogue {
   bridges: Map<string, Bridge>;
 }
 
-export type RefusalCode = "NO_BRIDGE" | "LICENSE_MISSING" | "INDIVIDUAL_SCORE_FORBIDDEN" | "CROSS_SECTOR_WRITE" | "BAD_KIND" | "UNKNOWN_FIELD";
+export type RefusalCode = "NO_BRIDGE" | "LICENSE_MISSING" | "INDIVIDUAL_SCORE_FORBIDDEN" | "CROSS_SECTOR_WRITE" | "BAD_KIND" | "UNKNOWN_FIELD" | "FULLTEXT_FORBIDDEN" | "STUB_NO_FULLTEXT" | "UNKNOWN_WORK";
 
 export class Refusal extends Error {
   constructor(public readonly code: RefusalCode, detail: string) {
@@ -124,10 +124,35 @@ export function requestIndividualScore(_field: string, _subject?: string): never
   throw new Refusal("INDIVIDUAL_SCORE_FORBIDDEN", "RexMetrix computes no individual-level score, index or assessment on any field's construct; the Programme Zero corpus forbids it explicitly");
 }
 
-/** Validate a child against a catalogue. Throws a Refusal; returns the ordered
- *  field walk of the path (or the clique's bridges) when the child is legal. */
-export function validateChild(cat: Catalogue, child: ChildPin): { walk: string[]; bridges: string[] } {
+/** Jobs that read bodies, not citations. A `question` may cite a stub. */
+export const BODY_JOBS: ReadonlySet<JobKind> = new Set<JobKind>(["overlap", "match", "couple"]);
+
+/** The subset of the works model this validator needs (specs/WORKS.md). */
+export interface WorkRef {
+  id: string;
+  license: string;
+  oa: boolean;
+  bytes?: false | "present";
+}
+const FULLTEXT_OK = new Set(["cc-by-4.0", "cc0", "mit", "public-domain", "arxiv-nonexclusive"]);
+
+/** Validate a child against a catalogue (and, when given, the works its parents
+ *  cite). Throws a Refusal; returns the ordered field walk of the path (or the
+ *  clique's bridges) when the child is legal. */
+export function validateChild(cat: Catalogue, child: ChildPin, works?: Map<string, WorkRef>): { walk: string[]; bridges: string[] } {
   if (!JOB_KINDS.includes(child.kind)) throw new Refusal("BAD_KIND", `kind ${String(child.kind)} is not overlap|match|couple|question`);
+
+  // Works: only legal works enter; a body is needed by overlap|match|couple.
+  for (const p of child.parents) {
+    if (!p.work) continue;
+    if (!works) throw new Refusal("UNKNOWN_WORK", `parent cites work ${p.work} but no works catalogue was given`);
+    const w = works.get(p.work);
+    if (!w) throw new Refusal("UNKNOWN_WORK", `parent cites work ${p.work}, which is not in the works catalogue`);
+    if (!w.license) throw new Refusal("LICENSE_MISSING", `work ${w.id} has no licence`);
+    if (w.bytes === "present" && !FULLTEXT_OK.has(w.license)) throw new Refusal("FULLTEXT_FORBIDDEN", `work ${w.id} claims full text under ${w.license}`);
+    const body = w.bytes === "present" && FULLTEXT_OK.has(w.license) && w.oa;
+    if (!body && BODY_JOBS.has(child.kind)) throw new Refusal("STUB_NO_FULLTEXT", `a ${child.kind} job needs a body; work ${w.id} is a citation only (a question may cite it)`);
+  }
   if (child.parents.length < 2) throw new Refusal("NO_BRIDGE", "a child needs parents in at least two fields");
   const parentFields = child.parents.map((p) => p.field);
   for (const f of parentFields) if (!cat.fields.has(f)) throw new Refusal("UNKNOWN_FIELD", `parent field ${f} is not in the catalogue`);

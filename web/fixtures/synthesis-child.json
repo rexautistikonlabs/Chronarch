@@ -3,7 +3,7 @@
   "id": "child-q-001",
   "kind": "question",
   "parents": [
-    { "pin": "pin:autistikon:0007", "field": "autistikon-programme-zero" },
+    { "pin": "pin:autistikon:0007", "field": "autistikon-programme-zero", "work": "work-pz-ledger-structure" },
     { "pin": "pin:toy-acoustics:0003", "field": "toy-acoustics" }
   ],
   "path": ["bridge-mechanics-phenomenology", "bridge-materials-mechanics", "bridge-materials-acoustics"],

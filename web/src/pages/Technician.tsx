@@ -10,6 +10,7 @@ import { NotList, PageHeader, Section } from "../components/Page";
 import { Readout } from "../components/Readout";
 import { SessionMeta } from "../components/SessionMeta";
 import { StatBar } from "../components/StatBar";
+import { WorksPanel } from "../components/WorksPanel";
 import { fmtChronons } from "../lib/format";
 import { GYM_CASES } from "../lib/gym";
 import { FIXTURES, useSession, type FixtureName } from "../state/SessionContext";
@@ -119,6 +120,10 @@ export function Technician() {
           ))}
         </ul>
         <p className="mt-2 text-xs">Gym cases target Chronarch only; a case against an external target is rejected at the schema layer. Attested compute in this session: <span className="readout text-ivory" data-testid="attested">{String(s.attested)}</span>.</p>
+      </Section>
+
+      <Section title="works · only legal works enter">
+        <WorksPanel />
       </Section>
 
       <Section title="protocol views">

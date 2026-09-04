@@ -21,7 +21,7 @@ overwrites a parent and never writes into a parent's field across a sector.
   "id": "child-q-001",
   "kind": "question",
   "parents": [
-    { "pin": "pin:autistikon:0007", "field": "autistikon-programme-zero" },
+    { "pin": "pin:autistikon:0007", "field": "autistikon-programme-zero", "work": "work-pz-ledger-structure" },
     { "pin": "pin:toy-acoustics:0003", "field": "toy-acoustics" }
   ],
   "path": ["bridge-mechanics-phenomenology", "bridge-materials-mechanics", "bridge-materials-acoustics"],
@@ -45,6 +45,8 @@ live bridges covering every pair of parent fields) is required.
 | `LICENSE_MISSING` | a parent's field has `license_required` and no grant in `grants[]` covers it (the Programme Zero corpus is at arm's length: a `license_grant` must exist before its pins parent a RexMetrix child) |
 | `INDIVIDUAL_SCORE_FORBIDDEN` | the job's `subject` is an individual, or its method asks for a person-level score, index or assessment, and any parent field's anti-overreach pack forbids it — the Programme Zero corpus always does. There is no derived index, scoring algorithm or assessment instrument in RexMetrix, and a helper that would request one refuses |
 | `CROSS_SECTOR_WRITE` | `writes_to` names a field whose `sector` differs from the child's declared `sector` |
+| `FULLTEXT_FORBIDDEN` | a parent names a work flagged `bytes: "present"` under a licence that does not allow full text ([WORKS.md](WORKS.md)) |
+| `STUB_NO_FULLTEXT` | an `overlap`, `match` or `couple` job names a work with no body (a stub, `oa: false`, or no bytes); a `question` may cite it |
 | `BAD_KIND` | `kind` is not one of the four jobs |
 | `UNKNOWN_FIELD` | a parent names a field not in the catalogue |
 

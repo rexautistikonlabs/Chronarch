@@ -61,6 +61,15 @@ awake only while something holds the render policy and for 200 ms after. See
 Loading Programme Zero vs the toy programme moves `field-count` 2 → 3 and
 `bridge-count` 1 → 2 in the readouts (tested).
 
+## Works
+
+Only legal works enter: `fixtures/works-preload.json` ships a few starter
+works (metadata + licence on every row, `bytes` as a flag, never bytes);
+`/tech` has the upload model (title, licence, rights declaration) that refuses
+`FULLTEXT_FORBIDDEN` / `LICENSE_MISSING` / `RIGHTS_UNDECLARED` and keeps an
+accepted record in memory only; a metadata stub is `STUB_NO_FULLTEXT` — a
+question may cite it, overlap/match/couple refuse it. See `specs/WORKS.md`.
+
 ## Product law in code
 
 `src/lib/programme.ts` implements the refusals from `specs/SYNTHESIS.md` as

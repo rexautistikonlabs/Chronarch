@@ -1349,6 +1349,42 @@ machine, Hearth, lottery and agent hats/silos are untouched.
 - **Pasting the book into the repo** — no. Control-document structure in our
   own words and short cited phrases only; the prose is the author's copyright.
 
+## RexMetrix — works: only legal works enter
+
+- **specs/WORKS.md**: the Work object (id, title, doi?, licence, oa, source,
+  bytes as a flag, programme?); full text flagged present only under cc-by-4.0,
+  cc0, mit, public-domain or arxiv-nonexclusive; `FULLTEXT_FORBIDDEN`,
+  `LICENSE_MISSING` (reused), `STUB_NO_FULLTEXT`; preload / upload (model only)
+  / index stubs. Pointers from PRODUCT.md and LEGAL.md; SYNTHESIS.md gains the
+  two codes.
+- **web/fixtures/works-preload.json**: seven hand-written rows — two Programme
+  Zero control-document stand-ins (structure only), a toy stand-in, a
+  public-domain named work (metadata only), an arXiv-style row under
+  arxiv-nonexclusive with no bytes, two metadata stubs. Every row has a licence
+  and `source: "preload"`; no bytes anywhere.
+- **web/src/lib/works.ts**: `validateWork`, `acceptUpload` (reserved + bytes →
+  FULLTEXT_FORBIDDEN; no licence → LICENSE_MISSING; bytes without the rights
+  declaration → RIGHTS_UNDECLARED; else an upload-source record in memory).
+  `programme.ts`: parents may cite a work; overlap|match|couple need a body,
+  a question may cite a stub; forbidden full text refuses.
+- **web**: floor readout "starter works" + one line ("A few legal starter
+  works. You add what you have rights to."); /tech works list, upload form
+  (title, licence, rights checkbox), refuse codes. No file binary stored, no
+  fetch, no bibliographic client, no PDF ingest. Honesty sentences and well law
+  unchanged.
+
+### Rejected (kept rejected)
+
+- **A wholesale literature dump** — no. A few legal starter works; a tenant
+  adds what it has rights to. Not a world corpus.
+- **Paywalled PDF fixtures** — no. `bytes` is a flag; no PDF or full text is
+  ever committed; all-rights-reserved with bytes present is refused in code.
+- **Scrape adapters** — no. No URL fetch, no live bibliographic client, no
+  publisher or shadow-library ingest.
+- **"Public knowledge = public files"** — no. A public-domain *work* is a
+  metadata row here until someone with rights adds a body under a licence that
+  allows it; knowing a paper exists is not having its bytes.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
