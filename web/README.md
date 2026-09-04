@@ -42,7 +42,7 @@ awake only while something holds the render policy and for 200 ms after. See
 |---|---|---|
 | `/` | a visitor | the programme well: honesty sentence, two programme chips (*Programme Zero*, *Toy programme*), four benches (**Fields, Bridges, Programmes, Synthesis**), readouts in programme words (fields, bridges, assumptions rated, falsifiers registered, items locked, stops on). No protocol names, no hex, no credits. |
 | `/about` | a visitor | what RexMetrix is, Programme Zero as the example programme, what RexMetrix will not ship |
-| `/tech` | a technician | **one operator room**: works (list + upload model), programmes and fixtures, paste `memory` / `pulse` / `net status` / session JSON, hashes when a session is loaded, refuse codes; then a closed "substrate instrument" details block (internal code name Chronarch — not the product). `/lab`, `/council`, `/timechain`, `/hearth`, `/farm`, `/gym`, `/operator` redirect here; `/consortium` to `/about`. |
+| `/tech` | a technician | **one workbench**, one column: filters (All \| Autistikon \| Classics), a field–bridge graph of live bridges only, the works table with a Programme column and the upload model, Converge / Compare / Analyze that disable with a reason, the AnalysisNote, Copy Markdown / Download .md; then the refuse glossary and a closed "substrate instrument" details block (programmes, fixtures, paste JSON, hashes; internal code name Chronarch — not the product). `/lab`, `/council`, `/timechain`, `/hearth`, `/farm`, `/gym`, `/operator` redirect here; `/consortium` to `/about`. |
 
 ## Fixtures
 

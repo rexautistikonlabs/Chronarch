@@ -48,6 +48,7 @@ export interface BenchRefused {
   code: string;
   detail: string;
   parents: ParentView[];
+  missing?: [string, string]; // the field pair with no declared live path (NO_BRIDGE)
 }
 export type BenchResult = BenchOk | BenchRefused;
 
@@ -110,11 +111,11 @@ export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, 
   // The declared connection: shortest live path between consecutive parent fields.
   const fields = parents.map((p) => p.field);
   let path: string[] = [];
-  let noBridge: string | null = null;
+  let noBridge: [string, string] | null = null;
   for (let i = 0; i < fields.length - 1; i++) {
     const seg = bridgePath(cat, fields[i]!, fields[i + 1]!);
     if (seg === null) {
-      noBridge = `${fields[i]} and ${fields[i + 1]}`;
+      noBridge = [fields[i]!, fields[i + 1]!];
       break;
     }
     path = path.concat(seg);
@@ -141,7 +142,7 @@ export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, 
     subject: "cohort-level literature",
     writes_to: null,
   };
-  if (noBridge !== null) return refuse("NO_BRIDGE", `no declared live path between ${noBridge}`);
+  if (noBridge !== null) return { ...refuse("NO_BRIDGE", `no path ${noBridge[0]} — ${noBridge[1]}`), missing: noBridge };
   try {
     const r = validateChild(cat, child, works);
     const [l, rgt] = selected;
@@ -166,4 +167,26 @@ function methodFor(action: ActionKind, kind: JobKind, selected: Work[]): string 
   if (action === "converge") return `overlap: shared identifiers and citations between ${titles}`;
   if (action === "compare") return `match: agreement of the bodies of ${titles}, one to one, unmatched remainder listed`;
   return kind === "question" ? `question: what one parent could stand beside in the other, along the declared path — a stub among the parents, so a pin that asks and claims nothing (${titles})` : `couple: a joint reading of ${titles} along the declared path, at the reliability the ledger permits`;
+}
+
+/** What each action would do with the current selection, without doing it.
+ *  runAction is pure apart from the child id counter, so a dry run is the
+ *  same law the click would run. Buttons disable with the first blocking code. */
+export interface Availability {
+  action: ActionKind;
+  enabled: boolean;
+  code: string | null;
+  reason: string | null;
+  missing: [string, string] | null;
+}
+
+export function availability(selected: Work[], cat: Catalogue, files: ProgrammeFile[], works: Map<string, Work>): Availability[] {
+  const before = seq;
+  const out = ACTIONS.map((a) => {
+    const r = runAction(a.key, selected, cat, files, works);
+    if (r.ok) return { action: a.key, enabled: true, code: null, reason: null, missing: null };
+    return { action: a.key, enabled: false, code: r.code, reason: r.detail, missing: r.missing ?? null };
+  });
+  seq = before; // a dry run mints no child ids
+  return out;
 }

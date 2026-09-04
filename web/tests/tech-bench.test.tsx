@@ -22,7 +22,8 @@ describe("operator bench", () => {
   it("sections come in the bench's order; session fixtures, paste and hashes live under the closed substrate details", () => {
     renderAt("/tech");
     const h2 = Array.from(document.querySelectorAll("main > div > section > h2")).map((h) => h.textContent ?? "");
-    expect(h2.map((t) => t.split(" ·")[0])).toEqual(["works", "actions", "refuse glossary", "programmes"]);
+    expect(h2.map((t) => t.split(" ·")[0])).toEqual(["filters", "field–bridge graph", "works", "actions", "result", "export", "refuse glossary"]);
+    expect(screen.getByTestId("substrate-details")).toContainElement(screen.getByTestId("tech-programmes"));
     const details = screen.getByTestId("substrate-details");
     expect(details).not.toHaveAttribute("open");
     expect(details).toContainElement(screen.getByTestId("json-input"));
@@ -32,13 +33,16 @@ describe("operator bench", () => {
     expect(screen.getByTestId("hud-top")).toHaveAttribute("data-fixed", "false");
   });
 
-  it("select two cc-by stand-ins → Converge → an overlap child; one selection → NEED_PARENTS; a stub → Compare refuses; two stubs → Analyze asks", () => {
+  it("select two cc-by stand-ins → Converge → an overlap child; one selection → NEED_PARENTS disables; a stub → Compare disabled STUB_NO_FULLTEXT; two stubs → Analyze asks", () => {
     renderAt("/tech");
     const status = () => screen.getByTestId("result-status");
     fireEvent.click(screen.getByTestId("select-work-pz-ledger-structure"));
     expect(screen.getByTestId("selected-count")).toHaveTextContent("1");
+    // the workbench disables an action that would refuse, and says why; nothing runs
+    expect(screen.getByTestId("action-converge")).toHaveAttribute("data-code", "NEED_PARENTS");
+    expect(screen.getByTestId("why-converge")).toHaveTextContent("NEED_PARENTS");
     fireEvent.click(screen.getByTestId("action-converge"));
-    expect(status()).toHaveTextContent(/refused · converge · NEED_PARENTS/);
+    expect(screen.queryByTestId("result-status")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("select-work-pz-register-structure"));
     fireEvent.click(screen.getByTestId("action-converge"));
@@ -66,11 +70,12 @@ describe("operator bench", () => {
 
     fireEvent.click(screen.getByTestId("select-work-pz-register-structure")); // deselect
     fireEvent.click(screen.getByTestId("select-work-stub-doi-example"));
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-enabled", "false");
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-code", "STUB_NO_FULLTEXT");
+    expect(screen.getByTestId("actions-helper")).toHaveTextContent(/STUB_NO_FULLTEXT/);
     fireEvent.click(screen.getByTestId("action-compare"));
-    expect(status()).toHaveTextContent(/refused · compare · STUB_NO_FULLTEXT/);
-    expect(screen.getByTestId("result-card").textContent).not.toMatch(/\d+%/); // no fake percent
-    expect(screen.queryByTestId("overlap-bar")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("note-findings")).not.toBeInTheDocument(); // a refusal has no note body
+    expect(status()).toHaveTextContent(/ok · converge/); // the earlier result stands; no fake percent was written
+    expect(within(screen.getByTestId("results-list")).getAllByRole("listitem")).toHaveLength(1);
 
     fireEvent.click(screen.getByTestId("select-work-pz-ledger-structure")); // deselect
     fireEvent.click(screen.getByTestId("select-work-stub-title-only"));

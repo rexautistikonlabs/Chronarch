@@ -1,63 +1,64 @@
-/** Three actions over the selected works, and the readable result. Each action
- *  is a synthesis job run through the product's law; the result is a card —
- *  the two parents, their snippets, a token-overlap bar when both have bodies,
- *  a question sentence when a stub is among them — with the child's JSON under
- *  a closed details. Results accumulate in memory. No model, no fetch. */
-import { useState } from "react";
+/** Three actions over the selected works. Each is enabled only when the
+ *  current selection would pass the bench law for that job; otherwise it is
+ *  disabled and says why (the first blocking code, and the missing field pair
+ *  for NO_BRIDGE). Clicking runs the same law and hands the result up. */
 import { Button } from "react-aria-components";
 
 import { buildNote, type AnalysisNote } from "../lib/analysisNote";
-import { ACTIONS, runAction, type ActionKind, type BenchResult } from "../lib/bench";
-import { percent } from "../lib/metrics";
+import { ACTIONS, availability, runAction, type ActionKind, type BenchResult } from "../lib/bench";
 import { worksMap } from "../lib/works";
 import { useProgramme } from "../state/ProgrammeContext";
-import { ResultCard } from "./ResultCard";
 
-export function BenchActions({ selected }: { selected: ReadonlySet<string> }) {
-  const { works, catalogue, files, results, addResult } = useProgramme();
-  const [result, setResult] = useState<{ r: BenchResult; note: AnalysisNote | null } | null>(null);
+export function BenchActions({ selected, onRun }: { selected: ReadonlySet<string>; onRun: (r: BenchResult, note: AnalysisNote | null) => void }) {
+  const { works, catalogue, files, addResult } = useProgramme();
+  const map = worksMap(works);
+  const chosen = works.filter((w) => selected.has(w.id));
+  const avail = availability(chosen, catalogue, files, map);
+  const blocking = avail.find((a) => !a.enabled) ?? null;
+  const allBlocked = avail.every((a) => !a.enabled);
 
   const run = (action: ActionKind) => {
-    const map = worksMap(works);
-    const chosen = works.filter((w) => selected.has(w.id));
     const r = runAction(action, chosen, catalogue, files, map);
     const note = r.ok ? buildNote(r, map, files) : null;
-    setResult({ r, note });
     if (r.ok && note) addResult({ ...r, note });
+    onRun(r, note);
   };
 
   return (
     <div>
       <p className="text-xs text-mute">
-        Selected: <span className="readout text-ivory" data-testid="selected-count">{selected.size}</span> work{selected.size === 1 ? "" : "s"}. Each action writes one child pin with these as parents — or refuses.
+        Selected: <span className="readout text-ivory" data-testid="selected-count">{selected.size}</span> work{selected.size === 1 ? "" : "s"}. Each action writes one child pin with these as parents — or is disabled with its reason.
       </p>
       <div className="mt-3 grid gap-2 sm:grid-cols-3" data-testid="bench-actions">
-        {ACTIONS.map((a) => (
-          <div key={a.key} className="border hair bg-ink p-3">
-            <Button onPress={() => run(a.key)} className="border hair bg-panel px-3 py-1.5 text-sm text-ivory hover:bg-line" data-testid={`action-${a.key}`}>{a.label}</Button>
-            <p className="mt-2 text-[11px] text-dim">{a.help}</p>
-          </div>
-        ))}
+        {ACTIONS.map((a) => {
+          const av = avail.find((x) => x.action === a.key)!;
+          return (
+            <div key={a.key} className="border hair bg-ink p-3">
+              <Button
+                onPress={() => run(a.key)}
+                isDisabled={!av.enabled}
+                aria-disabled={!av.enabled}
+                className={`border hair px-3 py-1.5 text-sm ${av.enabled ? "bg-panel text-ivory hover:bg-line" : "text-dim opacity-60"}`}
+                data-testid={`action-${a.key}`}
+                data-enabled={String(av.enabled)}
+                data-code={av.code ?? ""}
+                aria-label={av.enabled ? a.label : `${a.label} — disabled: ${av.code}`}
+              >
+                {a.label}
+              </Button>
+              <p className="mt-2 text-[11px] text-dim">{a.help}</p>
+              {!av.enabled && <p className="readout mt-1 text-[10px] text-mute" data-testid={`why-${a.key}`}>{av.code}{av.missing ? ` · no path ${av.missing[0]} — ${av.missing[1]}` : ""}</p>}
+            </div>
+          );
+        })}
       </div>
-
-      <div className="mt-4" data-testid="result-panel">
-        <p className="readout text-[11px] uppercase tracking-wider text-dim">result</p>
-        {result === null ? <p className="mt-1 text-xs text-dim">No action run yet.</p> : <div className="mt-2"><ResultCard result={result.r} note={result.note} /></div>}
-      </div>
-
-      {results.length > 0 && (
-        <div className="mt-4">
-          <p className="readout text-[11px] uppercase tracking-wider text-dim">results this session ({results.length}, memory only)</p>
-          <ul className="mt-1 space-y-0.5 text-[12px] text-mute" data-testid="results-list">
-            {results.map((r) => (
-              <li key={r.child.id}>
-                <span className="text-ivory">{r.parents.map((p) => p.title.split(" — ")[0]).join(" + ")}</span>
-                <span className="readout"> · {r.child.kind} · {r.metrics ? percent(r.metrics.jaccard) : "—"} · note</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <p className="readout mt-2 text-[11px] text-mute" data-testid="actions-helper">
+        {allBlocked && blocking
+          ? `blocked: ${blocking.code}${blocking.missing ? ` — no path ${blocking.missing[0]} — ${blocking.missing[1]}` : ""}${blocking.reason && !blocking.reason.startsWith("no path") ? ` · ${blocking.reason}` : ""}`
+          : blocking
+            ? `some actions are blocked: ${blocking.code}${blocking.missing ? ` — no path ${blocking.missing[0]} — ${blocking.missing[1]}` : ""}`
+            : "every action would pass the bench law for this selection."}
+      </p>
     </div>
   );
 }

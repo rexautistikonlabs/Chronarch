@@ -4,11 +4,12 @@
 import { useState } from "react";
 import { Button, Checkbox, Label, Select, SelectValue, TextArea, TextField, Input, Popover, ListBox, ListBoxItem } from "react-aria-components";
 
-import { hasFullText, LICENSES, REFUSAL_CODES_WORKS, type License } from "../lib/works";
+import { programmeLabel } from "../lib/filters";
+import { hasFullText, LICENSES, REFUSAL_CODES_WORKS, type License, type Work } from "../lib/works";
 import { useProgramme } from "../state/ProgrammeContext";
 
-export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<string>; onToggle: (id: string) => void }) {
-  const { works, preloadCount, upload, catalogue } = useProgramme();
+export function WorksPanel({ selected, onToggle, visible }: { selected: ReadonlySet<string>; onToggle: (id: string) => void; visible: Work[] }) {
+  const { preloadCount, upload, catalogue } = useProgramme();
   const [field, setField] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [text, setText] = useState("");
@@ -43,6 +44,7 @@ export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<strin
               <th className="px-2 py-1 text-left"><span className="sr-only">select</span></th>
               <th className="px-2 py-1 text-left">id</th>
               <th className="px-2 py-1 text-left">title</th>
+              <th className="px-2 py-1 text-left">programme</th>
               <th className="px-2 py-1 text-left">license</th>
               <th className="px-2 py-1 text-left">oa</th>
               <th className="px-2 py-1 text-left">source</th>
@@ -52,11 +54,12 @@ export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<strin
             </tr>
           </thead>
           <tbody>
-            {works.map((w) => (
+            {visible.map((w) => (
               <tr key={w.id} className={`border-t hair text-mute ${selected.has(w.id) ? "bg-panel" : ""}`} data-testid={`work-${w.id}`}>
                 <td className="px-2 py-1"><input type="checkbox" checked={selected.has(w.id)} onChange={() => onToggle(w.id)} aria-label={`select ${w.title}`} data-testid={`select-${w.id}`} /></td>
                 <td className="px-2 py-1 text-ivory">{w.id}</td>
                 <td className="px-2 py-1">{w.title}</td>
+                <td className="px-2 py-1" data-testid={`programme-${w.id}`}>{programmeLabel(w)}</td>
                 <td className="px-2 py-1">{w.license}</td>
                 <td className="px-2 py-1">{String(w.oa)}</td>
                 <td className="px-2 py-1">{w.source}</td>

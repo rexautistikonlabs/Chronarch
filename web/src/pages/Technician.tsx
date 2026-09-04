@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Button, Label, TextArea, TextField } from "react-aria-components";
 import { Link } from "react-router-dom";
 
+import type { AnalysisNote } from "../lib/analysisNote";
+import type { BenchResult } from "../lib/bench";
 import { BenchActions } from "../components/BenchActions";
+import { ExportPanel } from "../components/ExportPanel";
+import { FieldGraph } from "../components/FieldGraph";
+import { ResultCard } from "../components/ResultCard";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import JsonViewer from "../components/JsonViewer";
 import { Legend } from "../components/Legend";
@@ -14,7 +19,10 @@ import { StatBar } from "../components/StatBar";
 import { WorksPanel } from "../components/WorksPanel";
 import { fmtChronons } from "../lib/format";
 import { GYM_CASES } from "../lib/gym";
+import { applyFilter, FILTERS, type FilterKey } from "../lib/filters";
 import { PROGRAMME_CHIPS } from "../lib/human";
+import { percent } from "../lib/metrics";
+import { bridgePath } from "../lib/bench";
 import { useProgramme, type ProgrammeName } from "../state/ProgrammeContext";
 import { FIXTURES, useSession, type FixtureName } from "../state/SessionContext";
 
@@ -40,8 +48,19 @@ const EXAMPLE = `{"ok": true, "result": {"identity": "chronarch-pulse", "height"
  *  Chronarch — not the product). Not the default landing. */
 export function Technician() {
   const { session, error, loadFixture, loadText } = useSession();
-  const { programmeName, loadProgramme } = useProgramme();
+  const { programmeName, loadProgramme, works, catalogue, results } = useProgramme();
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+  const [filter, setFilter] = useState<FilterKey>("all");
+  const [fieldFilter, setFieldFilter] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<{ r: BenchResult; n: AnalysisNote | null } | null>(null);
+  const visible = applyFilter(works, filter, fieldFilter);
+  const chosen = works.filter((w) => selected.has(w.id));
+  // the first consecutive pair of selected fields with no declared live path
+  const missing = (() => {
+    const fields = chosen.map((w) => w.field).filter((f): f is string => !!f);
+    for (let i = 0; i < fields.length - 1; i++) if (fields[i] !== fields[i + 1] && bridgePath(catalogue, fields[i]!, fields[i + 1]!) === null) return [fields[i]!, fields[i + 1]!] as [string, string];
+    return null;
+  })();
   const toggle = (id: string) => setSelected((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const [text, setText] = useState("");
   const [applied, setApplied] = useState<string | null>(null);
@@ -55,35 +74,62 @@ export function Technician() {
 
   return (
     <div>
-      <PageHeader eyebrow="rexmetrix · technician room · operator bench" title="One room for the operator." lede={<>A flat bench: works and their licences, a selection, three actions that each write one child pin or refuse, and a readable result — the two parents, their snippets, a token-overlap bar when both have bodies. HTML only — no well on this route. The bench calls no model, fetches nothing, and refuses anything that is not a well-formed input. Session fixtures, the paste box and the hashes sit under the substrate details.</>} />
+      <PageHeader eyebrow="rexmetrix · technician · workbench" title="One room for the operator." lede={<>Filters, the field–bridge graph, the works and their licences, a selection, three actions that enable only when the bench law would pass, the note, and its export. HTML only — no well on this route. The workbench calls no model, fetches nothing, adds no bridge on its own, and refuses anything that is not a well-formed input.</>} />
+
+      <Section title="filters">
+        <div className="flex flex-wrap items-center gap-2" data-testid="filters">
+          {FILTERS.map((f) => (
+            <Button key={f.key} onPress={() => setFilter(f.key)} aria-pressed={filter === f.key} className={`readout border hair px-2.5 py-1 text-xs ${filter === f.key ? "bg-panel text-ivory" : "text-mute hover:text-ivory"}`} data-testid={`filter-${f.key}`}>
+              {f.label} <span className="text-dim">· {applyFilter(works, f.key, null).length}</span>
+            </Button>
+          ))}
+          {fieldFilter && (
+            <Button onPress={() => setFieldFilter(null)} className="readout border hair px-2.5 py-1 text-xs text-ivory" data-testid="clear-field-filter">field: {fieldFilter} ×</Button>
+          )}
+          <span className="readout text-[11px] text-dim">All = every preload + this session's uploads · Autistikon = the Programme Zero stand-ins · Classics = the six public-domain fields</span>
+        </div>
+      </Section>
+
+      <Section title="field–bridge graph">
+        <FieldGraph cat={catalogue} highlighted={new Set(chosen.map((w) => w.field ?? ""))} missing={missing} activeField={fieldFilter} onPickField={setFieldFilter} />
+      </Section>
 
       <Section title="works · only legal works enter">
-        <WorksPanel selected={selected} onToggle={toggle} />
+        <WorksPanel selected={selected} onToggle={toggle} visible={visible} />
       </Section>
 
       <Section title="actions · converge, compare, analyze">
-        <BenchActions selected={selected} />
+        <BenchActions selected={selected} onRun={(r, n) => setOutcome({ r, n })} />
+      </Section>
+
+      <Section title="result">
+        {outcome === null ? <p className="text-xs text-dim">No action run yet.</p> : <ResultCard result={outcome.r} note={outcome.n} />}
+        {results.length > 0 && (
+          <div className="mt-3">
+            <p className="readout text-[11px] uppercase tracking-wider text-dim">results this session ({results.length}, memory only)</p>
+            <ul className="mt-1 space-y-0.5 text-[12px] text-mute" data-testid="results-list">
+              {results.map((r) => (
+                <li key={r.child.id}>
+                  <span className="text-ivory">{r.parents.map((p) => p.title.split(" — ")[0]).join(" + ")}</span>
+                  <span className="readout"> · {r.child.kind} · {r.metrics ? percent(r.metrics.jaccard) : "—"} · note</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Section>
+
+      <Section title="export">
+        {outcome?.r.ok && outcome.n ? <ExportPanel result={outcome.r} note={outcome.n} /> : <p className="text-xs text-dim">Run an action; a successful note can be copied or downloaded as Markdown. No network.</p>}
       </Section>
 
       <Section title="refuse glossary">
-        <ul className="readout grid gap-1 text-xs sm:grid-cols-2" data-testid="refuse-codes">
+        <ul className="readout grid gap-1 text-[11px] sm:grid-cols-2 lg:grid-cols-3" data-testid="refuse-codes">
           {REFUSE_CODES.map(([code, note]) => (
             <li key={code} className="flex gap-2"><span className="shrink-0 text-ivory">{code}</span><span className="text-mute">{note}</span></li>
           ))}
         </ul>
-        <p className="mt-2 text-xs">Refusals are hard errors: a refused job writes nothing. The written rules: <code className="readout">specs/SYNTHESIS.md</code>, <code className="readout">specs/WORKS.md</code>, <code className="readout">specs/LEGAL.md</code>; for institutions, <Link to="/about" className="text-ivory underline underline-offset-2">About</Link>.</p>
-      </Section>
-
-      <Section title="programmes">
-        <p>The programme well (the visitor route) draws one programme at a time; pick it here or there. These are static fixtures, not a live catalogue.</p>
-        <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="tech-programmes">
-          <span className="readout text-[11px] uppercase tracking-wider text-dim">programme</span>
-          {PROGRAMME_CHIPS.map((chip) => (
-            <Button key={chip.fixture} onPress={() => loadProgramme(chip.fixture as ProgrammeName)} className={`readout border hair px-2.5 py-1 text-xs ${programmeName === chip.fixture ? "bg-panel text-ivory" : "text-mute hover:text-ivory"}`} data-testid={`tech-${chip.fixture}`} aria-pressed={programmeName === chip.fixture}>
-              {chip.label} <span className="text-dim">· {chip.fixture}</span>
-            </Button>
-          ))}
-        </div>
+        <p className="mt-2 text-xs">Refusals are hard errors: a refused job writes nothing. Rules: <code className="readout">specs/SYNTHESIS.md</code>, <code className="readout">specs/WORKS.md</code>, <code className="readout">specs/LEGAL.md</code>; for institutions, <Link to="/about" className="text-ivory underline underline-offset-2">About</Link>.</p>
       </Section>
 
       <details className="mt-8 border hair bg-ink" data-testid="substrate-details">
@@ -93,6 +139,15 @@ export function Technician() {
         </summary>
         <div className="px-4 pb-4 text-sm text-mute">
           <p className="mt-2 text-xs">Under RexMetrix sits a research substrate: an append-only history of pins, a forbidden-key screen, a fail-closed replay. None of this is offered to a tenant as a feature; it is here so an operator can read what the node JSON says.</p>
+          <Section title="programmes (drive the visitor well)">
+            <div className="flex flex-wrap items-center gap-2" data-testid="tech-programmes">
+              {PROGRAMME_CHIPS.map((chip) => (
+                <Button key={chip.fixture} onPress={() => loadProgramme(chip.fixture as ProgrammeName)} className={`readout border hair px-2.5 py-1 text-xs ${programmeName === chip.fixture ? "bg-panel text-ivory" : "text-mute hover:text-ivory"}`} data-testid={`tech-${chip.fixture}`} aria-pressed={programmeName === chip.fixture}>
+                  {chip.label} <span className="text-dim">· {chip.fixture}</span>
+                </Button>
+              ))}
+            </div>
+          </Section>
           <Section title="session fixtures (substrate records)">
             <div className="flex flex-wrap items-center gap-2">
               {(Object.keys(FIXTURES) as FixtureName[]).map((name) => (

@@ -83,6 +83,38 @@ overlap only — not a fitted model."; on a stub-bearing `question`, the questio
 sentence and no bar. The child's JSON sits under a closed details. The session
 list shows titles, kind and the percent (or none).
 
+## Workbench
+
+`/tech` is a **professional workbench**: one column, no chrome over content.
+The honesty banner is a single full-width strip in flow (never fixed over the
+column); the title row reads "RexMetrix · Technician · workbench"; the nav is
+⌘K, About, Programme well. Below a one-line strip for a first-time user
+("Pick two or more works → choose Converge, Compare, or Analyze → read the
+note."), the column runs in this order:
+
+1. **Filters** — chips All | Autistikon | Classics. All lists every preload
+   and this session's uploads; Autistikon lists the Programme Zero stand-ins;
+   Classics lists the six public-domain fields and hides the stand-ins. The
+   Autistikon rows are always in the works list under All.
+2. **Field–bridge graph** — a static SVG (no 3D): nodes are the fields of the
+   loaded catalogues, edges are declared **live** bridges only. Selected works
+   light their fields; a field pair the selection needs but no bridge joins is
+   drawn dashed with the caption "missing: A — B". Clicking a node filters the
+   table. The graph never adds a bridge.
+3. **Works** — the table with a Programme column ("Autistikon (example)" |
+   "Classics" | "Upload"), the licence, the body state, and the upload model.
+4. **Actions** — Converge, Compare, Analyze are enabled only when the current
+   selection would pass the bench law for that job; otherwise the button is
+   disabled (`aria-disabled`) and names the first blocking code and, for
+   `NO_BRIDGE`, the missing pair ("no path natural-history — optics").
+5. **Result** — the AnalysisNote card and the session's result list.
+6. **Export** — on a successful note, **Copy Markdown** and **Download .md**:
+   the eight sections, each parent's attribution and source URL, the Jaccard
+   line, and the is_not list. Built locally; no network.
+7. **Refuse glossary** — compact; then the closed substrate details (internal
+   code name Chronarch — not the product) with the programmes, fixtures,
+   paste box, hashes and instrument readouts.
+
 ## Works
 
 Only legal works enter RexMetrix: a few preloaded starter works with a licence

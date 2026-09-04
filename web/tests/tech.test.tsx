@@ -28,14 +28,18 @@ describe("technician room", () => {
     }
   });
 
-  it("sections come in the bench's order: works, actions, refuse glossary, programmes; the substrate is a closed details", () => {
+  it("sections come in the workbench's order: filters, graph, works, actions, result, export, refuse glossary; programmes and the substrate sit in a closed details", () => {
     renderAt("/tech");
     const titles = Array.from(document.querySelectorAll("main > div > section > h2")).map((h) => h.textContent ?? "");
     const idx = (re: RegExp) => titles.findIndex((t) => re.test(t));
-    expect(idx(/works/)).toBeGreaterThanOrEqual(0);
+    expect(idx(/^filters$/)).toBe(0);
+    expect(idx(/^filters$/)).toBeLessThan(idx(/field–bridge graph/));
+    expect(idx(/field–bridge graph/)).toBeLessThan(idx(/works/));
     expect(idx(/works/)).toBeLessThan(idx(/actions/));
-    expect(idx(/actions/)).toBeLessThan(idx(/refuse glossary/));
-    expect(idx(/refuse glossary/)).toBeLessThan(idx(/^programmes$/));
+    expect(idx(/actions/)).toBeLessThan(idx(/^result$/));
+    expect(idx(/^result$/)).toBeLessThan(idx(/^export$/));
+    expect(idx(/^export$/)).toBeLessThan(idx(/refuse glossary/));
+    expect(idx(/^programmes/)).toBe(-1); // programmes moved under the substrate details
     const details = screen.getByTestId("substrate-details") as HTMLDetailsElement;
     expect(details.open).toBe(false);
     expect(details).toHaveTextContent(/internal code name Chronarch — not the product/);

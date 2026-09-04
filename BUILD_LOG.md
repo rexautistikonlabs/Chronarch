@@ -1544,6 +1544,34 @@ Bug: the technician room still exposed a second product — /council,
   https in source_url and attribution, public-domain or us-government; no
   fetch anywhere under src/.
 
+## RexMetrix — the workbench
+
+- `/tech` is one column: banner in flow (not fixed over the glossary), title
+  "RexMetrix · Technician · workbench", filters → field–bridge graph → works →
+  actions → result → export → refuse glossary → closed substrate details. The
+  programme chips moved under the substrate details; the Autistikon stand-ins
+  are always listed under All, with a Programme column naming them
+  "Autistikon (example)".
+- Actions disable instead of refusing on click: `availability()` dry-runs the
+  bench law for each job and the button carries the first blocking code and,
+  for `NO_BRIDGE`, the missing pair. Darwin + Newton reads "no path
+  natural-history — optics" and the graph draws that gap dashed. Nothing adds
+  the bridge.
+- The graph draws live bridges only: six edges from three fixtures, and no
+  implicit edge (metrology stands alone).
+- Export is text built in code from the note: eight sections, attributions,
+  source URLs, the Jaccard line, the is_not list, "No model wrote this."
+- REJECTED:
+  - **A MetaInsight clone** — a meta-analysis dashboard over the works. This
+    is a token bench over declared bridges, not evidence synthesis software.
+  - **Fake forest plots** — a netmeta/forest plot of Jaccard ratios would dress
+    a lexical count as an effect estimate with confidence intervals it does not
+    have. The Jaccard stays one line and one bar.
+  - **Silent bridges** — auto-adding a bridge when the selection lacks one, or
+    an implicit all-fields couple. A missing edge is named and refuses; only a
+    declared live bridge is an edge.
+  - **A fixed banner over the column** — the honesty strip stays in flow.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
