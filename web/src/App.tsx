@@ -13,10 +13,12 @@ import { Operator } from "./pages/Operator";
 import { Technician } from "./pages/Technician";
 import { Timechain } from "./pages/Timechain";
 import { SessionProvider } from "./state/SessionContext";
+import { WellProvider } from "./state/WellContext";
 
 export function App() {
   return (
     <SessionProvider>
+      <WellProvider>
       <Shell>
         <ErrorBoundary name="page">
           <Routes>
@@ -34,6 +36,7 @@ export function App() {
           </Routes>
         </ErrorBoundary>
       </Shell>
+      </WellProvider>
     </SessionProvider>
   );
 }

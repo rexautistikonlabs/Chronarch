@@ -12,7 +12,6 @@ import { SessionMeta } from "../components/SessionMeta";
 import { StatBar } from "../components/StatBar";
 import { fmtChronons } from "../lib/format";
 import { GYM_CASES } from "../lib/gym";
-import { Viewport } from "../scene/Scene";
 import { FIXTURES, useSession, type FixtureName } from "../state/SessionContext";
 
 const EXAMPLE = `{"ok": true, "result": {"identity": "chronarch-pulse", "height": 3, "head_hash": "<64 hex>", "ring_count": 4, "scar_count": 0, "pins_ok": true, "i3": null, "credits_by_reason": {"space": 1}}}`;
@@ -46,7 +45,7 @@ export function Technician() {
     <div>
       <PageHeader eyebrow="technician room · lab console" title="Paste a session. Drive the scene." lede={<>Paste the JSON that <code className="readout text-ivory">chronarch memory</code>, <code className="readout text-ivory">pulse</code>, <code className="readout text-ivory">net status</code> or a captured session envelope printed, and the instrument redraws from it. The console never runs a node, never reads your disk, opens no socket, and refuses anything that is not a well-formed lab output. The loaded session is shown as plain text: an instrument, not an IDE.</>} />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <span className="readout text-[11px] uppercase tracking-wider text-dim">fixtures</span>
@@ -71,7 +70,6 @@ export function Technician() {
             <MotionBadge />
           </div>
         </div>
-        <Viewport state={s} focus="overview" className="aspect-[4/3] w-full lg:aspect-auto lg:h-[520px]" />
       </div>
 
       <Section title="readouts (protocol names, hex)">

@@ -1,7 +1,6 @@
 import { NotList, PageHeader, Section } from "../components/Page";
 import { Readout } from "../components/Readout";
 import { fmtChronons } from "../lib/format";
-import { Viewport } from "../scene/Scene";
 import { useSession } from "../state/SessionContext";
 
 export function Hearth() {
@@ -11,7 +10,6 @@ export function Hearth() {
   return (
     <div>
       <PageHeader eyebrow="G2 · Hearth clamp" title="Hearth" lede="Chronos is blood, not conscience. The Hearth is where an operator locks their own bond; a bonded (prestressed) identity may win its own slots. Drawn as a tensegrity: two compression legs held apart by tension cables meeting at the lock. Prestress keeps the legs apart — the clamp is the geometry, not a dial." />
-      <Viewport state={s} focus="hearth" className="h-[420px] w-full" />
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
         <Readout label="prestressed" value={String((s.won_slots ?? 0) > 0 || Object.keys(c).length > 0)} testId="prestressed" />
         <Readout label="space credits" value={fmtChronons(c.space)} hint="chronons credited for won slots (SPACE share)" />

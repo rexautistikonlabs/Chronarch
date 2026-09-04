@@ -1227,6 +1227,44 @@ object is kept; a normal person meets it differently.
 - **Live dashboard** — no. Nothing fetches a home, spawns a node or opens a
   socket. Two saved records and a paste box.
 
+## web/ — the well: phosphor HUD, pointer-live camera, clock-dead
+
+The docs-site chrome is replaced by one fixed, full-viewport well with a
+phosphor HUD. Two audiences stay: the floor (`/`) and the technician room
+(`/tech`, a scrolling panel over the same well). web/ only; no kernel work.
+
+- **Chrome** on the floor: the well, a `⌘K` button, a "Technician" text
+  button. No multi-link bar of protocol names. The STATUS line is the top
+  strip; the plain honesty sentence ("not a public blockchain") is under the
+  brand, above the fold.
+- **Look**: phosphor HUD (`#9EF0B4`), steel rings, amber only on a scar or a
+  real I3, a static 4 % scanline overlay (a CSS gradient, not a time shader).
+- **Benches** are hoverable in the well: edge + label on hover, edge off on
+  unhover; click = one-shot iris + plain-language card. HUD bench buttons
+  mirror them for keyboards and for browsers without WebGL.
+- **Fluid = pointer-driven camera damping + one-shot event energy.** The rig
+  damps toward the seeded rest pose plus the pointer (parallax, drag orbit,
+  wheel zoom); `frameloop="demand"` at rest, `"always"` only while the pointer
+  moves the rig, back to `"demand"` 300 ms after pointer-stop. Bloom and grain
+  spike on an event and decay to rest. `useFrame` exists only in the rig and
+  reads `delta`; nothing under `src/scene` or `src/hud` reads a clock (tested).
+- **`⌘K` palette** (cmdk): Pulse / Memory / Vote / Body, the two records,
+  "Paste session", "Lab floor". Navigates or opens cards; never fetches, never
+  spawns. Reduced motion: no camera follow, no spike, no iris — cards only.
+- `/tech`: same well behind a panel with paste JSON, fixtures by file, hashes,
+  credits, gym list, operator log. Error boundaries stay; no Monaco.
+
+### Rejected (kept rejected)
+
+- **Matrix rain loop** — no. Any clock-driven overlay or shader makes the well
+  look busy while nothing happens. Scanlines are static; grain and bloom decay
+  to rest; the only per-frame code follows the pointer and sleeps.
+- **Wallet** — no. There is nothing to connect to.
+- **Live dashboard** — no. Two saved records and a paste box; no fetch, no
+  socket, no spawned node.
+- **Hide the disclaimer** — no. Plain words above the fold, the STATUS strip
+  at the very top, the footer again.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

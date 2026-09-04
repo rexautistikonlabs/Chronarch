@@ -22,12 +22,23 @@ npm test             # vitest (jsdom): floor chrome + honesty, chips 4→5, benc
 npm run check:loops  # the doctrine grep as a script
 ```
 
+## The well
+
+The page is one fixed, full-viewport canvas — the well — with a phosphor HUD
+over it. Primary chrome on the floor: the well, `⌘K`, and a "Technician" text
+button. Hover a bench for its edge and label; click for a one-shot iris and a
+plain-language card. The camera is pointer-live (parallax on hover, orbit on
+drag, zoom on wheel, damped) and clock-dead: `frameloop="demand"` at rest,
+awake only while the pointer moves the rig and for 300 ms after it stops.
+Bloom and grain spike on an event and decay to rest. Static 4 % scanlines.
+See [docs/VISUAL.md](docs/VISUAL.md).
+
 ## Two rooms
 
 | Route | Who it is for | What it shows |
 |---|---|---|
-| `/` | a visitor | **the lab floor**: one plain STATUS sentence, the scene, two record chips (*Quiet pulse*, *The vote*), four benches (Memory, Vote, Body, Pulse — click: one-shot camera ease + one card in everyday language, then still), readouts in human words. No protocol names in the chrome, no hex, no credits. |
-| `/tech` | a technician | **the console**: paste `memory` / `pulse` / `net status` / session JSON or load a fixture by filename → the scene redraws; the raw session as text; every hash and credit; the operator path's command log; the Immune Gym case list; the consortium line; links to the protocol views. `/lab` redirects here. |
+| `/` | a visitor | **the lab floor**: the well, ⌘K, a Technician button; one plain STATUS sentence; two record chips (*Quiet pulse*, *The vote*); four benches (Memory, Vote, Body, Pulse — hover: edge + label; click: one-shot iris + one card in everyday language, then still); readouts in human words. No protocol names in the chrome, no hex, no credits. |
+| `/tech` | a technician | **the console**, a scrolling panel over the same well: paste `memory` / `pulse` / `net status` / session JSON or load a fixture by filename → the well redraws; the raw session as text; every hash and credit; the operator path's command log; the Immune Gym case list; the consortium line; links to the protocol views. `/lab` redirects here. |
 | `/timechain` `/council` `/hearth` `/farm` `/gym` `/operator` `/consortium` | a technician | the protocol views, linked from `/tech` (never from the floor's chrome) |
 
 ## Fixtures
@@ -50,7 +61,7 @@ Timechain-as-gallery, browser-spawned nodes).
 ## Stack
 
 Vite · React 19 · react-three-fiber + drei · GSAP (one-shot only) · React Aria
-Components + Tailwind v4 · IBM Plex (bundled) · Lucide · vitest + Testing Library.
+Components + Tailwind v4 · @react-three/postprocessing (event-only bloom/grain) · cmdk · IBM Plex (bundled) · Lucide · vitest + Testing Library.
 No editor: the loaded JSON is a `<pre>` — an instrument, not an IDE.
 
 ## Fail-closed rendering

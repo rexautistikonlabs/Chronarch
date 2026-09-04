@@ -4,6 +4,58 @@
 crypto marketing site. Every visual decision below follows from that, and the
 ones marked **law** are enforced by tests (`web/tests/`).
 
+## 00. The well + phosphor; pointer live, clock dead
+
+The docs-site chrome is gone. The page **is** the well: one fixed, full-viewport
+canvas, and over it a phosphor HUD. Two audiences still: the visitor's floor
+(`/`) and the technician room (`/tech`, a scrolling panel over the same well).
+
+- **Primary chrome on the floor** is the well, a `⌘K` button and a
+  "Technician" text button. No multi-link bar of protocol names (**law:**
+  `tests/floor.test.tsx`). The STATUS line is the very top strip; the plain
+  honesty sentence, including "not a public blockchain", sits under the brand,
+  above the fold.
+- **Phosphor HUD, steel rings, amber scars.** HUD labels and readouts are
+  phosphor (`#9EF0B4`, a faint text-shadow); rings stay steel; amber is still
+  only a scar or a real I3. A **static 4 % scanline overlay** is a CSS
+  repeating gradient — not a scrolling time shader; it never ticks.
+- **Hover a bench** (in the well, or its HUD button) = a phosphor edge box and
+  a label; unhover = edge off. **Click** = a one-shot iris and the plain-language
+  card. Then still.
+- **Records** are still *Quiet pulse* and *The vote*; a switch is a one-shot
+  settle, then still. The hash-PRNG rest pose is unchanged.
+- **Event energy.** Bloom and grain (postprocessing) spike on an event — a
+  record switch, a bench choice — and decay to rest in one GSAP one-shot: bloom
+  to a faint phosphor base, grain to zero. Nothing in the effect stack is
+  driven by a clock; at rest no frame is drawn, so nothing can shimmer.
+  Anything that would need `sin(time)` forever is not here.
+- **`⌘K` palette** (cmdk): Pulse / Memory / Vote / Body, the two records,
+  "Paste session" (→ the technician room), "Lab floor". It navigates or opens a
+  card. It never fetches and never spawns a process (**law:**
+  `tests/palette.test.tsx`).
+
+### Pointer live, clock dead
+
+Fluid means **pointer-driven camera damping plus one-shot event energy**. The
+camera damps toward a goal: the focus's seeded rest pose, plus what the hand is
+doing — a small parallax while hovering the well, an orbit while dragging, a
+zoom on wheel. That damping is the only per-frame code in `web/`, and it reads
+`delta`, never the clock.
+
+- `frameloop="demand"` at rest. The rig switches to `"always"` while the
+  pointer is moving it (or a focus tween runs) and back to `"demand"` **300 ms
+  after the pointer stops** — held a little longer only until the damping has
+  converged, capped at six checks, then it lands exactly and draws one last
+  frame. With no pointer and no event, no frame is drawn.
+- **Law** (`tests/no-loops.test.ts`): the repeating-animation grep is still
+  empty; `useFrame` exists only in `src/scene/PointerRig.tsx` and its signature
+  reads `delta`; no file under `src/scene` or `src/hud` reads a clock
+  (`clock`, `elapsedTime`, `performance.now`, `Date.now`), sets an interval or
+  runs its own rAF loop; the `always` frameloop is never written as a JSX
+  literal — only the rig sets it at runtime, and only while the pointer moves.
+- **prefers-reduced-motion:** no camera follow (the pointer does nothing), a
+  focus change is an instant cut, no bloom spike, no iris — cards only.
+
 ## 0. Two rooms: visitor and technician
 
 The same organism is met twice.
@@ -140,6 +192,11 @@ network". **Law:** `tests/honesty.test.ts`.
   `chronarch` and never reads a filesystem. Sessions arrive as fixtures or paste.
 - **Spinning logos, partner carousels** — no.
 - **Amber as an accent colour** — no. Amber means a scar or a fault.
+- **Matrix rain / any clock-driven loop** — no. A shader or overlay that
+  scrolls with time would make the well look busy while nothing happens. The
+  scanlines are a static gradient; grain and bloom spike on an event and decay
+  to rest; the only per-frame code follows the pointer and sleeps 300 ms after
+  it stops.
 - **A theme-park loop** — no. A "fun" idle — particles, drift, a looping
   hero — would make the floor feel alive between records. Nothing happened, so
   nothing moves. The floor is still until a bench or a record is chosen, then

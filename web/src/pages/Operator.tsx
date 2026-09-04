@@ -1,6 +1,5 @@
 import { NotList, PageHeader, Section } from "../components/Page";
 import { SessionMeta } from "../components/SessionMeta";
-import { Viewport } from "../scene/Scene";
 import { useSession } from "../state/SessionContext";
 
 export function Operator() {
@@ -8,8 +7,7 @@ export function Operator() {
   return (
     <div>
       <PageHeader eyebrow="specs/OPERATOR.md · a test, not prose" title="Operator path" lede="Pulse a home, stand up a two-home net, propose a peer-set change, ballot it from each steward, tally and ratify onto every home, read status, pulse again. The same sequence runs as tests/test_operator_path.py. Below is the loaded session's literal command log — each step is the JSON the CLI printed." />
-      <Viewport state={session.state} focus="overview" className="h-[360px] w-full" />
-      <div className="mt-3"><SessionMeta /></div>
+      <SessionMeta />
       <Section title={`command log · ${session.steps.length} step${session.steps.length === 1 ? "" : "s"}`}>
         {session.steps.length === 0 ? (
           <p>The loaded input was a single CLI output, not a session envelope; load <code className="readout text-ivory">session-opa.json</code> in the Lab console to see the full path.</p>

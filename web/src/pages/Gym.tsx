@@ -1,7 +1,6 @@
 import { NotList, PageHeader, Section } from "../components/Page";
 import { Readout } from "../components/Readout";
 import { fmtChronons } from "../lib/format";
-import { Viewport } from "../scene/Scene";
 import { useSession } from "../state/SessionContext";
 
 export function Gym() {
@@ -10,7 +9,6 @@ export function Gym() {
   return (
     <div>
       <PageHeader eyebrow="Immune Gym · attested compute" title="Gym" lede="The Immune Gym is a catalogue of self-challenges the organism must keep passing (prestress has a cadence). Compute is paid only for a DummyMind job or a gym oracle whose replay verifies: an unattested receipt is refused, never paid. The sealed box opens and closes once when a session carries an attested receipt, then seals again." />
-      <Viewport state={s} focus="mind" className="h-[420px] w-full" />
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
         <Readout label="attested" value={String(s.attested)} testId="attested" tone={s.attested ? "verdigris" : "mute"} />
         <Readout label="compute credits" value={fmtChronons(s.credits_by_reason.compute)} />

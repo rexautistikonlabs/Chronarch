@@ -1,6 +1,5 @@
 import { NotList, PageHeader, Section } from "../components/Page";
 import { Readout } from "../components/Readout";
-import { Viewport } from "../scene/Scene";
 import { useSession } from "../state/SessionContext";
 
 export function Council() {
@@ -10,7 +9,6 @@ export function Council() {
   return (
     <div>
       <PageHeader eyebrow="G14 · G15 · G16" title="Council" lede="A major change is a Proposal ring plus a Ballot with a lien; the AI cannot self-enact (G15); an illegal ratification slashes its yes-voters and seals a scar at I8 (G16). The proposal prism docks at the centre only when a ballot is approved and ratified onto every home. Otherwise it is parked — still." />
-      <Viewport state={s} focus="council" className="h-[420px] w-full" />
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
         <Readout label="seats" value={s.seats.length} testId="seat-count" />
         <Readout label="proposal" value={p ? p.proposal_id : "none"} testId="proposal-id" />

@@ -2,8 +2,17 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
-afterEach(() => cleanup());
+// jsdom has no WebGL: keep its "not implemented" noise out of the test log.
+// (The well checks getContext() and renders its still fallback when null.)
+HTMLCanvasElement.prototype.getContext = (() => null) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+// cmdk scrolls the selected item into view; jsdom has no layout.
+Element.prototype.scrollIntoView = () => {};
+if (typeof (globalThis as { ResizeObserver?: unknown }).ResizeObserver === "undefined") {
+  (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
 
-// jsdom has no WebGL. Make getContext return null quietly (instead of logging
-// "not implemented") so the viewport takes its still fallback in tests.
-Object.defineProperty(HTMLCanvasElement.prototype, "getContext", { value: () => null, configurable: true });
+afterEach(() => cleanup());

@@ -11,8 +11,9 @@ describe("lab floor", () => {
   it("has no primary nav item named after a protocol object", () => {
     renderAt("/");
     const nav = screen.getByTestId("primary-nav");
-    const labels = within(nav).getAllByRole("link").map((a) => a.textContent?.trim() ?? "");
+    const labels = [...within(nav).getAllByRole("link"), ...within(nav).getAllByRole("button")].map((a) => a.textContent?.trim() ?? "");
     expect(labels.length).toBeGreaterThan(0);
+    expect(labels).toContain("Technician");
     for (const label of labels) expect(label).not.toMatch(PROTOCOL);
     expect(screen.queryByTestId("tech-nav")).not.toBeInTheDocument(); // the protocol sub-nav is technician-only
     // and no header link anywhere on the floor is a protocol name

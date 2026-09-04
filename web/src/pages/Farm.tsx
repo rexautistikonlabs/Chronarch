@@ -1,6 +1,5 @@
 import { NotList, PageHeader, Section } from "../components/Page";
 import { Readout } from "../components/Readout";
-import { Viewport } from "../scene/Scene";
 import { useSession } from "../state/SessionContext";
 
 export function Farm() {
@@ -10,7 +9,6 @@ export function Farm() {
   return (
     <div>
       <PageHeader eyebrow="space · pins · I3" title="Farm" lede="Space is proved from a .cseal SpaceSeal (a hash stand-in verifier by default; chiapos is an optional, off-by-default extra). A SpaceSeal commits to a pin set; the pin lane honours it. A withheld or tampered pin is I3 — a nervous restriction, reported and never fatal, and never a change to who wins a slot." />
-      <Viewport state={s} focus="farm" className="h-[420px] w-full" />
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Readout label="pins_ok" value={String(s.pins_ok)} tone={s.pins_ok ? "ivory" : "amber"} />
         <Readout label="i3" value={fault ? "RESTRICTION" : "none"} tone={fault ? "amber" : "mute"} />
