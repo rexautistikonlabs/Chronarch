@@ -1,0 +1,76 @@
+{
+  "schema": "rexmetrix.programme/1",
+  "id": "programme-toy",
+  "label": "Toy programme — an invented three-field demo (materials, acoustics, mechanics)",
+  "tenant": "example group",
+  "note": "Invented demo. These fields stand for nothing real and cite no paper; they exist so a second programme has a graph of its own, with a path of two bridges.",
+  "fields": [
+    {
+      "id": "toy-materials",
+      "label": "Toy materials (invented demo field)",
+      "units": "MPa",
+      "sector": "materials",
+      "license_required": false,
+      "anti_overreach": ["no claim about any real material", "no claim outside the demo"]
+    },
+    {
+      "id": "toy-acoustics",
+      "label": "Toy acoustics (invented demo field)",
+      "units": "Hz, dB",
+      "sector": "materials",
+      "license_required": false,
+      "anti_overreach": ["no claim about hearing, listening or intervention", "no claim outside the demo"]
+    },
+    {
+      "id": "tissue-mechanics",
+      "label": "Tissue mechanics literature",
+      "units": "Pa, strain, Hz",
+      "sector": "biomechanics",
+      "license_required": false,
+      "anti_overreach": [
+        "no inference from a tissue measurement to a person's traits",
+        "no clinical claim from bench mechanics"
+      ]
+    }
+  ],
+  "bridges": [
+    {
+      "id": "bridge-materials-mechanics",
+      "left": "tissue-mechanics",
+      "right": "toy-materials",
+      "junction": "stress and strain quantities that may stand beside each other across the two literatures, at stated reliability",
+      "status": "live",
+      "ledger": [
+        { "id": "assumption-1", "rating": "supported" },
+        { "id": "assumption-2", "rating": "conjectural" },
+        { "id": "assumption-3", "rating": "conjectural" }
+      ],
+      "register": [
+        { "id": "falsifier-1", "consequence": "retire the bridge", "anti_rescue": true },
+        { "id": "falsifier-2", "consequence": "re-rate assumption-1 to contested", "anti_rescue": true }
+      ]
+    },
+    {
+      "id": "bridge-materials-acoustics",
+      "left": "toy-materials",
+      "right": "toy-acoustics",
+      "junction": "which stiffness quantities may stand beside which resonance quantities in the demo",
+      "status": "live",
+      "ledger": [
+        { "id": "assumption-1", "rating": "conjectural" },
+        { "id": "assumption-2", "rating": "contested" }
+      ],
+      "register": [
+        { "id": "falsifier-1", "consequence": "retire the bridge", "anti_rescue": true }
+      ]
+    }
+  ],
+  "programme": {
+    "fields_used": ["tissue-mechanics", "toy-materials", "toy-acoustics"],
+    "bridges_used": ["bridge-materials-mechanics", "bridge-materials-acoustics"],
+    "array_lock": { "items": ["T1", "T2", "T3", "T4"], "locked_at": "2026-03-01" },
+    "stop": { "date": "2026-12-31", "rule": "demo stop: abandon at the date whatever the results look like" },
+    "deviations": [{ "date": "2026-04-02", "what": "added a fourth locked item", "results_known_at_the_time": false }],
+    "amendments": [{ "date": "2026-04-02", "old": "array_lock.items = [T1, T2, T3]", "new": "array_lock.items = [T1, T2, T3, T4]", "reason": "pre-registered addition; old claim kept beside new" }]
+  }
+}

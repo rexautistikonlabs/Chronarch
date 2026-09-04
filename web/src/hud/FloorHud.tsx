@@ -1,19 +1,19 @@
-/** The visitor's HUD: records, benches, human readouts, one card. All of it
- *  reads one saved session; nothing here is live. */
+/** The visitor's HUD: programmes, benches, plain readouts, one card. All of it
+ *  reads static fixtures; nothing here is live and nothing is for sale. */
 import { Button } from "react-aria-components";
 import { Link } from "react-router-dom";
 
 import { MotionBadge } from "../components/MotionBadge";
-import { BENCHES, FIXTURE_CHIPS, humanReadouts } from "../lib/human";
-import { useSession, type FixtureName } from "../state/SessionContext";
+import { BENCHES, PROGRAMME_CHIPS, programmeReadouts } from "../lib/human";
+import { useProgramme, type ProgrammeName } from "../state/ProgrammeContext";
 import { useWell } from "../state/WellContext";
 
 export function FloorHud() {
-  const { session, source, loadFixture } = useSession();
+  const { programme, programmeName, child, childVerdict, loadProgramme } = useProgramme();
   const { bench, hovered, selectBench, setHovered } = useWell();
   const active = BENCHES.find((b) => b.key === bench) ?? null;
-  const card = active?.card(session.state) ?? null;
-  const readouts = humanReadouts(session.state);
+  const card = active?.card(programme, child, childVerdict) ?? null;
+  const readouts = programmeReadouts(programme);
 
   return (
     <main className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex flex-col gap-3 px-5 pb-4" data-testid="floor">
@@ -28,24 +28,23 @@ export function FloorHud() {
             <p key={i} className="mt-2 text-[13px] leading-relaxed text-mute">{para}</p>
           ))}
           <p className="mt-3 text-[11px] text-dim">
-            Real names and numbers: <Link to={card.techPath} className="text-mute underline underline-offset-2 hover:text-ivory">technician room</Link>.
+            The written rules: <Link to="/about" className="text-mute underline underline-offset-2 hover:text-ivory">about RexMetrix</Link>. The substrate's hashes: <Link to={card.techPath} className="text-mute underline underline-offset-2 hover:text-ivory">technician room</Link>.
           </p>
         </div>
       )}
 
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="pointer-events-auto flex flex-wrap items-center gap-2" data-testid="fixture-chips">
-          <span className="hud-label">record</span>
-          {FIXTURE_CHIPS.map((chip) => {
-            const on = source === `fixture: ${chip.fixture}`;
+        <div className="pointer-events-auto flex flex-wrap items-center gap-2" data-testid="programme-chips">
+          <span className="hud-label">programme</span>
+          {PROGRAMME_CHIPS.map((chip) => {
+            const on = programmeName === chip.fixture;
             return (
-              <Button key={chip.fixture} onPress={() => loadFixture(chip.fixture as FixtureName)} className={`hud-chip ${on ? "hud-chip-on" : ""}`} data-testid={`chip-${chip.fixture}`} aria-pressed={on}>
+              <Button key={chip.fixture} onPress={() => loadProgramme(chip.fixture as ProgrammeName)} className={`hud-chip ${on ? "hud-chip-on" : ""}`} data-testid={`chip-${chip.fixture}`} aria-pressed={on}>
                 <span>{chip.label}</span>
                 <span className="readout ml-2 text-[10px] text-dim">{chip.blurb}</span>
               </Button>
             );
           })}
-          {source === "pasted JSON" && <span className="readout text-[10px] text-dim">· pasted in the technician room</span>}
         </div>
         <div className="pointer-events-auto flex flex-wrap gap-1" role="group" aria-label="Benches" data-testid="benches">
           {BENCHES.map((b) => {

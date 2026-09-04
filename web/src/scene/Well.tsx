@@ -1,18 +1,19 @@
-/** The well: one fixed, full-viewport canvas behind everything. The scene
- *  is the same instrument as before (rings, scars, rods, tensegrity, seats,
- *  sealed box); what changed is how it is met — hover a bench for its edge
- *  and label, click to select — and that the camera is pointer-live.
- *  frameloop="demand": with no pointer and no event, no frame is drawn. */
+/** The well: one fixed, full-viewport canvas behind everything. A visitor
+ *  sees the catalogue graph — fields, bridges, the loaded programme's subgraph,
+ *  the synthesis child. A technician sees the substrate's instrument — rings,
+ *  scars, rods, tensegrity, seats, sealed box. Same canvas, never remounted;
+ *  frameloop follows the render policy: with no pointer and no event, no frame
+ *  is drawn. */
 import { Canvas, invalidate } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ErrorBoundary } from "../components/ErrorBoundary";
-import { BENCHES } from "../lib/human";
 import { usePrefersReducedMotion } from "../lib/motion";
 import { derivePose, posePalette } from "../lib/pose";
+import { useProgramme } from "../state/ProgrammeContext";
 import { useSession } from "../state/SessionContext";
 import { useWell } from "../state/WellContext";
-import { Bench3D } from "./Bench3D";
+import { Catalogue3D } from "./Catalogue3D";
 import { Council } from "./Council";
 import { DummyMind } from "./DummyMind";
 import { Energy } from "./Energy";
@@ -34,11 +35,10 @@ export function webglAvailable(): boolean {
   }
 }
 
-const title = (key: string) => BENCHES.find((b) => b.key === key)?.title ?? key;
-
 export function Well() {
   const { session } = useSession();
-  const { focus, hovered, setHovered, selectBench, eventId } = useWell();
+  const { catalogue, programme, child, childVerdict, counts } = useProgramme();
+  const { focus, hovered, setHovered, selectBench, eventId, isTech } = useWell();
   const state = session.state;
   const reduced = usePrefersReducedMotion();
   const pose = useMemo(() => derivePose(state), [state]);
@@ -47,10 +47,8 @@ export function Well() {
   // The camera prop is applied by R3F whenever it changes; keep it stable so a
   // HUD re-render (hover, card open) never snaps the camera or touches the gl.
   const initialCamera = useRef({ position: cameraGoal(focus, pose).position, fov: 34, near: 0.1, far: 100 });
-  // The loop mode IS the Canvas prop. R3F re-applies `frameloop` on every
-  // render, so a runtime setFrameloop() would be undone by the next HUD
-  // re-render; letting the prop follow the ledger keeps prop and store agreed.
-  // Awake → "always" (GSAP ticks and damping paint every frame); asleep →
+  // The loop mode IS the Canvas prop (R3F re-applies `frameloop` on every
+  // render, so the prop must follow the ledger). Awake → "always"; asleep →
   // "demand" plus one final invalidate so the last state is painted.
   const [loop, setLoop] = useState<"always" | "demand">("demand");
   useEffect(
@@ -61,21 +59,22 @@ export function Well() {
       }),
     [],
   );
-  const ringsH = Math.max(0.6, pose.rings.length * 0.26);
 
   if (!ok) {
     return (
-      <div className="fixed inset-0 bg-void" data-testid="viewport-fallback" data-focus={focus} role="img" aria-label="Scene unavailable: WebGL is not available in this browser">
+      <div className="fixed inset-0 bg-void" data-testid="viewport-fallback" data-focus={focus} data-programme={programme.id} role="img" aria-label="Scene unavailable: WebGL is not available in this browser">
         <div className="absolute bottom-24 left-6 max-w-sm text-sm text-mute">
           <p className="hud-label inline-block">well · no webgl</p>
-          <p className="mt-2">The well cannot draw here. Its readouts are still true; it would show <span className="readout text-ivory">{pose.rings.length}</span> stacked rings with <span className="readout text-ivory">{state.scar_count}</span> scar{state.scar_count === 1 ? "" : "s"} and {state.pins_ok ? "every rod seated" : "one rod raised"}.</p>
+          <p className="mt-2">
+            The well cannot draw here. Its readouts are still true; it would show <span className="readout text-ivory">{counts.field_count}</span> fields and <span className="readout text-ivory">{counts.bridge_count}</span> bridge{counts.bridge_count === 1 ? "" : "s"} of the loaded programme on a ring, with the synthesis child above.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-void" data-testid="viewport" data-seed={pose.seed} data-focus={focus} data-loop={loop} data-reduced-motion={reduced ? "true" : "false"}>
+    <div className="fixed inset-0 bg-void" data-testid="viewport" data-seed={pose.seed} data-focus={focus} data-loop={loop} data-programme={programme.id} data-reduced-motion={reduced ? "true" : "false"}>
       <ErrorBoundary name="scene" className="absolute inset-0 flex items-center justify-center">
         <Canvas frameloop={loop} dpr={[1, 1.5]} shadows={false} camera={initialCamera.current} gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}>
           <color attach="background" args={[VOID]} />
@@ -90,22 +89,17 @@ export function Well() {
           </mesh>
           <gridHelper args={[16, 32, "#12211a", "#0d1511"]} position={[0, -0.015, 0]} />
 
-          <Bench3D bench="memory" label={title("memory")} size={[2.8, ringsH + 0.3, 2.8]} center={[0, ringsH / 2, 0]} hovered={hovered === "memory"} onHover={setHovered} onSelect={selectBench}>
-            <Timechain pose={pose} palette={palette} reduced={reduced} />
-          </Bench3D>
-          <Bench3D bench="body" label={title("body")} size={[1.9, 1.3, 1.9]} center={[LAYOUT.farm[0], 0.55, LAYOUT.farm[2]]} hovered={hovered === "body"} onHover={setHovered} onSelect={selectBench}>
-            <PinsWell pose={pose} palette={palette} position={LAYOUT.farm} />
-          </Bench3D>
-          <Bench3D bench="vote" label={title("vote")} size={[3.0, 0.9, 2.6]} center={[LAYOUT.council[0], 0.35, LAYOUT.council[2]]} hovered={hovered === "vote"} onHover={setHovered} onSelect={selectBench}>
-            <Council pose={pose} palette={palette} position={LAYOUT.council} reduced={reduced} />
-          </Bench3D>
-          <Bench3D bench="pulse" label={title("pulse")} size={[1.1, 0.9, 1.1]} center={[LAYOUT.mind[0], LAYOUT.mind[1] + 0.05, LAYOUT.mind[2]]} hovered={hovered === "pulse"} onHover={setHovered} onSelect={selectBench}>
-            <DummyMind pose={pose} palette={palette} position={LAYOUT.mind} reduced={reduced} />
-          </Bench3D>
-          {/* the Hearth belongs to the Body bench too: hovering either shows the body edge */}
-          <Bench3D bench="body" label={title("body")} size={[3.2, 1.9, 1.4]} center={[LAYOUT.hearth[0], 0.85, LAYOUT.hearth[2]]} hovered={false} onHover={setHovered} onSelect={selectBench}>
-            <Hearth pose={pose} position={LAYOUT.hearth} />
-          </Bench3D>
+          {isTech ? (
+            <>
+              <Timechain pose={pose} palette={palette} reduced={reduced} />
+              <PinsWell pose={pose} palette={palette} position={LAYOUT.farm} />
+              <Council pose={pose} palette={palette} position={LAYOUT.council} reduced={reduced} />
+              <DummyMind pose={pose} palette={palette} position={LAYOUT.mind} reduced={reduced} />
+              <Hearth pose={pose} position={LAYOUT.hearth} />
+            </>
+          ) : (
+            <Catalogue3D cat={catalogue} programme={programme} child={child} childOk={childVerdict.ok} hovered={hovered} onHover={setHovered} onSelect={selectBench} reduced={reduced} />
+          )}
 
           <Energy eventId={eventId} reduced={reduced} />
           <PointerRig focus={focus} pose={pose} reduced={reduced} />

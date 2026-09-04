@@ -1,12 +1,14 @@
-# web/ — Chronarch Lab + consortium landing
+# web/ — RexMetrix programme well + technician room
 
-A static Vite app: the instrument UI for a Chronarch lab session, and the
-landing for research groups. It draws the state of one session — a checked-in
-fixture or JSON you paste — and holds still.
+A static Vite app: the visitor's **programme well** for RexMetrix, and the
+**technician room** for whoever runs the substrate. It draws static JSON
+fixtures — two programmes and one synthesis child; two technical session
+records — and holds still.
 
-> Chronarch lab-v0 is a research organism on an in-process or loopback net.
-> It is **not a public blockchain**. This site is a viewer: it spawns no node
-> and reads no filesystem.
+> RexMetrix is research software for hypothesis-led programmes: fields, the
+> bridges a group declares between them, programmes as subgraphs, and syntheses
+> that name their parents. It is not a diagnostic, not Foundation-endorsed, and
+> not a public chain. This site spawns no node and reads no filesystem.
 
 ## Dev
 
@@ -18,56 +20,59 @@ npm run dev          # http://localhost:5173
 
 ```
 npm run build        # typecheck + vite build → dist/
-npm test             # vitest (jsdom): floor chrome + honesty, chips 4→5, benches, technician console, reduced motion, animation law, resilience
+npm test             # vitest (jsdom): product law + honesty, programme refusals, chips 2→3 fields, benches, ⌘K, technician console, reduced motion, animation law, render policy, resilience
 npm run check:loops  # the doctrine grep as a script
 ```
 
 ## The well
 
-The page is one fixed, full-viewport canvas — the well — with a phosphor HUD
-over it. Primary chrome on the floor: the well, `⌘K`, and a "Technician" text
-button. Hover a bench for its edge and label; click for a one-shot iris and a
-plain-language card. The camera is pointer-live (parallax on hover, orbit on
-drag, zoom on wheel, damped) and clock-dead: `frameloop="demand"` at rest,
-awake only while the pointer moves the rig and for 300 ms after it stops.
-Bloom and grain spike on an event and decay to rest. Static 4 % scanlines.
-See [docs/VISUAL.md](docs/VISUAL.md).
+The page is one fixed, full-viewport canvas with a phosphor HUD. A visitor
+sees the **catalogue as a graph**: every field a disc on a ring, every bridge a
+line between exactly two of them (the loaded programme's are bright), the
+synthesis child a prism above the centre with lines down to its parents along
+its declared path. Hover a bench for its edge and label; click for a one-shot
+iris and a plain-language card. The camera is pointer-live (parallax on hover,
+orbit on drag, zoom on wheel) and clock-dead: `frameloop="demand"` at rest,
+awake only while something holds the render policy and for 200 ms after. See
+[docs/VISUAL.md](docs/VISUAL.md).
 
 ## Two rooms
 
-| Route | Who it is for | What it shows |
+| Route | Who | What |
 |---|---|---|
-| `/` | a visitor | **the lab floor**: the well, ⌘K, a Technician button; one plain STATUS sentence; two record chips (*Quiet pulse*, *The vote*); four benches (Memory, Vote, Body, Pulse — hover: edge + label; click: one-shot iris + one card in everyday language, then still); readouts in human words. No protocol names in the chrome, no hex, no credits. |
-| `/tech` | a technician | **the console**, a scrolling panel over the same well: paste `memory` / `pulse` / `net status` / session JSON or load a fixture by filename → the well redraws; the raw session as text; every hash and credit; the operator path's command log; the Immune Gym case list; the consortium line; links to the protocol views. `/lab` redirects here. |
-| `/timechain` `/council` `/hearth` `/farm` `/gym` `/operator` `/consortium` | a technician | the protocol views, linked from `/tech` (never from the floor's chrome) |
+| `/` | a visitor | the programme well: honesty sentence, two programme chips (*Programme Zero*, *Toy programme*), four benches (**Fields, Bridges, Programmes, Synthesis**), readouts in programme words (fields, bridges, assumptions rated, falsifiers registered, items locked, stops on). No protocol names, no hex, no credits. |
+| `/about` | a visitor | what RexMetrix is, Programme Zero as the example programme, what RexMetrix will not ship |
+| `/tech` | a technician | the substrate console: paste `memory` / `pulse` / `net status` / session JSON or load a session fixture by filename (*Quiet pulse*, *The vote*); the raw session; every hash and credit; the operator path; the gym list. `/lab` redirects here. |
+| `/timechain` `/council` `/hearth` `/farm` `/gym` `/operator` `/consortium` | a technician | the substrate's protocol views, linked only from `/tech` |
 
 ## Fixtures
 
-`fixtures/session-opa.json` is the operator path (`specs/OPERATOR.md`) captured
-verbatim from `python -m chronarch_cli`: two homes on the in-process bus,
-height 4, head `ecdbe6b0…`, `peer_count` 3, proposal
-`peer-peer_add-net-node-2` approved and ratified. `fixtures/session-solo.json`
-is one pulsed home (height 3). A session file is `{schema, label, focus_home,
-steps: [{cmd, home?, output}]}` — each `output` is exactly what the CLI printed.
+- `fixtures/programme-zero.json` — Programme Zero (Rex Autistikon / Kim 2026): a
+  two-field, one-bridge programme, **metadata only** — bridge id and junction,
+  ledger and register counts, a locked-array size, a stop rule, an illustrative
+  `license_grant`. No chapters, no measured array, no scores.
+- `fixtures/programme-toy.json` — an **invented** three-field demo with a path
+  of two bridges; it stands for nothing real.
+- `fixtures/synthesis-child.json` — a `question` child with parents in both
+  programmes and a declared three-bridge path.
+- `fixtures/session-*.json` — the substrate's own operator-path records, for the
+  technician room.
 
-## Doctrine
+Loading Programme Zero vs the toy programme moves `field-count` 2 → 3 and
+`bridge-count` 1 → 2 in the readouts (tested).
 
-[docs/VISUAL.md](docs/VISUAL.md): state-driven rest pose from a hash PRNG,
-one-shot events then stillness, no repeating animation, no motion under
-`prefers-reduced-motion`, amber only on a real fault, STATUS honesty on every
-page, and the rejected ideas (idle drift, looping hero, wallet button,
-Timechain-as-gallery, browser-spawned nodes).
+## Product law in code
+
+`src/lib/programme.ts` implements the refusals from `specs/SYNTHESIS.md` as
+hard errors — `NO_BRIDGE`, `LICENSE_MISSING`, `INDIVIDUAL_SCORE_FORBIDDEN`,
+`CROSS_SECTOR_WRITE`, `BAD_KIND`, `UNKNOWN_FIELD` — and
+`requestIndividualScore()` only ever refuses. `src/lib/banned.ts` carries the
+visitor ban list from `specs/LEGAL.md`; `tests/rexmetrix-honesty.test.tsx`
+runs it over the rendered floor and about page and the visitor sources.
 
 ## Stack
 
-Vite · React 19 · react-three-fiber + drei · GSAP (one-shot only) · React Aria
-Components + Tailwind v4 · @react-three/postprocessing (event-only bloom/grain) · cmdk · IBM Plex (bundled) · Lucide · vitest + Testing Library.
-No editor: the loaded JSON is a `<pre>` — an instrument, not an IDE.
-
-## Fail-closed rendering
-
-Every route renders inside an error boundary, and so does the scene's canvas
-and the console's JSON viewer. A crash in any of them shows a still ivory
-"failed closed" panel in its place; the STATUS banner, nav, readouts and the
-rest of the page stay. `/lab` cannot go black because of its viewer
-(`tests/lab-resilience.test.tsx`).
+Vite · React 19 · react-three-fiber + drei · GSAP (one-shot only) ·
+@react-three/postprocessing (event-only bloom/grain) · cmdk · React Aria
+Components + Tailwind v4 · IBM Plex (bundled) · Lucide · vitest + Testing
+Library. No editor; JSON is shown as text.

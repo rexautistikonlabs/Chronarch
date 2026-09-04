@@ -1,6 +1,22 @@
 import type { Pose } from "../lib/pose";
 
-export type FocusKey = "overview" | "timechain" | "council" | "hearth" | "farm" | "mind";
+export type FocusKey =
+  | "overview"
+  // the visitor's catalogue graph
+  | "fields"
+  | "bridges"
+  | "programmes"
+  | "synthesis"
+  // the technician's instrument
+  | "timechain"
+  | "council"
+  | "hearth"
+  | "farm"
+  | "mind";
+
+/** Where the catalogue graph sits: field nodes on a ring of this radius
+ *  around the origin, the synthesis child above the centre. */
+export const GRAPH = { radius: 2.6, childHeight: 2.1 } as const;
 
 export const LAYOUT = {
   timechain: [0, 0, 0],
@@ -28,12 +44,24 @@ export function cameraSpherical(focus: FocusKey, pose: Pose): Spherical {
   const { azimuth, elevation, distance } = pose.camera;
   const targets: Record<FocusKey, [number, number, number]> = {
     overview: [0.2, 0.5, 0],
+    fields: [0, 0.3, 0],
+    bridges: [0, 0.5, 0],
+    programmes: [0, 0.4, 0],
+    synthesis: [0, GRAPH.childHeight * 0.6, 0],
     timechain: [0, 0.6, 0],
     council: [LAYOUT.council[0], 0.3, LAYOUT.council[2]],
     hearth: [LAYOUT.hearth[0], 0.8, LAYOUT.hearth[2]],
     farm: [LAYOUT.farm[0], 0.4, LAYOUT.farm[2]],
     mind: [LAYOUT.mind[0], 0.4, LAYOUT.mind[2]],
   };
+  const graphView: Partial<Record<FocusKey, { dist: number; el: number; az: number }>> = {
+    fields: { dist: distance + 1.6, el: Math.max(elevation, 0.55), az: azimuth },
+    bridges: { dist: distance + 0.6, el: Math.max(elevation, 0.72), az: azimuth + 0.4 },
+    programmes: { dist: distance + 2.4, el: Math.max(elevation, 0.5), az: azimuth * 0.5 },
+    synthesis: { dist: distance + 0.4, el: Math.min(elevation, 0.3), az: azimuth - 0.5 },
+  };
+  const gv = graphView[focus];
+  if (gv) return { az: gv.az, el: gv.el, dist: gv.dist, target: targets[focus] };
   const dist = focus === "overview" ? distance + 2.2 : focus === "timechain" ? distance : 4.2;
   const az = focus === "overview" ? azimuth * 0.5 : azimuth;
   return { az, el: elevation, dist, target: targets[focus] };

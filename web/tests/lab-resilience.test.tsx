@@ -26,7 +26,7 @@ describe("lab resilience", () => {
     // the viewer failed closed …
     expect(screen.getByTestId("viewer-error")).toHaveTextContent(/mocked Monaco worker failure/);
     // … and the chrome, controls, readouts and viewport are all still there
-    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public blockchain/i);
+    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public chain/i);
     expect(screen.getByRole("navigation", { name: "Rooms" })).toBeInTheDocument();
     expect(screen.getByTestId("load-session-opa.json")).toBeInTheDocument();
     expect(screen.getByTestId("load-session-solo.json")).toBeInTheDocument();

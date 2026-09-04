@@ -5,6 +5,8 @@ import { HudTop } from "../hud/Hud";
 import { Iris } from "../hud/Iris";
 import { Palette } from "../hud/Palette";
 import { Well } from "../scene/Well";
+import { useLocation } from "react-router-dom";
+
 import { useWell } from "../state/WellContext";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { TechNav } from "./TechNav";
@@ -14,6 +16,8 @@ import { TechNav } from "./TechNav";
  *  hashes and the console. Both wear the STATUS line at the very top. */
 export function Shell({ children }: { children: ReactNode }) {
   const { isTech } = useWell();
+  const { pathname } = useLocation();
+  const about = pathname === "/about";
   return (
     <div className="min-h-full text-ivory">
       <Well />
@@ -27,8 +31,12 @@ export function Shell({ children }: { children: ReactNode }) {
           <TechNav />
           <main className="px-6 pb-16 pt-4">{children}</main>
           <footer className="px-6 pb-6 text-[11px] text-dim">
-            <p>web/ is a static viewer of saved session JSON. It spawns no node, opens no socket and reads no filesystem. Not Chia, not CHIP-48, not AGI.</p>
+            <p>web/ is a static viewer of saved JSON fixtures. It spawns no node, opens no socket and reads no filesystem.</p>
           </footer>
+        </div>
+      ) : about ? (
+        <div className="tech-panel fixed inset-x-0 bottom-0 top-[168px] z-20 overflow-y-auto md:left-auto md:right-0 md:w-[min(760px,100%)]" data-testid="about-panel">
+          <main className="px-6 pb-16 pt-6">{children}</main>
         </div>
       ) : (
         <>

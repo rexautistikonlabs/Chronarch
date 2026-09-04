@@ -98,6 +98,17 @@ What the suite proves today (the Phase-0/Phase-1 testing bar):
   parameter); gym cases against external targets are rejected at the schema
   layer; prestress below floor demotes eligibility
 
+## RexMetrix (the product)
+
+The product built on this substrate is **RexMetrix**: institutional research
+software for hypothesis-led groups — an array of fields, first-class bridges
+between chosen fields, programmes as subgraphs, and synthesis jobs that write
+child pins with explicit parents. Programme Zero (Rex Autistikon / Kim 2026) is
+the example programme and first corpus, not the product. RexMetrix exposes no
+Council, no chain, no coin. See [specs/PRODUCT.md](specs/PRODUCT.md) and
+[specs/LEGAL.md](specs/LEGAL.md); the code name *Chronarch* stays on the
+Python packages.
+
 ## Web lab UI
 
 [`web/`](web/) is a static Vite app: the instrument UI for a lab session and the

@@ -7,9 +7,10 @@ import { useLocation } from "react-router-dom";
 
 import { BENCHES, type BenchKey } from "../lib/human";
 import type { FocusKey } from "../scene/focus";
+import { useProgramme } from "./ProgrammeContext";
 import { useSession } from "./SessionContext";
 
-export type EventKind = "record" | "bench" | "none";
+export type EventKind = "record" | "programme" | "bench" | "none";
 
 interface WellCtx {
   focus: FocusKey;
@@ -47,11 +48,13 @@ export function benchFocus(bench: BenchKey | null): FocusKey {
 export function WellProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const { session } = useSession();
+  const { programmeName } = useProgramme();
   const [bench, setBench] = useState<BenchKey | null>(null);
   const [hovered, setHovered] = useState<BenchKey | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [event, setEvent] = useState<{ id: number; kind: EventKind }>({ id: 0, kind: "none" });
   const lastHead = useRef(session.state.head_hash);
+  const lastProgramme = useRef(programmeName);
 
   // A record switch is a one-shot event: energy spikes once, then decays.
   useEffect(() => {
@@ -60,6 +63,14 @@ export function WellProvider({ children }: { children: ReactNode }) {
       setEvent((e) => ({ id: e.id + 1, kind: "record" }));
     }
   }, [session.state.head_hash]);
+
+  // So is a programme switch: the subgraph settles once, then still.
+  useEffect(() => {
+    if (lastProgramme.current !== programmeName) {
+      lastProgramme.current = programmeName;
+      setEvent((e) => ({ id: e.id + 1, kind: "programme" }));
+    }
+  }, [programmeName]);
 
   const selectBench = useCallback((b: BenchKey | null) => {
     setBench(b);

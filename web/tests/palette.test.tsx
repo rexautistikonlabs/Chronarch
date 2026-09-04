@@ -10,19 +10,22 @@ describe("command palette", () => {
     renderAt("/");
     expect(screen.queryByTestId("palette-input")).not.toBeInTheDocument();
     fireEvent.keyDown(window, { key: "k", ctrlKey: true });
-    const input = await screen.findByTestId("palette-input");
-    expect(input).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("palette-memory"));
-    expect(screen.getByTestId("bench-card")).toHaveAttribute("data-bench", "memory");
-    expect(screen.getByTestId("viewport-fallback")).toHaveAttribute("data-focus", "timechain");
+    await screen.findByTestId("palette-input");
+    fireEvent.click(screen.getByTestId("palette-fields"));
+    expect(screen.getByTestId("bench-card")).toHaveAttribute("data-bench", "fields");
+    expect(screen.getByTestId("viewport-fallback")).toHaveAttribute("data-focus", "fields");
   });
 
-  it("the ⌘K button opens it too, and 'Paste session' goes to the technician room", async () => {
+  it("the ⌘K button opens it too; 'Paste session' goes to the technician room, 'About' to the rules", async () => {
     renderAt("/");
     fireEvent.click(screen.getByTestId("open-palette"));
     await screen.findByTestId("palette-input");
     fireEvent.click(screen.getByTestId("palette-paste"));
     expect(await screen.findByTestId("json-input")).toBeInTheDocument();
     expect(screen.getByTestId("tech-nav")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("open-palette"));
+    await screen.findByTestId("palette-input");
+    fireEvent.click(screen.getByTestId("palette-about"));
+    expect(await screen.findByTestId("about-panel")).toHaveTextContent(/what rexmetrix will not ship/i);
   });
 });

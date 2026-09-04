@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Shell } from "./components/Shell";
+import { About } from "./pages/About";
 import { Consortium } from "./pages/Consortium";
 import { Council } from "./pages/Council";
 import { Farm } from "./pages/Farm";
@@ -12,17 +13,20 @@ import { NotFound } from "./pages/NotFound";
 import { Operator } from "./pages/Operator";
 import { Technician } from "./pages/Technician";
 import { Timechain } from "./pages/Timechain";
+import { ProgrammeProvider } from "./state/ProgrammeContext";
 import { SessionProvider } from "./state/SessionContext";
 import { WellProvider } from "./state/WellContext";
 
 export function App() {
   return (
     <SessionProvider>
+      <ProgrammeProvider>
       <WellProvider>
       <Shell>
         <ErrorBoundary name="page">
           <Routes>
             <Route path="/" element={<Floor />} />
+            <Route path="/about" element={<About />} />
             <Route path="/tech" element={<Technician />} />
             <Route path="/lab" element={<Navigate to="/tech" replace />} />
             <Route path="/timechain" element={<Timechain />} />
@@ -37,6 +41,7 @@ export function App() {
         </ErrorBoundary>
       </Shell>
       </WellProvider>
+      </ProgrammeProvider>
     </SessionProvider>
   );
 }

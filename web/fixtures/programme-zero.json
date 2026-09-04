@@ -1,0 +1,72 @@
+{
+  "schema": "rexmetrix.programme/1",
+  "id": "programme-zero",
+  "label": "Programme Zero — Rex Autistikon (Kim 2026), the first filled template",
+  "tenant": "example group",
+  "note": "Metadata only: bridge names, ledger and register counts, a locked-array size, a stop rule. No chapters, no measured array, no scores. The grant object is illustrative of the shape, not a real license.",
+  "fields": [
+    {
+      "id": "autistikon-programme-zero",
+      "label": "Rex Autistikon corpus (Programme Zero, first corpus)",
+      "units": "descriptive",
+      "sector": "sensorimotor-phenomenology",
+      "license_required": true,
+      "anti_overreach": [
+        "no individual-level score on the eight-interface construct",
+        "no clinical, diagnostic or therapeutic claim",
+        "not a fascia framework",
+        "listening material is not an intervention",
+        "predictive-coding language is inert scaffolding, not an engine",
+        "no derived index or assessment instrument"
+      ]
+    },
+    {
+      "id": "tissue-mechanics",
+      "label": "Tissue mechanics literature",
+      "units": "Pa, strain, Hz",
+      "sector": "biomechanics",
+      "license_required": false,
+      "anti_overreach": [
+        "no inference from a tissue measurement to a person's traits",
+        "no clinical claim from bench mechanics"
+      ]
+    }
+  ],
+  "bridges": [
+    {
+      "id": "bridge-mechanics-phenomenology",
+      "left": "tissue-mechanics",
+      "right": "autistikon-programme-zero",
+      "junction": "which mechanical quantities may stand beside which descriptive terms, and under what reliability — two vocabularies that do not share units",
+      "status": "live",
+      "ledger": [
+        { "id": "assumption-1", "rating": "conjectural" },
+        { "id": "assumption-2", "rating": "conjectural" },
+        { "id": "assumption-3", "rating": "supported" },
+        { "id": "assumption-4", "rating": "contested" },
+        { "id": "assumption-5", "rating": "conjectural" },
+        { "id": "assumption-6", "rating": "supported" }
+      ],
+      "register": [
+        { "id": "falsifier-1", "consequence": "retire the bridge; record the failed junction", "anti_rescue": true },
+        { "id": "falsifier-2", "consequence": "amend the ledger rating to contested; re-run the pre-registered check", "anti_rescue": true },
+        { "id": "falsifier-3", "consequence": "drop the item from the locked array by amendment", "anti_rescue": true },
+        { "id": "falsifier-4", "consequence": "stop the programme early under the stop rule", "anti_rescue": true }
+      ]
+    }
+  ],
+  "programme": {
+    "fields_used": ["autistikon-programme-zero", "tissue-mechanics"],
+    "bridges_used": ["bridge-mechanics-phenomenology"],
+    "array_lock": { "items": ["A1", "A2", "A3", "A4", "A5"], "locked_at": "2026-01-15" },
+    "stop": { "date": "2027-06-30", "rule": "if no register entry survives two pre-registered replications, abandon; the clock runs whatever the results look like" },
+    "deviations": [],
+    "amendments": []
+  },
+  "license_grant": {
+    "grantor": "the author of the volume's prose (Kim), at arm's length",
+    "scope": "autistikon-programme-zero",
+    "terms": "illustrative fixture: method and control documents under MIT / CC BY when published; testing welcomed; no index license",
+    "granted_at": "2026-02-01"
+  }
+}

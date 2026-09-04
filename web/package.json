@@ -1,8 +1,8 @@
 {
-  "name": "chronarch-web",
+  "name": "rexmetrix-web",
   "private": true,
   "version": "0.0.1",
-  "description": "Chronarch Lab + consortium landing. A scientific-instrument UI for a research organism on an in-process or loopback net. Not a public blockchain.",
+  "description": "RexMetrix: research software for hypothesis-led programmes. Fields, bridges, programmes, synthesis. Not a diagnostic. Not Foundation-endorsed. Not a public chain.",
   "type": "module",
   "scripts": {
     "dev": "vite",

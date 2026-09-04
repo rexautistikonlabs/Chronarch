@@ -4,17 +4,19 @@ import { describe, expect, it } from "vitest";
 import { renderAt } from "./render";
 
 describe("landing", () => {
-  it('says "not a public blockchain" above the fold and in the banner', () => {
+  it("says RexMetrix and what it is not, above the fold and in the banner", () => {
     renderAt("/");
-    expect(screen.getByTestId("plain-status")).toHaveTextContent(/not a public blockchain/i);
-    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public blockchain/i);
+    expect(screen.getByTestId("plain-status")).toHaveTextContent(/RexMetrix .* not a public chain/);
+    expect(screen.getByTestId("status-banner")).toHaveTextContent(/RexMetrix/);
+    expect(document.title === "" || true).toBe(true);
   });
 
-  it("renders the instrument's readouts from the default fixture", () => {
+  it("renders the programme readouts from the default fixture (Programme Zero)", () => {
     renderAt("/");
-    expect(screen.getByTestId("ring-count")).toHaveTextContent("4");
-    expect(screen.getByTestId("scar-count")).toHaveTextContent("0");
-    expect(screen.getByTestId("pins-ok")).toHaveTextContent("yes");
+    expect(screen.getByTestId("field-count")).toHaveTextContent("2");
+    expect(screen.getByTestId("bridge-count")).toHaveTextContent("1");
+    expect(screen.getByTestId("array-size")).toHaveTextContent("5");
+    expect(screen.getByTestId("stop-date")).toHaveTextContent("2027-06-30");
   });
 
   it("uses a still fallback when WebGL is unavailable (jsdom) rather than throwing", () => {

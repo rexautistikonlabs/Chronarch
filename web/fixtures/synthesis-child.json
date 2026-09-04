@@ -1,0 +1,17 @@
+{
+  "schema": "rexmetrix.child/1",
+  "id": "child-q-001",
+  "kind": "question",
+  "parents": [
+    { "pin": "pin:autistikon:0007", "field": "autistikon-programme-zero" },
+    { "pin": "pin:toy-acoustics:0003", "field": "toy-acoustics" }
+  ],
+  "path": ["bridge-mechanics-phenomenology", "bridge-materials-mechanics", "bridge-materials-acoustics"],
+  "method": "question: which quantities in the toy acoustics array could stand beside which corpus terms along the declared three-bridge path — a pin that asks and claims nothing",
+  "grants": [
+    { "grantor": "the author of the volume's prose (Kim), at arm's length", "scope": "autistikon-programme-zero", "ref": "programme-zero.license_grant" }
+  ],
+  "sector": "synthesis",
+  "subject": "cohort-level literature",
+  "writes_to": null
+}

@@ -1292,6 +1292,63 @@ the few frames that did paint expensive.
   draw nothing. Smoothness comes from holding the loop *for the duration of a
   thing that is happening* and invalidating on every tick, then sleeping.
 
+## RexMetrix — the product: fields, bridges, programmes, synthesis
+
+The product is named: **RexMetrix**, institutional research software for
+hypothesis-led groups and institutions. Code name *Chronarch* stays on the
+Python packages and the git remote this turn. Nothing under `packages/`
+changed; genesis hashes, kernel/codec/covenant/schemas, admission, Council
+machine, Hearth, lottery and agent hats/silos are untouched.
+
+- **Specs**: `specs/PRODUCT.md` (SaaS programme infrastructure; quota not coin;
+  tenants = institutions; Autistikon = Programme Zero; Council/chain leftover is
+  internal code, not product), `FIELDS.md` (field object, unbounded catalogue,
+  anti-overreach per field), `BRIDGES.md` (first-class edges, the NO_BRIDGE
+  rule, path/clique), `PROGRAMMES.md` (programme = subgraph; wizard; amendments
+  vs silent edits; scale rule; what is portable from Programme Zero — the
+  method, not the content), `SYNTHESIS.md` (jobs overlap|match|couple|question;
+  child pin schema; refusals NO_BRIDGE / LICENSE_MISSING /
+  INDIVIDUAL_SCORE_FORBIDDEN / CROSS_SECTOR_WRITE as hard errors), `LEGAL.md`
+  (what the volume allows — MIT/CC BY when published, testing welcomed, no index
+  license; what RexMetrix will not ship).
+- **web/ rename**: RexMetrix in title, banner, HUD, README, VISUAL. Honesty
+  sentence on `/`: research software for programmes; not a diagnostic; not
+  Foundation-endorsed; not a public chain. `/about` (visitor) and the
+  technician's institutions page: RexMetrix product, Autistikon as example
+  programme, Kim's copyright on the volume's prose. Visitor benches read
+  Fields / Bridges / Programmes / Synthesis; the visitor well draws the
+  catalogue as a graph. The technician room keeps the substrate instrument,
+  Quiet pulse / The vote, hashes and credits. Well unchanged: pointer-live,
+  clock-dead, render policy, rest still, reduced motion, no remount, no Monaco.
+- **Fixtures**: `programme-zero.json` (two fields, one bridge, ledger 6 /
+  register 4, array of 5, stop clock, illustrative grant; no scores, no
+  chapters), `programme-toy.json` (invented three-field demo, two bridges),
+  `synthesis-child.json` (a question child, parents in both, a three-bridge
+  path). Programme Zero → toy moves field-count 2 → 3 and bridge-count 1 → 2.
+- **Law in code**: `web/src/lib/programme.ts` refuses NO_BRIDGE,
+  LICENSE_MISSING, INDIVIDUAL_SCORE_FORBIDDEN, CROSS_SECTOR_WRITE, BAD_KIND,
+  UNKNOWN_FIELD; `requestIndividualScore()` only refuses. `banned.ts` carries
+  the visitor ban list; tests run it over the rendered floor and about page.
+
+### Rejected (kept rejected)
+
+- **Smearing the eight zones onto all science** — no. Programme Zero's method
+  is portable; its content is that programme's. No other field inherits eight
+  interfaces or a corpus's measured array.
+- **All fields implicitly couple** — no. A synthesis needs a declared path or
+  clique of live bridges; a missing edge is NO_BRIDGE. N fields are a graph,
+  not a blender.
+- **Foundation endorsement** — no, stated or implied; the only permitted form
+  is the negation in the honesty sentence, and the ban list enforces it.
+- **An individual index / score / assessment instrument** — no. There is no
+  derived index and no index license; demo code refuses.
+- **A token storefront** — no. Quota per tenant, not coin; no wallet-style
+  account, no listing, no price.
+- **Deleting the Council kernel this turn** — no. It is frozen internal code;
+  the product simply does not expose it.
+- **Pasting the book into the repo** — no. Control-document structure in our
+  own words and short cited phrases only; the prose is the author's copyright.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

@@ -4,13 +4,13 @@ import { Command } from "cmdk";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { BENCHES, FIXTURE_CHIPS } from "../lib/human";
-import { useSession, type FixtureName } from "../state/SessionContext";
+import { BENCHES, PROGRAMME_CHIPS } from "../lib/human";
+import { useProgramme, type ProgrammeName } from "../state/ProgrammeContext";
 import { useWell } from "../state/WellContext";
 
 export function Palette() {
   const { paletteOpen, setPaletteOpen, selectBench } = useWell();
-  const { loadFixture } = useSession();
+  const { loadProgramme } = useProgramme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export function Palette() {
 
   return (
     <Command.Dialog open={paletteOpen} onOpenChange={setPaletteOpen} label="Command palette" className="palette" overlayClassName="palette-overlay" contentClassName="palette-content" data-testid="palette">
-      <Command.Input placeholder="Pulse · Memory · Vote · Paste session …" className="palette-input" autoFocus data-testid="palette-input" />
+      <Command.Input placeholder="Fields · Bridges · Programmes · Synthesis · Paste session …" className="palette-input" autoFocus data-testid="palette-input" />
       <Command.List className="palette-list">
         <Command.Empty className="palette-empty">Nothing on that bench.</Command.Empty>
         <Command.Group heading="Benches">
@@ -42,9 +42,9 @@ export function Palette() {
             </Command.Item>
           ))}
         </Command.Group>
-        <Command.Group heading="Records">
-          {FIXTURE_CHIPS.map((c) => (
-            <Command.Item key={c.fixture} value={`record ${c.label}`} onSelect={run(() => loadFixture(c.fixture as FixtureName))} className="palette-item">
+        <Command.Group heading="Programmes">
+          {PROGRAMME_CHIPS.map((c) => (
+            <Command.Item key={c.fixture} value={`programme ${c.label}`} onSelect={run(() => { navigate("/"); loadProgramme(c.fixture as ProgrammeName); })} className="palette-item">
               <span>{c.label}</span>
               <span className="palette-hint">{c.blurb}</span>
             </Command.Item>
@@ -53,10 +53,14 @@ export function Palette() {
         <Command.Group heading="Rooms">
           <Command.Item value="paste session technician" onSelect={run(() => navigate("/tech"))} className="palette-item" data-testid="palette-paste">
             <span>Paste session</span>
-            <span className="palette-hint">the technician room: paste JSON, fixtures by file, hashes</span>
+            <span className="palette-hint">the technician room: paste session JSON, fixtures by file, hashes</span>
           </Command.Item>
-          <Command.Item value="lab floor" onSelect={run(() => navigate("/"))} className="palette-item">
-            <span>Lab floor</span>
+          <Command.Item value="about rexmetrix legal" onSelect={run(() => navigate("/about"))} className="palette-item" data-testid="palette-about">
+            <span>About RexMetrix</span>
+            <span className="palette-hint">what it is, what it will not ship, Programme Zero</span>
+          </Command.Item>
+          <Command.Item value="programme well" onSelect={run(() => navigate("/"))} className="palette-item">
+            <span>Programme well</span>
             <span className="palette-hint">back to the well</span>
           </Command.Item>
         </Command.Group>

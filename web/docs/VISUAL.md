@@ -1,8 +1,37 @@
-# VISUAL.md — the instrument's visual doctrine
+# VISUAL.md — RexMetrix: the well's visual doctrine
 
-`web/` is a scientific-instrument UI for a research organism. It is not a
-crypto marketing site. Every visual decision below follows from that, and the
+`web/` is the instrument UI for **RexMetrix**, research software for
+hypothesis-led programmes. It is not a marketing site for anything, and it
+sells nothing: no chain, no coin, no treatment, no endorsement. Every visual decision below follows from that, and the
 ones marked **law** are enforced by tests (`web/tests/`).
+
+## 000. What a visitor sees: the catalogue as a graph
+
+The visitor's well draws the **product**, not the substrate. Every field in
+the catalogue is a steel disc on a ring; a bridge is a phosphor line between
+exactly two discs — the loaded programme's bridges are bright, the rest dim,
+a non-live bridge dashed; the loaded programme's fields wear a phosphor
+plinth; the synthesis child is a small prism above the centre with lines down
+to its parents along its declared path. Where a disc sits is seeded from the
+programme id through the same hash PRNG. Switching programmes settles the
+subgraph once, then still.
+
+The four benches read **Fields, Bridges, Programmes, Synthesis** — the
+product's nouns, not Vote/Council as governance. The two chips are
+**Programme Zero** (`programme-zero.json`) and **Toy programme**
+(`programme-toy.json`). Readouts are programme words: fields, bridges,
+assumptions rated, falsifiers registered, items locked, stops on. The
+technician room keeps the substrate's instrument (rings, scars, rods,
+tensegrity, seats, sealed box), its session records (*Quiet pulse*, *The
+vote*), hashes and credits.
+
+**Product law on copy** (`specs/LEGAL.md`, `src/lib/banned.ts`,
+`tests/rexmetrix-honesty.test.tsx`): every visitor-facing string is screened
+for the banned phrases — no public chain talk, no coin, no wallet-style
+account, no council-as-governance, no "digital organism", no treatment or
+diagnostic language, no Foundation endorsement (the only permitted form is the
+negation in the honesty sentence). The honesty sentence on `/` names RexMetrix
+and says: not a diagnostic, not Foundation-endorsed, not a public chain.
 
 ## 00. The well + phosphor; pointer live, clock dead
 
@@ -10,8 +39,8 @@ The docs-site chrome is gone. The page **is** the well: one fixed, full-viewport
 canvas, and over it a phosphor HUD. Two audiences still: the visitor's floor
 (`/`) and the technician room (`/tech`, a scrolling panel over the same well).
 
-- **Primary chrome on the floor** is the well, a `⌘K` button and a
-  "Technician" text button. No multi-link bar of protocol names (**law:**
+- **Primary chrome on the floor** is the well, a `⌘K` button, an "About"
+  button and a "Technician" text button. No multi-link bar of protocol names (**law:**
   `tests/floor.test.tsx`). The STATUS line is the very top strip; the plain
   honesty sentence, including "not a public blockchain", sits under the brand,
   above the fold.
@@ -219,6 +248,12 @@ network". **Law:** `tests/honesty.test.ts`.
   scanlines are a static gradient; grain and bloom spike on an event and decay
   to rest; the only per-frame code follows the pointer and sleeps 300 ms after
   it stops.
+- **Selling the substrate** — no. Rings are not coins, seats are not a
+  governance product, the Hearth is not a stake. The visitor never meets those
+  words; the technician meets them as an operator's readouts.
+- **Smearing Programme Zero onto every field** — no. Its method travels (bridge
+  statement, locked array, rated ledger, register, stop clock); its content —
+  eight sensorimotor interfaces, a corpus's array — does not become a template.
 - **A theme-park loop** — no. A "fun" idle — particles, drift, a looping
   hero — would make the floor feel alive between records. Nothing happened, so
   nothing moves. The floor is still until a bench or a record is chosen, then

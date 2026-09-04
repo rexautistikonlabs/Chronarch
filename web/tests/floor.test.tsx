@@ -1,5 +1,5 @@
-/** The lab floor (/): no protocol names in the primary chrome, one plain
- *  STATUS sentence, two record chips, four benches, human readouts. */
+/** The programme well (/): no protocol names in the primary chrome, one plain
+ *  honesty sentence, two programme chips, four benches, plain readouts. */
 import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -7,77 +7,82 @@ import { renderAt } from "./render";
 
 const PROTOCOL = /^(Timechain|Council|Hearth|Farm|Gym|Operator)$/i;
 
-describe("lab floor", () => {
+describe("programme well", () => {
   it("has no primary nav item named after a protocol object", () => {
     renderAt("/");
     const nav = screen.getByTestId("primary-nav");
     const labels = [...within(nav).getAllByRole("link"), ...within(nav).getAllByRole("button")].map((a) => a.textContent?.trim() ?? "");
-    expect(labels.length).toBeGreaterThan(0);
     expect(labels).toContain("Technician");
+    expect(labels).toContain("About");
     for (const label of labels) expect(label).not.toMatch(PROTOCOL);
-    expect(screen.queryByTestId("tech-nav")).not.toBeInTheDocument(); // the protocol sub-nav is technician-only
-    // and no header link anywhere on the floor is a protocol name
+    expect(screen.queryByTestId("tech-nav")).not.toBeInTheDocument();
     const header = document.querySelector("header")!;
     for (const a of Array.from(header.querySelectorAll("a"))) expect(a.textContent?.trim() ?? "").not.toMatch(PROTOCOL);
   });
 
-  it('says "not a public blockchain" in plain English', () => {
+  it("says what it is and is not, in plain English", () => {
     renderAt("/");
-    expect(screen.getByTestId("plain-status")).toHaveTextContent(/not a public blockchain/);
-    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public blockchain/);
+    const plain = screen.getByTestId("plain-status");
+    expect(plain).toHaveTextContent(/RexMetrix/);
+    expect(plain).toHaveTextContent(/research software for hypothesis-led programmes/);
+    expect(plain).toHaveTextContent(/not a diagnostic/);
+    expect(plain).toHaveTextContent(/not Foundation-endorsed/);
+    expect(plain).toHaveTextContent(/not a public chain/);
+    expect(screen.getByTestId("status-banner")).toHaveTextContent(/Not a public chain/);
   });
 
-  it("Quiet pulse vs The vote changes pages remembered 4 → 5 (height 3 → 4)", () => {
+  it("Programme Zero vs the toy programme changes field_count 2 → 3 and bridge_count 1 → 2", () => {
     renderAt("/");
-    expect(screen.getByTestId("ring-count")).toHaveTextContent("4");
-    expect(screen.getByTestId("height")).toHaveTextContent("3");
-    fireEvent.click(screen.getByTestId("chip-session-opa.json"));
-    expect(screen.getByTestId("ring-count")).toHaveTextContent("5");
-    expect(screen.getByTestId("height")).toHaveTextContent("4");
-    expect(screen.getByTestId("peer-count")).toHaveTextContent("3");
-    fireEvent.click(screen.getByTestId("chip-session-solo.json"));
-    expect(screen.getByTestId("ring-count")).toHaveTextContent("4");
+    expect(screen.getByTestId("field-count")).toHaveTextContent("2");
+    expect(screen.getByTestId("bridge-count")).toHaveTextContent("1");
+    fireEvent.click(screen.getByTestId("chip-programme-toy.json"));
+    expect(screen.getByTestId("field-count")).toHaveTextContent("3");
+    expect(screen.getByTestId("bridge-count")).toHaveTextContent("2");
+    expect(screen.getByTestId("viewport-fallback")).toHaveAttribute("data-programme", "programme-toy");
+    fireEvent.click(screen.getByTestId("chip-programme-zero.json"));
+    expect(screen.getByTestId("field-count")).toHaveTextContent("2");
+    expect(screen.getByTestId("ledger-count")).toHaveTextContent("6");
+    expect(screen.getByTestId("register-count")).toHaveTextContent("4");
   });
 
-  it("readouts are human words; hex and credits stay in the technician room", () => {
+  it("readouts are programme words; hex, credits and substrate names stay in the technician room", () => {
     renderAt("/");
     const floor = screen.getByTestId("human-readouts");
-    expect(floor).toHaveTextContent(/beats/);
-    expect(floor).toHaveTextContent(/pages remembered/);
-    expect(floor).toHaveTextContent(/marks that stay/);
-    expect(floor).toHaveTextContent(/files ok/);
+    for (const word of ["fields in this programme", "bridges declared", "assumptions rated", "falsifiers registered", "items locked", "stops on"]) expect(floor).toHaveTextContent(word);
     const main = document.querySelector("main")!;
-    expect(main.textContent).not.toMatch(/bde78f7d/); // the head hash never shows on the floor
     expect(main.textContent).not.toMatch(/[0-9a-f]{16,}/);
-    expect(main.textContent).not.toMatch(/chronons|credits_by_reason|head_hash|ring_count/);
+    expect(main.textContent).not.toMatch(/chronons|credits_by_reason|head_hash|ring_count|Timechain|Council|Hearth/);
     expect(screen.queryByTestId("head-hash")).not.toBeInTheDocument();
   });
 
-  it("a bench click focuses the camera once and opens one card; a second click closes it", () => {
+  it("the benches read Fields, Bridges, Programmes, Synthesis; a click focuses once and opens one card", () => {
     renderAt("/");
-    expect(screen.queryByTestId("bench-card")).not.toBeInTheDocument();
+    const benches = screen.getByTestId("benches");
+    expect(within(benches).getAllByRole("button").map((b) => b.textContent)).toEqual(expect.arrayContaining([expect.stringMatching(/^Fields/), expect.stringMatching(/^Bridges/), expect.stringMatching(/^Programmes/), expect.stringMatching(/^Synthesis/)]));
+    expect(benches.textContent).not.toMatch(/Vote|Council|Memory|Pulse/);
     const viewport = () => screen.getByTestId("viewport-fallback");
     expect(viewport()).toHaveAttribute("data-focus", "overview");
-    fireEvent.click(screen.getByTestId("bench-memory"));
-    expect(viewport()).toHaveAttribute("data-focus", "timechain");
-    const card = screen.getByTestId("bench-card");
-    expect(card).toHaveAttribute("data-bench", "memory");
-    expect(card).toHaveTextContent(/4 pages, no marks/);
-    fireEvent.click(screen.getByTestId("bench-vote"));
-    expect(screen.getAllByTestId("bench-card")).toHaveLength(1); // one card at a time
-    expect(screen.getByTestId("bench-card")).toHaveAttribute("data-bench", "vote");
-    expect(viewport()).toHaveAttribute("data-focus", "council");
-    fireEvent.click(screen.getByTestId("bench-vote"));
+    fireEvent.click(screen.getByTestId("bench-fields"));
+    expect(viewport()).toHaveAttribute("data-focus", "fields");
+    expect(screen.getByTestId("bench-card")).toHaveAttribute("data-bench", "fields");
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/2 fields, each with its own units/);
+    fireEvent.click(screen.getByTestId("bench-bridges"));
+    expect(screen.getAllByTestId("bench-card")).toHaveLength(1);
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/NO_BRIDGE/);
+    fireEvent.click(screen.getByTestId("bench-synthesis"));
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/a question child, 2 parents, 3 bridges on its path/);
+    fireEvent.click(screen.getByTestId("bench-synthesis"));
     expect(screen.queryByTestId("bench-card")).not.toBeInTheDocument();
     expect(viewport()).toHaveAttribute("data-focus", "overview");
   });
 
-  it("the vote card tells the truth about each record", () => {
+  it("the programmes card tells the truth about each programme", () => {
     renderAt("/");
-    fireEvent.click(screen.getByTestId("bench-vote"));
-    expect(screen.getByTestId("bench-card")).toHaveTextContent(/nothing on the table/);
-    fireEvent.click(screen.getByTestId("chip-session-opa.json"));
-    expect(screen.getByTestId("bench-card")).toHaveTextContent(/a change was voted in/);
-    expect(screen.getByTestId("bench-card")).toHaveTextContent(/3 seats/);
+    fireEvent.click(screen.getByTestId("bench-programmes"));
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/Programme Zero/);
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/example programme and first corpus/);
+    fireEvent.click(screen.getByTestId("chip-programme-toy.json"));
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/invented demo programme/);
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/1 amendment/);
   });
 });

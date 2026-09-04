@@ -27,7 +27,7 @@ describe("prefers-reduced-motion", () => {
       dispatchEvent: () => false,
     }));
     expect(prefersReducedMotion()).toBe(true);
-    for (const path of ["/", "/tech", "/lab", "/timechain", "/council", "/hearth", "/farm", "/gym", "/consortium", "/operator"]) {
+    for (const path of ["/", "/about", "/tech", "/lab", "/timechain", "/council", "/hearth", "/farm", "/gym", "/consortium", "/operator"]) {
       const { unmount } = renderAt(path);
       unmount();
     }

@@ -8,7 +8,7 @@ const TECH_VIEWS = [
   { to: "/farm", label: "Farm" },
   { to: "/gym", label: "Gym" },
   { to: "/operator", label: "Operator" },
-  { to: "/consortium", label: "Consortium" },
+  { to: "/consortium", label: "Institutions" },
 ] as const;
 
 /** Protocol views by their real names — technician room only. */

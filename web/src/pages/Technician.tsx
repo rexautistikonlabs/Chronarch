@@ -43,7 +43,7 @@ export function Technician() {
 
   return (
     <div>
-      <PageHeader eyebrow="technician room · lab console" title="Paste a session. Drive the scene." lede={<>Paste the JSON that <code className="readout text-ivory">chronarch memory</code>, <code className="readout text-ivory">pulse</code>, <code className="readout text-ivory">net status</code> or a captured session envelope printed, and the instrument redraws from it. The console never runs a node, never reads your disk, opens no socket, and refuses anything that is not a well-formed lab output. The loaded session is shown as plain text: an instrument, not an IDE.</>} />
+      <PageHeader eyebrow="rexmetrix · technician room · substrate console" title="Paste a session. Drive the instrument." lede={<>Paste the JSON that <code className="readout text-ivory">chronarch memory</code>, <code className="readout text-ivory">pulse</code>, <code className="readout text-ivory">net status</code> or a captured session envelope printed, and the instrument redraws from it. The console never runs a node, never reads your disk, opens no socket, and refuses anything that is not a well-formed lab output. The loaded session is shown as plain text: an instrument, not an IDE.</>} />
 
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-4">
@@ -133,8 +133,8 @@ export function Technician() {
         <div className="mt-3"><Legend /></div>
       </Section>
 
-      <Section title="consortium">
-        <p data-testid="consortium-line">Chronarch is studied, not sold. There is no token sale, no allocation, no price, nothing to connect a wallet to, and no public node to run: lab-v0 is in-process or loopback only. A research group joins by running the lab, reading the law, and — if it has a change — writing a Proposal and standing a slashing-backed Ballot; there is no admin key to ask for. Details: <Link to="/consortium" className="text-ivory underline underline-offset-2">Consortium</Link>.</p>
+      <Section title="for institutions">
+        <p data-testid="consortium-line">RexMetrix is studied and used, not sold as an asset: no sale, no allocation, no price, no public node to run — the substrate is in-process or loopback only. Programme Zero (Rex Autistikon / Kim 2026) is the example programme and first corpus; its prose is the author's copyright. Details: <Link to="/consortium" className="text-ivory underline underline-offset-2">for institutions</Link> and <Link to="/about" className="text-ivory underline underline-offset-2">About</Link>.</p>
         <NotList items={["a public blockchain, a public network, or peer discovery", "Chia, or a claim about Chia's plot format", "an asset, a market, or anything with a price", "AGI, or a claim about consciousness"]} />
       </Section>
     </div>

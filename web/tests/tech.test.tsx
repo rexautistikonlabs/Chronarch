@@ -12,7 +12,7 @@ describe("technician room", () => {
     expect(screen.getByTestId("apply-json")).toBeInTheDocument();
     expect(screen.getByTestId("load-session-opa.json")).toBeInTheDocument();
     expect(screen.getByTestId("load-session-solo.json")).toBeInTheDocument();
-    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public blockchain/i);
+    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public chain/i);
     expect(screen.getByTestId("tech-nav")).toBeInTheDocument();
   });
 
@@ -24,7 +24,7 @@ describe("technician room", () => {
     expect(screen.getByTestId("operator-log").querySelectorAll("li").length).toBeGreaterThanOrEqual(10);
     expect(screen.getByTestId("gym-list")).toHaveTextContent(/fake_admin_key_tx/);
     expect(screen.getByTestId("gym-list").querySelectorAll("li")).toHaveLength(12);
-    expect(screen.getByTestId("consortium-line")).toHaveTextContent(/studied, not sold/);
+    expect(screen.getByTestId("consortium-line")).toHaveTextContent(/studied and used, not sold as an asset/);
     expect(screen.getByTestId("json-viewer")).toHaveTextContent(/peer-peer_add-net-node-2/);
   });
 

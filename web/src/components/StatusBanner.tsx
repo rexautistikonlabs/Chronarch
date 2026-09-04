@@ -4,7 +4,7 @@ import { assertHonest } from "../lib/banned";
 /** The honesty line, on every page, above the fold. The sentence is fixed
  *  copy; the longer paragraph comes from the session's own `chronarch status`
  *  output when present (screened for banned language before display). */
-export const HONESTY = "Chronarch lab-v0 is a research organism on an in-process or loopback net. It is not a public blockchain.";
+export const HONESTY = "RexMetrix is research software for hypothesis-led programmes. Not a diagnostic. Not Foundation-endorsed. Not a public chain.";
 
 export function StatusBanner() {
   const { session } = useSession();
