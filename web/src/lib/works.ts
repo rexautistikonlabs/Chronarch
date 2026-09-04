@@ -24,6 +24,7 @@ export interface Work {
   source: WorkSource;
   bytes?: false | "present";
   programme?: string;
+  field?: string; // the catalogue field the work is shelved in; a parent needs one
   rights_declared?: boolean;
 }
 
@@ -66,6 +67,7 @@ export interface UploadRequest {
   doi?: string | null;
   year?: number;
   programme?: string;
+  field?: string;
 }
 
 export type UploadResult = { ok: true; work: Work } | { ok: false; code: "FULLTEXT_FORBIDDEN" | "LICENSE_MISSING" | "RIGHTS_UNDECLARED"; detail: string };
@@ -91,6 +93,7 @@ export function acceptUpload(req: UploadRequest): UploadResult {
     source: "upload",
     bytes: req.claimsBytes ? "present" : false,
     ...(req.programme ? { programme: req.programme } : {}),
+    ...(req.field ? { field: req.field } : {}),
     rights_declared: !!req.rights,
   };
   return { ok: true, work };

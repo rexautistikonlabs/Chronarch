@@ -32,6 +32,7 @@ closed when full text is claimed under a licence that does not allow it.
 | `source` | `preload` (ships with RexMetrix), `upload` (a tenant added it), `index` (a metadata stub) |
 | `bytes?` | `false` or `"present"` — a **flag**, never the bytes. No PDF or full text is ever stored in a git fixture; a browser upload is held in memory only |
 | `programme?` | the programme the work belongs to |
+| `field?` | the catalogue field the work is shelved in; a work parents a child only when shelved (`UNKNOWN_FIELD` otherwise) |
 
 ## Licence law
 

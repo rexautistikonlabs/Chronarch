@@ -1,26 +1,28 @@
 {
   "schema": "rexmetrix.works/1",
-  "note": "A few legal starter works. Hand-written; metadata and licence on every row; no PDF bytes anywhere in this repository — `bytes` is a flag. Programme Zero rows are structure-only stand-ins in our own words, not book chapters.",
+  "note": "A few legal starter works. Hand-written; metadata and licence on every row; no PDF bytes anywhere in this repository \u2014 `bytes` is a flag. Programme Zero rows are structure-only stand-ins in our own words, not book chapters. `field` shelves a work in a catalogue field so it may parent a synthesis; the public-domain named work is left unshelved on purpose.",
   "works": [
     {
       "id": "work-pz-ledger-structure",
-      "title": "Assumption ledger (structure only) — Programme Zero control-document stand-in",
+      "title": "Assumption ledger (structure only) \u2014 Programme Zero control-document stand-in",
       "year": 2026,
       "license": "cc-by-4.0",
       "oa": true,
       "source": "preload",
       "bytes": "present",
-      "programme": "programme-zero"
+      "programme": "programme-zero",
+      "field": "autistikon-programme-zero"
     },
     {
       "id": "work-pz-register-structure",
-      "title": "Falsification register (structure only) — Programme Zero control-document stand-in",
+      "title": "Falsification register (structure only) \u2014 Programme Zero control-document stand-in",
       "year": 2026,
       "license": "cc-by-4.0",
       "oa": true,
       "source": "preload",
       "bytes": "present",
-      "programme": "programme-zero"
+      "programme": "programme-zero",
+      "field": "autistikon-programme-zero"
     },
     {
       "id": "work-toy-materials-note",
@@ -30,11 +32,12 @@
       "oa": true,
       "source": "preload",
       "bytes": "present",
-      "programme": "programme-toy"
+      "programme": "programme-toy",
+      "field": "toy-materials"
     },
     {
       "id": "work-darwin-1859",
-      "title": "On the Origin of Species (1859) — public-domain named work, metadata only",
+      "title": "On the Origin of Species (1859) \u2014 public-domain named work, metadata only",
       "year": 1859,
       "license": "public-domain",
       "oa": true,
@@ -48,7 +51,8 @@
       "license": "arxiv-nonexclusive",
       "oa": true,
       "source": "preload",
-      "bytes": false
+      "bytes": false,
+      "field": "toy-materials"
     },
     {
       "id": "work-stub-doi-example",
@@ -58,7 +62,8 @@
       "license": "stub-metadata",
       "oa": false,
       "source": "preload",
-      "bytes": false
+      "bytes": false,
+      "field": "tissue-mechanics"
     },
     {
       "id": "work-stub-title-only",
@@ -67,7 +72,8 @@
       "license": "stub-metadata",
       "oa": false,
       "source": "preload",
-      "bytes": false
+      "bytes": false,
+      "field": "toy-acoustics"
     }
   ]
 }

@@ -7,8 +7,9 @@ import { Button, Checkbox, Label, Select, SelectValue, TextField, Input, Popover
 import { hasFullText, LICENSES, REFUSAL_CODES_WORKS, type License } from "../lib/works";
 import { useProgramme } from "../state/ProgrammeContext";
 
-export function WorksPanel() {
-  const { works, preloadCount, upload } = useProgramme();
+export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<string>; onToggle: (id: string) => void }) {
+  const { works, preloadCount, upload, catalogue } = useProgramme();
+  const [field, setField] = useState("");
   const [title, setTitle] = useState("");
   const [license, setLicense] = useState<License | "">("");
   const [claimsBytes, setClaimsBytes] = useState(false);
@@ -16,7 +17,7 @@ export function WorksPanel() {
   const [result, setResult] = useState<string | null>(null);
 
   const submit = () => {
-    const r = upload({ title, license: license || null, claimsBytes, rights });
+    const r = upload({ title, license: license || null, claimsBytes, rights, ...(field ? { field } : {}) });
     if (r.ok) {
       setResult(`accepted · ${r.work.id} (${r.work.license}${r.work.bytes === "present" ? ", full text flagged" : ", citation only"})`);
       setTitle("");
@@ -35,22 +36,26 @@ export function WorksPanel() {
         <table className="readout w-full text-[11px]" data-testid="works-table">
           <thead className="text-dim">
             <tr>
+              <th className="px-2 py-1 text-left"><span className="sr-only">select</span></th>
               <th className="px-2 py-1 text-left">id</th>
               <th className="px-2 py-1 text-left">title</th>
               <th className="px-2 py-1 text-left">license</th>
               <th className="px-2 py-1 text-left">oa</th>
               <th className="px-2 py-1 text-left">source</th>
+              <th className="px-2 py-1 text-left">field</th>
               <th className="px-2 py-1 text-left">body</th>
             </tr>
           </thead>
           <tbody>
             {works.map((w) => (
-              <tr key={w.id} className="border-t hair text-mute" data-testid={`work-${w.id}`}>
+              <tr key={w.id} className={`border-t hair text-mute ${selected.has(w.id) ? "bg-panel" : ""}`} data-testid={`work-${w.id}`}>
+                <td className="px-2 py-1"><input type="checkbox" checked={selected.has(w.id)} onChange={() => onToggle(w.id)} aria-label={`select ${w.title}`} data-testid={`select-${w.id}`} /></td>
                 <td className="px-2 py-1 text-ivory">{w.id}</td>
                 <td className="px-2 py-1">{w.title}</td>
                 <td className="px-2 py-1">{w.license}</td>
                 <td className="px-2 py-1">{String(w.oa)}</td>
                 <td className="px-2 py-1">{w.source}</td>
+                <td className="px-2 py-1">{w.field ?? "—"}</td>
                 <td className="px-2 py-1">{hasFullText(w) ? "present" : "STUB_NO_FULLTEXT"}</td>
               </tr>
             ))}
@@ -70,6 +75,15 @@ export function WorksPanel() {
             <option value="">— none declared —</option>
             {LICENSES.map((l) => (
               <option key={l} value={l}>{l}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="readout text-[11px] uppercase tracking-wider text-dim" htmlFor="upload-field">field (shelf)</label>
+          <select id="upload-field" value={field} onChange={(e) => setField(e.target.value)} className="readout border hair bg-ink p-2 text-xs text-ivory" data-testid="upload-field">
+            <option value="">— unshelved (cannot parent a child) —</option>
+            {[...catalogue.fields.values()].map((f) => (
+              <option key={f.id} value={f.id}>{f.id}</option>
             ))}
           </select>
         </div>

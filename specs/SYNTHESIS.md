@@ -33,9 +33,11 @@ overwrites a parent and never writes into a parent's field across a sector.
 }
 ```
 
-Exactly one of `path[]` (ordered bridges, consecutive ones sharing a field,
-running from the first parent's field to the last) or `clique[]` (a set of
-live bridges covering every pair of parent fields) is required.
+When the parents sit in two or more fields, exactly one of `path[]` (ordered
+bridges, consecutive ones sharing a field, running from the first parent's
+field to the last) or `clique[]` (a set of live bridges covering every pair of
+parent fields) is required. Parents that all sit in **one** field share a
+vocabulary already and need no bridge.
 
 ## Refusals — hard errors, not footnotes
 
@@ -47,6 +49,7 @@ live bridges covering every pair of parent fields) is required.
 | `CROSS_SECTOR_WRITE` | `writes_to` names a field whose `sector` differs from the child's declared `sector` |
 | `FULLTEXT_FORBIDDEN` | a parent names a work flagged `bytes: "present"` under a licence that does not allow full text ([WORKS.md](WORKS.md)) |
 | `STUB_NO_FULLTEXT` | an `overlap`, `match` or `couple` job names a work with no body (a stub, `oa: false`, or no bytes); a `question` may cite it |
+| `NEED_PARENTS` | the operator bench was asked to act on fewer than two works |
 | `BAD_KIND` | `kind` is not one of the four jobs |
 | `UNKNOWN_FIELD` | a parent names a field not in the catalogue |
 

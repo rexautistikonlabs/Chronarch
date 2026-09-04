@@ -30,6 +30,9 @@ interface ProgrammeCtx {
   works: Work[]; // preload + this session's uploads (memory only)
   preloadCount: number;
   upload: (req: UploadRequest) => UploadResult;
+  files: ProgrammeFile[];
+  results: ChildPin[]; // children the bench produced this session (memory only)
+  addResult: (c: ChildPin) => void;
 }
 
 const Ctx = createContext<ProgrammeCtx | null>(null);
@@ -37,6 +40,9 @@ const Ctx = createContext<ProgrammeCtx | null>(null);
 export function ProgrammeProvider({ children, initial = "programme-zero.json" }: { children: ReactNode; initial?: ProgrammeName }) {
   const [programmeName, setName] = useState<ProgrammeName>(initial);
   const [uploads, setUploads] = useState<Work[]>([]);
+  const [results, setResults] = useState<ChildPin[]>([]);
+  const addResult = useCallback((c: ChildPin) => setResults((r) => [...r, c]), []);
+  const files = useMemo(() => Object.values(PROGRAMMES), []);
   const works = useMemo(() => [...PRELOAD_WORKS, ...uploads], [uploads]);
   const catalogue = useMemo(() => catalogueOf(Object.values(PROGRAMMES)), []);
   const programme = PROGRAMMES[programmeName];
@@ -59,8 +65,8 @@ export function ProgrammeProvider({ children, initial = "programme-zero.json" }:
     return r;
   }, []);
   const value = useMemo(
-    () => ({ programme, programmeName, catalogue, counts, child: CHILD, childVerdict, loadProgramme, works, preloadCount: PRELOAD_WORKS.length, upload }),
-    [programme, programmeName, catalogue, counts, childVerdict, loadProgramme, works, upload],
+    () => ({ programme, programmeName, catalogue, counts, child: CHILD, childVerdict, loadProgramme, works, preloadCount: PRELOAD_WORKS.length, upload, files, results, addResult }),
+    [programme, programmeName, catalogue, counts, childVerdict, loadProgramme, works, upload, files, results, addResult],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

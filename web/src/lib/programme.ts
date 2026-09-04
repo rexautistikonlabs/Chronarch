@@ -176,10 +176,14 @@ export function validateChild(cat: Catalogue, child: ChildPin, works?: Map<strin
     }
   }
 
-  // The declared connection: a path or a clique of LIVE bridges.
+  // The declared connection: a path or a clique of LIVE bridges. Parents that
+  // all sit in ONE field share a vocabulary already: no bridge is needed.
   let bridges: string[] = [];
   const walk: string[] = [];
-  if (child.path && child.path.length > 0) {
+  const oneField = new Set(parentFields).size === 1;
+  if (oneField && !(child.path && child.path.length > 0) && !(child.clique && child.clique.length > 0)) {
+    walk.push(parentFields[0]!);
+  } else if (child.path && child.path.length > 0) {
     bridges = child.path;
     let at = parentFields[0]!;
     walk.push(at);

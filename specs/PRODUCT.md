@@ -57,6 +57,18 @@ page, no protocol museum. Retired paths (`/council`, `/timechain`, `/hearth`,
 `/farm`, `/gym`, `/operator`, `/lab`) resolve into `/tech`; `/consortium` into
 `/about`. Nothing 404s, and nothing stands as an equal nav item.
 
+## The operator bench
+
+`/tech` is one flat HTML room — no 3D, no well on that route: the works table
+with a selection, three actions that each write one child pin through the
+synthesis law or refuse (**Converge** = overlap, **Compare** = match,
+**Analyze** = question if any parent is only a stub, else couple), the result
+as the child's JSON or a refuse code, then the programmes and fixtures, a paste
+box for session JSON, the hashes when a session is loaded, and the refuse
+glossary. Fewer than two selected works is `NEED_PARENTS`. The bench calls no
+model and fetches nothing. The well is the visitor's instrument, not the
+operator's wallpaper.
+
 ## Works
 
 Only legal works enter RexMetrix: a few preloaded starter works with a licence

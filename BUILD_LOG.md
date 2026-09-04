@@ -1410,6 +1410,30 @@ Bug: the technician room still exposed a second product — /council,
   app. The substrate's readouts are one closed block in the operator's room,
   labelled internal; they are not a nav, not a page each, and not a product.
 
+## RexMetrix — /tech is a flat operator bench
+
+- No well on the operator route: no canvas, no pointer rig, no scanlines. The
+  Shell mounts the well only for the visitor (and About). `/tech` is HTML: the
+  works table with checkboxes → **Converge / Compare / Analyze** → the result
+  (child JSON or refuse code) → programmes and fixtures → paste JSON → hashes →
+  refuse glossary → the closed substrate `<details>`.
+- `web/src/lib/bench.ts`: Converge = overlap, Compare = match, Analyze =
+  question if any parent is only a stub, else couple. Parents are the selected
+  works (shelved in fields; `field` added to the Work object and the preload
+  fixture); the declared path is the shortest live path between the parents'
+  fields; the programme's grant rides along for a licensed field. Everything
+  then runs through `validateChild`: NO_BRIDGE, LICENSE_MISSING,
+  INDIVIDUAL_SCORE_FORBIDDEN, CROSS_SECTOR_WRITE, FULLTEXT_FORBIDDEN,
+  STUB_NO_FULLTEXT, UNKNOWN_FIELD; fewer than two works → NEED_PARENTS.
+  Parents in one field need no bridge (SYNTHESIS.md). Results accumulate in
+  memory. No model is called, nothing is fetched.
+
+### Rejected (kept rejected)
+
+- **The well as tech wallpaper** — no. A 3D column behind an operator's
+  table is decoration that costs a GPU and says nothing the table does not.
+  The well is the visitor's instrument; the operator gets a bench.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

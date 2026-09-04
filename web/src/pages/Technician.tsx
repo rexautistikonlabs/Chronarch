@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Label, TextArea, TextField } from "react-aria-components";
 import { Link } from "react-router-dom";
 
+import { BenchActions } from "../components/BenchActions";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import JsonViewer from "../components/JsonViewer";
 import { Legend } from "../components/Legend";
@@ -18,7 +19,8 @@ import { useProgramme, type ProgrammeName } from "../state/ProgrammeContext";
 import { FIXTURES, useSession, type FixtureName } from "../state/SessionContext";
 
 const REFUSE_CODES: readonly [string, string][] = [
-  ["NO_BRIDGE", "a synthesis needs a declared path or clique of live bridges; a missing edge refuses"],
+  ["NEED_PARENTS", "select at least two works; a child needs parents"],
+  ["NO_BRIDGE", "a synthesis across fields needs a declared path or clique of live bridges; a missing edge refuses (parents in one field need none)"],
   ["LICENSE_MISSING", "a licensed field with no grant, or a work with no licence"],
   ["INDIVIDUAL_SCORE_FORBIDDEN", "no person-level score, index or assessment, on any field"],
   ["CROSS_SECTOR_WRITE", "a child never writes into another sector's field"],
@@ -39,6 +41,8 @@ const EXAMPLE = `{"ok": true, "result": {"identity": "chronarch-pulse", "height"
 export function Technician() {
   const { session, error, loadFixture, loadText } = useSession();
   const { programmeName, loadProgramme } = useProgramme();
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+  const toggle = (id: string) => setSelected((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const [text, setText] = useState("");
   const [applied, setApplied] = useState<string | null>(null);
   const s = session.state;
@@ -51,14 +55,18 @@ export function Technician() {
 
   return (
     <div>
-      <PageHeader eyebrow="rexmetrix · technician room" title="One room for the operator." lede={<>Works and their licences, the programmes and the fixtures that drive the well, a paste box for session JSON, the hashes when a session is loaded, and every refuse code. The console never runs a node, never reads your disk, opens no socket, and refuses anything that is not a well-formed lab output. What is shown is plain text: an instrument, not an IDE.</>} />
+      <PageHeader eyebrow="rexmetrix · technician room · operator bench" title="One room for the operator." lede={<>A flat bench: works and their licences, a selection, three actions that each write one child pin or refuse, the programmes and fixtures, a paste box for session JSON, the hashes when a session is loaded, and the refuse glossary. HTML only — no well on this route. The bench calls no model, fetches nothing, and refuses anything that is not a well-formed input.</>} />
 
       <Section title="works · only legal works enter">
-        <WorksPanel />
+        <WorksPanel selected={selected} onToggle={toggle} />
+      </Section>
+
+      <Section title="actions · converge, compare, analyze">
+        <BenchActions selected={selected} />
       </Section>
 
       <Section title="programmes and fixtures">
-        <p>The well draws one programme at a time. Pick one here or on the programme well; these are static fixtures, not a live catalogue.</p>
+        <p>The programme well (the visitor route) draws one programme at a time; pick it here or there. These are static fixtures, not a live catalogue.</p>
         <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="tech-programmes">
           <span className="readout text-[11px] uppercase tracking-wider text-dim">programme</span>
           {PROGRAMME_CHIPS.map((chip) => (
@@ -97,7 +105,7 @@ export function Technician() {
         <p className="readout mt-2 break-all text-[11px] text-dim" data-testid="head-hash-full">head_hash {s.head_hash || "—"}</p>
       </Section>
 
-      <Section title="refuse codes">
+      <Section title="refuse glossary">
         <ul className="readout grid gap-1 text-xs sm:grid-cols-2" data-testid="refuse-codes">
           {REFUSE_CODES.map(([code, note]) => (
             <li key={code} className="flex gap-2"><span className="shrink-0 text-ivory">{code}</span><span className="text-mute">{note}</span></li>
