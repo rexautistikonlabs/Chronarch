@@ -32,6 +32,7 @@ export function ResultCard({ result, note }: { result: BenchResult; note: Analys
                 <p className="text-sm text-ivory">{p.title}</p>
                 <p className="readout mt-1 text-[11px] text-dim">{p.field} · {p.license}{note ? ` · role ${note.objects[i]?.role ?? "—"}` : ""}</p>
                 {p.snippet ? <p className="mt-2 text-[12px] leading-snug text-mute">{p.snippet}</p> : <p className="readout mt-2 text-[11px] text-dim">no body — a citation only</p>}
+                {p.attribution && <p className="readout mt-2 text-[10px] leading-snug text-dim" data-testid={`attribution-${p.id}`}>{p.attribution}</p>}
               </div>
             ))}
           </div>

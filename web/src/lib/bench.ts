@@ -10,7 +10,7 @@
  *  fields, and lets validateChild accept or refuse it. */
 import { validateChild, type Catalogue, type ChildPin, type JobKind, type LicenseGrant, type ProgrammeFile } from "./programme";
 import { comparePair, snippet, type PairMetrics } from "./metrics";
-import { hasFullText, type Work } from "./works";
+import { FULLTEXT_LICENSES as FULLTEXT_OK, hasFullText, type Work } from "./works";
 
 export type ActionKind = "converge" | "compare" | "analyze";
 
@@ -26,6 +26,8 @@ export interface ParentView {
   field: string;
   license: string;
   snippet: string | null; // first 160 chars of the body; null for a stub
+  attribution: string | null; // who wrote it and where it came from, when recorded
+  source_url: string | null; // a citation; never fetched
 }
 
 export interface BenchOk {
@@ -50,7 +52,7 @@ export interface BenchRefused {
 export type BenchResult = BenchOk | BenchRefused;
 
 export function parentView(w: Work): ParentView {
-  return { id: w.id, title: w.title, field: w.field ?? "—", license: w.license, snippet: w.text && hasFullText(w) ? snippet(w.text) : null };
+  return { id: w.id, title: w.title, field: w.field ?? "—", license: w.license, snippet: w.text && hasFullText(w) ? snippet(w.text) : null, attribution: w.attribution ?? null, source_url: w.source_url ?? null };
 }
 
 /** Shortest path of live bridges between two fields, as bridge ids. Null when none. */
@@ -94,6 +96,13 @@ export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, 
   const refuse = (code: string, detail: string): BenchRefused => ({ ok: false, action, code, detail, parents: views });
   if (selected.length < 2) return refuse("NEED_PARENTS", "select at least two works; a child needs parents");
   const kind = kindFor(action, selected);
+  // A body job reads bodies: a missing body is refused before any bridge is asked for.
+  if (kind === "overlap" || kind === "match" || kind === "couple") {
+    for (const w of selected) {
+      if (w.bytes === "present" && !FULLTEXT_OK.has(w.license)) return refuse("FULLTEXT_FORBIDDEN", `work ${w.id} claims full text under ${w.license}`);
+      if (!hasFullText(w)) return refuse("STUB_NO_FULLTEXT", `a ${kind} job needs a body; work ${w.id} is a citation only (a question may cite it)`);
+    }
+  }
   const parents = selected.map((w) => ({ pin: `pin:${w.id}`, field: w.field ?? "", work: w.id }));
   for (const p of parents) {
     if (!p.field) return refuse("UNKNOWN_FIELD", `work ${p.work} is not shelved in a field; give it one before it parents a child`);

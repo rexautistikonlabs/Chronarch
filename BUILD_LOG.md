@@ -1522,6 +1522,28 @@ Bug: the technician room still exposed a second product — /council,
   recollection risks a misquotation with a real author's name on it; the rows
   wait for the brief's table.
 
+## RexMetrix — the base rows, from the brief
+
+- The operator brief's works table arrived and is carried exactly: Darwin 1859
+  (natural-history, PG #1228), Newton *Opticks* (optics, PG #33504), Faraday
+  *Experimental Researches in Electricity* vol. 1 (electricity, PG #14986),
+  Maxwell *An Elementary Treatise on Electricity* (electromagnetism, PG #69914),
+  Mendel *Versuche über Pflanzenhybriden* 1866 (heredity, PG #40854), NIST TN
+  1297 (metrology, us-government). The Darwin stub is replaced by the body row
+  (same id). Each row: the brief's excerpt as `text`, its `source_url`, its
+  `attribution` (with https), `bytes: "present"`, `source: "preload"`; twelve
+  preload rows in all. Programme Zero stand-ins stay.
+- A body job (overlap | match | couple) now refuses a missing body before it
+  asks for a bridge, so Darwin + the arXiv stub is STUB_NO_FULLTEXT, not
+  NO_BRIDGE.
+- Pinned: Compare Darwin + Mendel across natural-history—heredity and Faraday +
+  Maxwell across electricity—electromagnetism yield match notes with both
+  excerpts and Jaccards computed from these exact texts (tests carry the
+  counts). NIST TN 1297 stands alone: metrology has no bridge.
+- Tests: the six rows equal the brief's strings (whitespace-normalised only),
+  https in source_url and attribution, public-domain or us-government; no
+  fetch anywhere under src/.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

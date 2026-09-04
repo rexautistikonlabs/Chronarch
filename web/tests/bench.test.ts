@@ -56,7 +56,8 @@ describe("bench actions", () => {
   it("one selection → NEED_PARENTS; an unshelved work → UNKNOWN_FIELD", () => {
     expect(runAction("converge", pick("work-pz-ledger-structure"), cat, FILES, map)).toMatchObject({ ok: false, code: "NEED_PARENTS" });
     expect(runAction("converge", [], cat, FILES, map)).toMatchObject({ ok: false, code: "NEED_PARENTS" });
-    expect(runAction("analyze", pick("work-darwin-1859", "work-stub-doi-example"), cat, FILES, map)).toMatchObject({ ok: false, code: "UNKNOWN_FIELD" });
+    const unshelved = { ...map.get("work-stub-title-only")!, id: "work-unshelved", field: undefined };
+    expect(runAction("analyze", [unshelved, map.get("work-stub-doi-example")!], cat, FILES, map)).toMatchObject({ ok: false, code: "UNKNOWN_FIELD" });
   });
 
   it("NO_BRIDGE when no live path joins the parents' fields; LICENSE_MISSING when the grant is gone", () => {

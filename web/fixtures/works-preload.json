@@ -1,10 +1,10 @@
 {
   "schema": "rexmetrix.works/1",
-  "note": "A few legal starter works. Hand-written; metadata and licence on every row; no PDF bytes anywhere in this repository \u2014 `bytes` is a flag. Programme Zero rows are structure-only stand-ins in our own words, not book chapters. `field` shelves a work in a catalogue field so it may parent a synthesis; the public-domain named work is left unshelved on purpose. Bodies (`text`) are short structure-only stand-ins written for this repository, at most 80 words each; stubs have none.",
+  "note": "A few legal starter works. Hand-written; metadata and licence on every row; no PDF bytes anywhere in this repository — `bytes` is a flag. Programme Zero rows are structure-only stand-ins in our own words, not book chapters. `field` shelves a work in a catalogue field so it may parent a synthesis; the public-domain named work is left unshelved on purpose. Bodies (`text`) are short structure-only stand-ins written for this repository, at most 80 words each; stubs have none. The six base rows (Darwin, Newton, Faraday, Maxwell, Mendel, NIST TN 1297) carry the operator brief's strings exactly: an excerpt only, never the book; a URL is a citation and is never fetched.",
   "works": [
     {
       "id": "work-pz-ledger-structure",
-      "title": "Assumption ledger (structure only) \u2014 Programme Zero control-document stand-in",
+      "title": "Assumption ledger (structure only) — Programme Zero control-document stand-in",
       "year": 2026,
       "license": "cc-by-4.0",
       "oa": true,
@@ -16,7 +16,7 @@
     },
     {
       "id": "work-pz-register-structure",
-      "title": "Falsification register (structure only) \u2014 Programme Zero control-document stand-in",
+      "title": "Falsification register (structure only) — Programme Zero control-document stand-in",
       "year": 2026,
       "license": "cc-by-4.0",
       "oa": true,
@@ -37,15 +37,6 @@
       "programme": "programme-toy",
       "field": "toy-materials",
       "text": "A toy materials note for the invented demo field. It lists stiffness and strength values in megapascals for three made-up samples, states the units, and records nothing about any real material. The note exists so the demo programme has one body to read beside its stubs. Its locked array has four items; changing that list is an amendment, never a silent edit."
-    },
-    {
-      "id": "work-darwin-1859",
-      "title": "On the Origin of Species (1859) \u2014 public-domain named work, metadata only",
-      "year": 1859,
-      "license": "public-domain",
-      "oa": true,
-      "source": "preload",
-      "bytes": false
     },
     {
       "id": "work-arxiv-style-example",
@@ -77,6 +68,84 @@
       "source": "preload",
       "bytes": false,
       "field": "toy-acoustics"
+    },
+    {
+      "id": "work-darwin-1859",
+      "title": "On the Origin of Species (1859), 1st ed. — excerpt",
+      "year": 1859,
+      "license": "public-domain",
+      "oa": true,
+      "source": "preload",
+      "bytes": "present",
+      "field": "natural-history",
+      "text": "When on board H.M.S. 'Beagle,' as naturalist, I was much struck with certain facts in the distribution of the inhabitants of South America, and in the geological relations of the present to the past inhabitants of that continent. These facts seemed to me to throw some light on the origin of species—that mystery of mysteries, as it has been called by one of our greatest philosophers.",
+      "source_url": "https://www.gutenberg.org/ebooks/1228",
+      "attribution": "Charles Darwin, On the Origin of Species (1859), 1st ed. Project Gutenberg ebook #1228. Public domain in the USA. https://www.gutenberg.org/ebooks/1228"
+    },
+    {
+      "id": "work-newton-opticks",
+      "title": "Opticks — excerpt",
+      "year": 1704,
+      "license": "public-domain",
+      "oa": true,
+      "source": "preload",
+      "bytes": "present",
+      "field": "optics",
+      "text": "By the Rays of Light I understand its least Parts, and those as well Successive in the same Lines, as Contemporary in several Lines.",
+      "source_url": "https://www.gutenberg.org/ebooks/33504",
+      "attribution": "Isaac Newton, Opticks. Project Gutenberg ebook #33504. Public domain in the USA. https://www.gutenberg.org/ebooks/33504"
+    },
+    {
+      "id": "work-faraday-ere-v1",
+      "title": "Experimental Researches in Electricity, Vol. 1 — excerpt",
+      "year": 1839,
+      "license": "public-domain",
+      "oa": true,
+      "source": "preload",
+      "bytes": "present",
+      "field": "electricity",
+      "text": "I have been induced by various circumstances to collect in One Volume the Fourteen Series of Experimental Researches in Electricity, which have appeared in the Philosophical Transactions during the last seven years.",
+      "source_url": "https://www.gutenberg.org/ebooks/14986",
+      "attribution": "Michael Faraday, Experimental Researches in Electricity, Vol. 1. Project Gutenberg ebook #14986. Public domain in the USA. https://www.gutenberg.org/ebooks/14986"
+    },
+    {
+      "id": "work-maxwell-elem",
+      "title": "An Elementary Treatise on Electricity — excerpt",
+      "year": 1881,
+      "license": "public-domain",
+      "oa": true,
+      "source": "preload",
+      "bytes": "present",
+      "field": "electromagnetism",
+      "text": "The aim of the following treatise is different from that of my larger treatise on electricity and magnetism.",
+      "source_url": "https://www.gutenberg.org/ebooks/69914",
+      "attribution": "James Clerk Maxwell, An Elementary Treatise on Electricity. Project Gutenberg ebook #69914. Public domain in the USA. https://www.gutenberg.org/ebooks/69914"
+    },
+    {
+      "id": "work-mendel-1866-de",
+      "title": "Versuche über Pflanzenhybriden (1866) — excerpt (German)",
+      "year": 1866,
+      "license": "public-domain",
+      "oa": true,
+      "source": "preload",
+      "bytes": "present",
+      "field": "heredity",
+      "text": "Einleitende Bemerkungen. Künstliche Befruchtungen, welche an Zierpflanzen deshalb vorgenommen wurden, um neue Farben-Varianten zu erzielen, waren die Veranlassung zu den Versuchen, die hier besprochen werden sollen.",
+      "source_url": "https://www.gutenberg.org/ebooks/40854",
+      "attribution": "Gregor Mendel, Versuche über Pflanzenhybriden (1866). Project Gutenberg ebook #40854. Public domain in the USA. https://www.gutenberg.org/ebooks/40854"
+    },
+    {
+      "id": "work-nist-tn1297",
+      "title": "NIST Technical Note 1297 (1994) — title excerpt",
+      "year": 1994,
+      "license": "us-government",
+      "oa": true,
+      "source": "preload",
+      "bytes": "present",
+      "field": "metrology",
+      "text": "Guidelines for Evaluating and Expressing the Uncertainty of NIST Measurement Results.",
+      "source_url": "https://www.nist.gov/pml/nist-technical-note-1297",
+      "attribution": "Taylor, B.N. and Kuyatt, C.E. (1994), NIST Technical Note 1297. Reprinted courtesy of the National Institute of Standards and Technology, U.S. Department of Commerce. Not copyrightable in the United States. https://www.nist.gov/pml/nist-technical-note-1297"
     }
   ]
 }

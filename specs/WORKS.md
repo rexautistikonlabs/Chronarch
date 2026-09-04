@@ -81,8 +81,10 @@ electricity—electromagnetism, optics—electromagnetism; metrology stands alon
 | `work-nist-tn1297` | metrology | NIST Technical Note 1297 (U.S. government work) |
 
 The excerpts, Gutenberg/NIST URLs and attribution strings for these rows are
-taken **only** from the operator brief's works table; they are not composed
-from memory, and the software does not download them. A URL is a citation.
+the operator brief's works table, carried **exactly** (tested against the
+brief's strings, whitespace-normalised only). Each `text` is a short excerpt —
+one or two sentences — never the book; the software does not download
+anything. A URL is a citation.
 
 ## Upload (model only)
 
