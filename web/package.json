@@ -1,0 +1,46 @@
+{
+  "name": "chronarch-web",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Chronarch Lab + consortium landing. A scientific-instrument UI for a research organism on an in-process or loopback net. Not a public blockchain.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "check:loops": "node scripts/check-loops.mjs"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.0",
+    "@fontsource/ibm-plex-sans": "^5.2.0",
+    "@monaco-editor/react": "^4.7.0",
+    "@react-three/drei": "^10.7.0",
+    "@react-three/fiber": "^9.3.0",
+    "gsap": "^3.13.0",
+    "lucide-react": "^1.0.0",
+    "monaco-editor": "^0.56.0",
+    "react": "^19.2.0",
+    "react-aria-components": "^1.13.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.0",
+    "three": "^0.185.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.6.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.185.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "jsdom": "^30.0.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.1.0",
+    "vitest": "^4.0.0"
+  }
+}

@@ -1,0 +1,107 @@
+# VISUAL.md — the instrument's visual doctrine
+
+`web/` is a scientific-instrument UI for a research organism. It is not a
+crypto marketing site. Every visual decision below follows from that, and the
+ones marked **law** are enforced by tests (`web/tests/`).
+
+## 1. State drives the scene
+
+The viewport draws **one lab session** — a checked-in fixture or JSON the
+operator pastes — and nothing else. Six readouts plus the head hash seed the
+scene: `ring_count`, `scar_count`, `head_hash`, `pins_ok` (and `i3`),
+`peer_count`, `height`.
+
+- **Rest pose is a pure function of state** (`src/lib/pose.ts`). The head hash
+  seeds a hash PRNG (sfc32 over the hash's first 128 bits); the PRNG decides the
+  stack's lean and yaw, every ring's seam and radius jitter, where each scar sits
+  on its rim, the rod positions in the well, the seat arc's yaw, the box's yaw,
+  and the camera's rest azimuth. **Law:** the same head yields the same pose;
+  two different heads yield visibly different poses (`tests/pose.test.ts`).
+- **Counts are data, not seed.** `ring_count` is the number of rings drawn;
+  `scar_count` is the number of amber lesions; `pins_ok`/`i3` decide whether a
+  rod is raised; the proposal docks only when a ballot is approved and ratified.
+  The one seeded count is the rod total, because the pinset size is not in the
+  CLI's output and the UI does not invent readouts.
+
+## 2. The mapping
+
+| Subsystem | Shape | Reading |
+|---|---|---|
+| Timechain | stacked torus rings on a thin spine; Ring 0 thick and paler | one ring per sealed ring; height is a count, not a clock |
+| Scar | a small amber box sealed onto a rim (never on Ring 0) | G5: scars cannot vanish; a review retires one with a *new* ring |
+| Pins | rods standing in an open well | all seated = PINS_OK; one raised amber rod = a real I3 restriction |
+| Hearth | two compression legs, tension cables, a lock node | the self-bond; prestress keeps the legs apart — the clamp is the geometry |
+| Council | seats in an arc, a hex prism | the prism docks at the centre only on approved + ratified; otherwise it is parked, still |
+| DummyMind | a sealed box with a lid | the lid opens and closes once when a session carries an attested compute receipt |
+
+No logos. Nothing spins.
+
+## 3. Animation law
+
+**Events are one-shot, then the scene is still.** There is no idle, no
+breathing, no drift, no orbit-by-itself, no looping shader time.
+
+- Every timeline is `gsap.timeline({ ...ONE_SHOT, ... })` where
+  `ONE_SHOT = { repeat: 0, yoyo: false }` (`src/lib/motion.ts`). **Law:**
+  `tests/no-loops.test.ts` asserts every `gsap.timeline(` call spreads
+  `ONE_SHOT`, that no stray `gsap.to/from/fromTo` exists outside a timeline, and
+  that no `useFrame` per-frame hook exists anywhere.
+- **Law:** the following literals may not appear anywhere under `web/`
+  (outside `node_modules`): an infinite or negative GSAP repeat, drei's
+  auto-rotate prop, three's animation mixer, GSAP yoyo, and CSS infinite
+  iteration counts. `npm run check:loops` is the same grep as a script.
+- The canvas runs `frameloop="demand"`: a frame is drawn only when a one-shot
+  tween updates, the operator orbits by hand, or the window resizes. At rest the
+  GPU is idle. OrbitControls have damping off so releasing the mouse stops the
+  view exactly where it is.
+- Route changes move the camera once (a 0.9 s ease) to the subsystem in focus.
+- Monaco's cursor is `solid` (no blink) and smooth scrolling/caret animation are
+  off, so nothing on the page repeats.
+
+### prefers-reduced-motion
+
+Under `(prefers-reduced-motion: reduce)` there is **no motion**: every event
+jumps to its final pose (rings at full scale, prism docked, lid closed, camera
+at its goal), the CSS layer disables transitions, and the badge reads
+"motion: off". **Law:** `tests/reduced-motion.test.tsx` — the query never
+throws (jsdom has no `matchMedia`; a throwing `matchMedia` is caught) and
+every route renders under it.
+
+## 4. Palette and type
+
+- Void `#07090C` background; ink `#0D1117` panels; ivory `#E8E4DA` text;
+  mute `#8A949E`; ring steel `#9AA3AD`; genesis `#C8CFD6`; verdigris `#7FB3A6`
+  for a docked (ratified) proposal and an attested receipt.
+- **Scar amber `#E0A32E` appears only on a scar or a real I3 fault.** No
+  warning banners, no accent buttons, no hover glows in amber. Parse errors in
+  the console are ivory with a mono `refused —` prefix.
+- IBM Plex Sans for prose, IBM Plex Mono (`.readout`, tabular numerals) for
+  every number, hash, identifier and command. Fonts are bundled
+  (`@fontsource`), not fetched.
+
+## 5. STATUS honesty
+
+The sentence "not a public blockchain" is on every page (the status banner and
+the footer) and above the fold on the landing. **Law:**
+`tests/landing.test.tsx`.
+
+Language the UI refuses, in its own copy, its fixtures and README, and in any
+session text it renders (`src/lib/banned.ts` screens session text before
+display): the name of Chia's production network; a CHIP-48 compatibility claim;
+a wallet-connect call to action; a token price; a TVL figure; the phrase "live
+network". **Law:** `tests/honesty.test.ts`.
+
+## 6. Rejected (kept rejected)
+
+- **Idle drift / breathing / slow orbit** — no. It reads as life the organism
+  does not have and as activity the lab does not have. A still instrument tells
+  the truth: nothing happened.
+- **Looping hero animation** — no. Same reason; and a loop cannot be
+  state-driven.
+- **A wallet button** — no. There is nothing to connect to.
+- **Timechain as an NFT gallery** — no. Rings are consensus objects with a
+  closed schema, not items to browse or own.
+- **Browser-spawned nodes** — no. `web/` is a static viewer; it never spawns
+  `chronarch` and never reads a filesystem. Sessions arrive as fixtures or paste.
+- **Spinning logos, partner carousels** — no.
+- **Amber as an accent colour** — no. Amber means a scar or a fault.

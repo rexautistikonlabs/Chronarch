@@ -1,0 +1,64 @@
+{
+  "schema": "chronarch.session/1",
+  "label": "solo pulse \u2014 one home, three slots, DummyMind attested, no net",
+  "captured_with": "python -m chronarch_cli (lab-v0, single home; no net, no chiapos)",
+  "focus_home": "SOLO",
+  "steps": [
+    {
+      "cmd": "python -m chronarch_cli pulse --home SOLO",
+      "output": {
+        "ok": true,
+        "result": {
+          "credits_by_reason": {
+            "compute": 24000000000000,
+            "pin": 36000000000000,
+            "space": 120000000000000,
+            "treasury": 12000000000000
+          },
+          "head_hash": "bde78f7d640209dd88068feeb8c8e8fafb3d2c3480a669d8f88c1f6865a9b133",
+          "height": 3,
+          "i3": null,
+          "identity": "chronarch-pulse",
+          "pins_ok": true,
+          "won_slots": 3
+        }
+      },
+      "home": "SOLO"
+    },
+    {
+      "cmd": "python -m chronarch_cli memory --home SOLO",
+      "output": {
+        "ok": true,
+        "result": {
+          "credits_by_reason": {
+            "compute": 24000000000000,
+            "pin": 36000000000000,
+            "space": 120000000000000,
+            "treasury": 12000000000000
+          },
+          "head_hash": "bde78f7d640209dd88068feeb8c8e8fafb3d2c3480a669d8f88c1f6865a9b133",
+          "height": 3,
+          "i3": null,
+          "identity": "chronarch-pulse",
+          "pins_ok": true,
+          "ring_count": 4,
+          "scar_count": 0
+        }
+      },
+      "home": "SOLO"
+    },
+    {
+      "cmd": "python -m chronarch_cli status",
+      "output": {
+        "ok": true,
+        "result": {
+          "git_describe": null,
+          "lab": "lab-v0",
+          "not_a_public_blockchain": true,
+          "source": "specs/STATUS.md",
+          "status": "Chronarch lab-v0 is a research organism that runs on an in-process or loopback net. It is a working model of the protocol's mechanics \u2014 the kernel, the append-only Timechain, the space lottery, the Council, the Hearth, the nervous system, the agent runtime, and a Chronos reward economy."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,246 @@
+{
+  "schema": "chronarch.session/1",
+  "label": "operator path (specs/OPERATOR.md) \u2014 two homes A,B on the in-process bus, one voted peer_add",
+  "captured_with": "python -m chronarch_cli (lab-v0, in-process bus; no public network, no chiapos)",
+  "focus_home": "A",
+  "steps": [
+    {
+      "cmd": "python -m chronarch_cli pulse --home SOLO",
+      "output": {
+        "ok": true,
+        "result": {
+          "credits_by_reason": {
+            "compute": 24000000000000,
+            "pin": 36000000000000,
+            "space": 120000000000000,
+            "treasury": 12000000000000
+          },
+          "head_hash": "bde78f7d640209dd88068feeb8c8e8fafb3d2c3480a669d8f88c1f6865a9b133",
+          "height": 3,
+          "i3": null,
+          "identity": "chronarch-pulse",
+          "pins_ok": true,
+          "won_slots": 3
+        }
+      },
+      "home": "SOLO"
+    },
+    {
+      "cmd": "python -m chronarch_cli net --homes A,B --slots 4",
+      "output": {
+        "ok": true,
+        "result": {
+          "converged": true,
+          "homes": [
+            {
+              "credits_by_reason": {
+                "compute": 16000000000000,
+                "pin": 24000000000000,
+                "space": 80000000000000,
+                "treasury": 8000000000000
+              },
+              "head_hash": "ecdbe6b08f83b611a2dd5c46935f95dd2e71d7ac006349de3b5aaebf9d1ad1ae",
+              "height": 4,
+              "identity": "net-node-0",
+              "won_slots": 2
+            },
+            {
+              "credits_by_reason": {
+                "compute": 16000000000000,
+                "pin": 24000000000000,
+                "space": 80000000000000,
+                "treasury": 8000000000000
+              },
+              "head_hash": "ecdbe6b08f83b611a2dd5c46935f95dd2e71d7ac006349de3b5aaebf9d1ad1ae",
+              "height": 4,
+              "identity": "net-node-1",
+              "won_slots": 2
+            }
+          ],
+          "leaders": [
+            "net-node-0",
+            "net-node-0",
+            "net-node-1",
+            "net-node-1"
+          ]
+        }
+      }
+    },
+    {
+      "cmd": "python -m chronarch_cli peers propose --home A --kind peer_add --identity net-node-2 --units 3",
+      "output": {
+        "ok": true,
+        "result": {
+          "identity": "net-node-2",
+          "kind": "peer_add",
+          "major_class": "M6",
+          "note": "submitted + voting open; a peer-set change activates only via a passed, slashing-backed Council ballot (M6) \u2014 no self-enact",
+          "proposal_id": "peer-peer_add-net-node-2",
+          "proposer": "councilor:net-node-0",
+          "space_units": 3,
+          "status": "MAJOR_NEEDS_COUNCIL"
+        }
+      },
+      "home": "A"
+    },
+    {
+      "cmd": "python -m chronarch_cli council ballot --home A --proposal-id peer-peer_add-net-node-2 --identity net-node-0 --vote yes",
+      "output": {
+        "ok": true,
+        "result": {
+          "identity": "net-node-0",
+          "proposal_id": "peer-peer_add-net-node-2",
+          "seat": "seat:net-node-0",
+          "status": "cast",
+          "vote": "yes"
+        }
+      },
+      "home": "A"
+    },
+    {
+      "cmd": "python -m chronarch_cli council ballot --home A --proposal-id peer-peer_add-net-node-2 --identity net-node-1 --vote yes",
+      "output": {
+        "ok": true,
+        "result": {
+          "identity": "net-node-1",
+          "proposal_id": "peer-peer_add-net-node-2",
+          "seat": "seat:net-node-1",
+          "status": "cast",
+          "vote": "yes"
+        }
+      },
+      "home": "A"
+    },
+    {
+      "cmd": "python -m chronarch_cli council tally --home A --proposal-id peer-peer_add-net-node-2 --homes A,B",
+      "output": {
+        "ok": true,
+        "result": {
+          "activation_slot": 161,
+          "applied": {
+            "identity": "net-node-2",
+            "kind": "peer_add",
+            "space_units": 3
+          },
+          "eligible_seats": 2,
+          "outcome": "approved",
+          "proposal_id": "peer-peer_add-net-node-2",
+          "ratified": true,
+          "slashes": 0,
+          "yes_seats": 2
+        }
+      },
+      "home": "A"
+    },
+    {
+      "cmd": "python -m chronarch_cli net status --homes A,B",
+      "output": {
+        "ok": true,
+        "result": {
+          "homes": [
+            {
+              "head_hash": "ecdbe6b08f83b611a2dd5c46935f95dd2e71d7ac006349de3b5aaebf9d1ad1ae",
+              "height": 4,
+              "home": "A",
+              "identity": "net-node-0",
+              "peer_count": 3,
+              "peers_ok": true
+            },
+            {
+              "head_hash": "ecdbe6b08f83b611a2dd5c46935f95dd2e71d7ac006349de3b5aaebf9d1ad1ae",
+              "height": 4,
+              "home": "B",
+              "identity": "net-node-1",
+              "peer_count": 3,
+              "peers_ok": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cmd": "python -m chronarch_cli pulse --home SOLO2",
+      "output": {
+        "ok": true,
+        "result": {
+          "credits_by_reason": {
+            "compute": 24000000000000,
+            "pin": 36000000000000,
+            "space": 120000000000000,
+            "treasury": 12000000000000
+          },
+          "head_hash": "bde78f7d640209dd88068feeb8c8e8fafb3d2c3480a669d8f88c1f6865a9b133",
+          "height": 3,
+          "i3": null,
+          "identity": "chronarch-pulse",
+          "pins_ok": true,
+          "won_slots": 3
+        }
+      },
+      "home": "SOLO2"
+    },
+    {
+      "cmd": "python -m chronarch_cli memory --home A",
+      "output": {
+        "ok": true,
+        "result": {
+          "credits_by_reason": {
+            "compute": 16000000000000,
+            "pin": 24000000000000,
+            "space": 80000000000000,
+            "treasury": 8000000000000
+          },
+          "head_hash": "ecdbe6b08f83b611a2dd5c46935f95dd2e71d7ac006349de3b5aaebf9d1ad1ae",
+          "height": 4,
+          "i3": null,
+          "identity": "net-node-0",
+          "pins_ok": true,
+          "ring_count": 5,
+          "scar_count": 0
+        }
+      },
+      "home": "A"
+    },
+    {
+      "cmd": "python -m chronarch_cli council status --home A",
+      "output": {
+        "ok": true,
+        "result": {
+          "fleet": 3,
+          "identity": "net-node-0",
+          "proposals": [
+            {
+              "ballots": 2,
+              "eligible": 2,
+              "major_class": "M6",
+              "needs_ratify": false,
+              "outcome": "approved",
+              "proposal_id": "peer-peer_add-net-node-2",
+              "status": "approved"
+            }
+          ],
+          "seats": [
+            "seat:net-node-0",
+            "seat:net-node-1",
+            "seat:net-node-2"
+          ],
+          "slashes": 0
+        }
+      },
+      "home": "A"
+    },
+    {
+      "cmd": "python -m chronarch_cli status",
+      "output": {
+        "ok": true,
+        "result": {
+          "git_describe": null,
+          "lab": "lab-v0",
+          "not_a_public_blockchain": true,
+          "source": "specs/STATUS.md",
+          "status": "Chronarch lab-v0 is a research organism that runs on an in-process or loopback net. It is a working model of the protocol's mechanics \u2014 the kernel, the append-only Timechain, the space lottery, the Council, the Hearth, the nervous system, the agent runtime, and a Chronos reward economy."
+        }
+      }
+    }
+  ]
+}

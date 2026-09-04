@@ -1145,6 +1145,49 @@ Lab journal only. Off-chain. Not Timechain. Not L1.
 2 new test modules (14 tests; 506 total, 2 chiapos skipped by default).
 Genesis hashes unchanged; K18 AST scan clean; every frozen path untouched.
 
+## web/ — Lab + consortium landing (static Vite app)
+
+A scientific-instrument UI, not a crypto marketing site. Lives entirely under
+`web/`; no Python package touched.
+
+- **State-driven scene.** `ring_count`, `scar_count`, `head_hash`, `pins_ok`/`i3`,
+  `peer_count`, `height` seed the rest pose through a hash PRNG (sfc32 over the
+  head hash). Same head → same pose; two heads → visibly different poses
+  (tested). Timechain = stacked rings, scars = sealed amber rim lesions, pins =
+  rods in a well (one raised amber rod only on a real I3), Hearth = tensegrity
+  two legs + lock, Council = seats + a proposal that docks only on approved +
+  ratified, DummyMind = a sealed box that opens and closes once on an attested
+  receipt. No logos, nothing spins.
+- **Animation law.** Events are GSAP timelines built with `ONE_SHOT`
+  (`repeat: 0`), then the scene is still; `frameloop="demand"` so the GPU idles
+  at rest; no per-frame hook anywhere. `prefers-reduced-motion` → no motion.
+  Tests grep `web/` for repeating-animation literals (empty) and assert every
+  timeline spreads `ONE_SHOT`.
+- **STATUS honesty on every page.** Banner + footer + landing above the fold
+  say "not a public blockchain"; a banned-phrase screen (`src/lib/banned.ts`)
+  runs over the UI's copy, fixtures and README in tests, and over any session
+  text before display.
+- **Fixtures are literal CLI output.** `web/fixtures/session-opa.json` is the
+  operator path captured from `python -m chronarch_cli` (height 4, head
+  `ecdbe6b0…`, `peer_count` 3, `peer-peer_add-net-node-2` approved + ratified);
+  `session-solo.json` is one pulsed home. The browser spawns nothing and reads
+  no filesystem: sessions are fixtures or pasted JSON, parsed fail-closed.
+- Routes: `/`, `/lab` (paste JSON → drive the scene; read-only Monaco),
+  `/timechain`, `/council`, `/hearth`, `/farm`, `/gym`, `/consortium`,
+  `/operator`. Stack: Vite, React 19, R3F + drei, GSAP one-shot, React Aria +
+  Tailwind v4, IBM Plex (bundled), Monaco (bundled), Lucide, vitest + Testing
+  Library. `web/docs/VISUAL.md` is the doctrine.
+
+### Rejected (kept rejected)
+
+- **Looping hero animation / idle drift** — no. A loop cannot be state-driven,
+  and idle motion reads as life the organism does not have. A still
+  instrument tells the truth: nothing happened.
+- **Wallet button** — no. There is nothing to connect to.
+- **Timechain as an NFT gallery** — no. Rings are consensus objects with a
+  closed schema, not items to browse or own.
+- **Browser-spawned nodes** — no. `web/` is a static viewer of session JSON.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
