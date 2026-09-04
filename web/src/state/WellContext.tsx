@@ -27,15 +27,8 @@ interface WellCtx {
 
 const Ctx = createContext<WellCtx | null>(null);
 
-export const ROUTE_FOCUS: Record<string, FocusKey> = {
-  "/timechain": "timechain",
-  "/council": "council",
-  "/hearth": "hearth",
-  "/farm": "farm",
-  "/gym": "mind",
-};
-
-export const TECH_PATHS = ["/tech", "/timechain", "/council", "/hearth", "/farm", "/gym", "/consortium", "/operator", "/lab"] as const;
+/** The operator room is one route (plus its old alias). */
+export const TECH_PATHS = ["/tech", "/lab"] as const;
 
 export function isTechPath(pathname: string): boolean {
   return TECH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -78,7 +71,7 @@ export function WellProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const tech = isTechPath(pathname);
-  const focus: FocusKey = tech ? (ROUTE_FOCUS[pathname] ?? "overview") : benchFocus(bench);
+  const focus: FocusKey = tech ? "overview" : benchFocus(bench);
 
   const value = useMemo<WellCtx>(
     () => ({ focus, bench, hovered, eventId: event.id, eventKind: event.kind, paletteOpen, selectBench, setHovered, setPaletteOpen, isTech: tech }),

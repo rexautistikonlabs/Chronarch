@@ -46,6 +46,17 @@ bridges, programmes and synthesis. It does not expose Council governance, rings
 as coins, a token, or a network. Operators may still read hashes and the
 operator path in the technician room; a visitor meets programmes.
 
+## One app
+
+RexMetrix is **one application** with two rooms: the programme well (`/`) for a
+visitor, and one operator room (`/tech`) for a technician — works, programmes
+and fixtures, a paste box, hashes, refuse codes, and a closed "substrate
+instrument" details block labelled *internal code name Chronarch — not the
+product*. There is no second product beside it: no Council page, no Timechain
+page, no protocol museum. Retired paths (`/council`, `/timechain`, `/hearth`,
+`/farm`, `/gym`, `/operator`, `/lab`) resolve into `/tech`; `/consortium` into
+`/about`. Nothing 404s, and nothing stands as an equal nav item.
+
 ## Works
 
 Only legal works enter RexMetrix: a few preloaded starter works with a licence

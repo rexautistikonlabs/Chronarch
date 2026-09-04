@@ -123,12 +123,13 @@ The same organism is met twice.
   one-shot settle, then rest; the hash-PRNG rest pose is unchanged. Readouts
   are human nouns — *beats*, *pages remembered*, *marks that stay*, *files ok*,
   *seats at the table* — and no hex, credit or protocol field name appears.
-- **The technician room (`/tech`)** keeps every protocol object by its real
-  name: the console (paste JSON, fixtures by filename), the raw session, every
-  hash and credit, the operator path's command log, the Immune Gym case list,
-  the consortium line, and links to the protocol views (`/timechain`, `/council`,
-  `/hearth`, `/farm`, `/gym`, `/operator`, `/consortium`). It is not the
-  default landing; `/lab` redirects into it.
+- **The technician room (`/tech`)** is one room: works (list + upload model),
+  programmes and fixtures, a paste box for session JSON, hashes when a session
+  is loaded, refuse codes — and a closed "substrate instrument" details block,
+  labelled *internal code name Chronarch — not the product*, holding the raw
+  session, credits, the command log and the self-test list. There are no
+  protocol pages and no protocol sub-nav; the old paths redirect here. It is
+  not the default landing; `/lab` redirects into it.
 
 Both rooms wear the same STATUS banner and footer. The floor never hides the
 disclaimer to feel friendlier: plain words are how it is said, not whether.

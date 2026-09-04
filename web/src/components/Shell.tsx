@@ -9,11 +9,10 @@ import { useLocation } from "react-router-dom";
 
 import { useWell } from "../state/WellContext";
 import { ErrorBoundary } from "./ErrorBoundary";
-import { TechNav } from "./TechNav";
 
-/** One well, two audiences. The visitor gets the well and its HUD. The
- *  technician gets the same well behind a scrolling panel of protocol names,
- *  hashes and the console. Both wear the STATUS line at the very top. */
+/** One app, one well, two rooms. The visitor gets the well and its HUD. The
+ *  technician gets the same well behind one scrolling panel — works,
+ *  programmes, paste, hashes, refuse codes. Both wear the STATUS line. */
 export function Shell({ children }: { children: ReactNode }) {
   const { isTech } = useWell();
   const { pathname } = useLocation();
@@ -28,7 +27,6 @@ export function Shell({ children }: { children: ReactNode }) {
       </ErrorBoundary>
       {isTech ? (
         <div className="tech-panel fixed inset-x-0 bottom-0 top-[168px] z-20 overflow-y-auto md:left-auto md:right-0 md:w-[min(760px,100%)]" data-testid="tech-panel">
-          <TechNav />
           <main className="px-6 pb-16 pt-4">{children}</main>
           <footer className="px-6 pb-6 text-[11px] text-dim">
             <p>web/ is a static viewer of saved JSON fixtures. It spawns no node, opens no socket and reads no filesystem.</p>

@@ -22,7 +22,7 @@ describe("command palette", () => {
     await screen.findByTestId("palette-input");
     fireEvent.click(screen.getByTestId("palette-paste"));
     expect(await screen.findByTestId("json-input")).toBeInTheDocument();
-    expect(screen.getByTestId("tech-nav")).toBeInTheDocument();
+    expect(screen.queryByTestId("tech-nav")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("open-palette"));
     await screen.findByTestId("palette-input");
     fireEvent.click(screen.getByTestId("palette-about"));

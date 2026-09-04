@@ -1385,6 +1385,31 @@ machine, Hearth, lottery and agent hats/silos are untouched.
   metadata row here until someone with rights adds a body under a licence that
   allows it; knowing a paper exists is not having its bytes.
 
+## RexMetrix — one app: the technician room is one room
+
+Bug: the technician room still exposed a second product — /council,
+/timechain, /hearth, /farm, /gym, /operator and a protocol sub-nav.
+
+- One operator route, `/tech` (alias `/lab`). The protocol pages and the
+  sub-nav are removed as surfaces; their paths redirect into `/tech`
+  (`/consortium` into `/about`) so old links do not 404 and nothing stands as
+  an equal nav item. ⌘K carries no protocol commands.
+- `/tech` sections, in order: works (list + upload), programmes and fixtures,
+  paste session JSON, hashes, refuse codes. Then a closed `<details>` —
+  "substrate instrument · internal code name Chronarch — not the product" —
+  with credits, the raw session, the command log, the self-test case list and
+  the shape legend. No heading in the main column teaches G14/G15/G16 or a
+  "proposal prism".
+- Visitor `/` unchanged; About stays. Well law unchanged.
+- Python untouched: no Council/Hearth/Timechain code deleted; `packages/`,
+  genesis hashes, STATUS.md frozen.
+
+### Rejected (kept rejected)
+
+- **Two products: the well plus a protocol museum** — no. RexMetrix is one
+  app. The substrate's readouts are one closed block in the operator's room,
+  labelled internal; they are not a nav, not a page each, and not a product.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
