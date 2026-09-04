@@ -1193,6 +1193,40 @@ A scientific-instrument UI, not a crypto marketing site. Lives entirely under
   canvas and the viewer render inside error boundaries that fail closed to a
   still ivory panel. The lab is an instrument, not an IDE.
 
+## web/ — one lab floor for visitors, a technician room for the rest
+
+The eight-item protocol nav is gone for the default audience. Every protocol
+object is kept; a normal person meets it differently.
+
+- **`/` is the lab floor.** Two links in the chrome (*Lab floor*, *Technician*),
+  no protocol names. One plain-English STATUS sentence including "not a public
+  blockchain". The same instrument scene; two record chips (*Quiet pulse* =
+  `session-solo.json`, *The vote* = `session-opa.json`); four benches — Memory,
+  Vote, Body, Pulse — a click eases the camera once and opens one card in
+  everyday language, then still. Readouts as human nouns (beats, pages
+  remembered, marks that stay, files ok, seats at the table); hex and credits
+  live only in the technician room. Hash-PRNG rest pose and the animation law
+  are unchanged; reduced motion = instant cut + card.
+- **`/tech` is the technician room.** The console (paste JSON, fixtures by
+  filename), raw session, hashes, credits, the operator path's command log, the
+  Immune Gym case catalogue, the consortium line, links to the protocol views.
+  Not the default landing; `/lab` redirects into it. Error boundaries stay.
+- Tests: no primary nav item on the floor reads Timechain|Council|Hearth|Farm|
+  Gym|Operator; the floor says "not a public blockchain"; *Quiet pulse* → *The
+  vote* moves `ring-count` 4 → 5 and `height` 3 → 4; benches focus the
+  viewport and open one card; `/tech` still has paste + fixtures; the old
+  suites (reduced motion, resilience, animation law, honesty) still pass.
+
+### Rejected (kept rejected)
+
+- **Theme-park loop** — no. A "fun" idle (particles, drift, a looping hero)
+  would make the floor feel alive between records. Nothing happened, so
+  nothing moves; the floor moves once when a bench or a record is chosen.
+- **Hide the disclaimer** — no. Plain words are how "not a public blockchain"
+  is said on the floor, not whether. Banner and footer say it again.
+- **Live dashboard** — no. Nothing fetches a home, spawns a node or opens a
+  socket. Two saved records and a paste box.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

@@ -35,7 +35,7 @@ export function Viewport({ state, focus = "overview", className = "" }: { state:
 
   if (!ok) {
     return (
-      <div className={`relative flex items-center justify-center border hair bg-ink ${className}`} data-testid="viewport-fallback" role="img" aria-label="Scene unavailable: WebGL is not available in this browser">
+      <div className={`relative flex items-center justify-center border hair bg-ink ${className}`} data-testid="viewport-fallback" data-focus={focus} role="img" aria-label="Scene unavailable: WebGL is not available in this browser">
         <div className="max-w-sm p-6 text-sm text-mute">
           <p className="readout text-xs uppercase tracking-wider text-dim">viewport</p>
           <p className="mt-2">WebGL is not available here, so the instrument draws nothing. Its readouts are still true; the scene would show <span className="readout text-ivory">{pose.rings.length}</span> stacked rings with <span className="readout text-ivory">{state.scar_count}</span> scar{state.scar_count === 1 ? "" : "s"} and {state.pins_ok ? "every rod seated" : "one rod raised"}.</p>
@@ -45,7 +45,7 @@ export function Viewport({ state, focus = "overview", className = "" }: { state:
   }
 
   return (
-    <div className={`relative border hair bg-void ${className}`} data-testid="viewport" data-seed={pose.seed} data-reduced-motion={reduced ? "true" : "false"}>
+    <div className={`relative border hair bg-void ${className}`} data-testid="viewport" data-seed={pose.seed} data-focus={focus} data-reduced-motion={reduced ? "true" : "false"}>
       <ErrorBoundary name="scene" className="absolute inset-0 flex items-center justify-center">
       <Canvas frameloop="demand" dpr={[1, 2]} camera={{ position: start.position, fov: 34, near: 0.1, far: 100 }} gl={{ antialias: true, alpha: false }}>
         <color attach="background" args={["#07090C"]} />

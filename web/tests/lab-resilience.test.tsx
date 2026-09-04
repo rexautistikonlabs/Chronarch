@@ -22,12 +22,12 @@ describe("lab resilience", () => {
   it("renders /lab without throwing even when the JSON viewer crashes", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(() => renderAt("/lab")).not.toThrow();
+    expect(() => renderAt("/tech")).not.toThrow();
     // the viewer failed closed …
     expect(screen.getByTestId("viewer-error")).toHaveTextContent(/mocked Monaco worker failure/);
     // … and the chrome, controls, readouts and viewport are all still there
     expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public blockchain/i);
-    expect(screen.getByRole("navigation", { name: "Sections" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Rooms" })).toBeInTheDocument();
     expect(screen.getByTestId("load-session-opa.json")).toBeInTheDocument();
     expect(screen.getByTestId("load-session-solo.json")).toBeInTheDocument();
     expect(screen.getByTestId("json-input")).toBeInTheDocument();

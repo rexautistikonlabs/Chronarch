@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 
 import { renderAt } from "./render";
 
-describe("lab console", () => {
+describe("technician console", () => {
   it("loading a fixture changes ring_count in the readout", () => {
-    renderAt("/lab");
+    renderAt("/tech");
     expect(screen.getByTestId("ring-count")).toHaveTextContent("4"); // session-solo.json
     fireEvent.click(screen.getByTestId("load-session-opa.json"));
     expect(screen.getByTestId("ring-count")).toHaveTextContent("5"); // operator path: height 4 + Ring 0
@@ -17,7 +17,7 @@ describe("lab console", () => {
   });
 
   it("applies pasted memory JSON and refuses garbage", () => {
-    renderAt("/lab");
+    renderAt("/tech");
     const input = screen.getByTestId("json-input");
     const memory = {
       ok: true,

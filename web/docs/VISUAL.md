@@ -4,6 +4,32 @@
 crypto marketing site. Every visual decision below follows from that, and the
 ones marked **law** are enforced by tests (`web/tests/`).
 
+## 0. Two rooms: visitor and technician
+
+The same organism is met twice.
+
+- **The lab floor (`/`)** is for a normal person. Its chrome has two links —
+  *Lab floor* and *Technician* — and no protocol name: nothing in the primary
+  nav reads Timechain, Council, Hearth, Farm, Gym or Operator (**law:**
+  `tests/floor.test.tsx`). One plain-English STATUS sentence sits at the top and
+  includes "not a public blockchain". The scene is the same instrument; under it
+  are **four benches** — Memory, Vote, Body, Pulse — and two **record chips** —
+  *Quiet pulse* (`session-solo.json`) and *The vote* (`session-opa.json`).
+  Clicking a bench eases the camera once to that subsystem and opens one card
+  in everyday language; then the floor is still. Switching a record is a
+  one-shot settle, then rest; the hash-PRNG rest pose is unchanged. Readouts
+  are human nouns — *beats*, *pages remembered*, *marks that stay*, *files ok*,
+  *seats at the table* — and no hex, credit or protocol field name appears.
+- **The technician room (`/tech`)** keeps every protocol object by its real
+  name: the console (paste JSON, fixtures by filename), the raw session, every
+  hash and credit, the operator path's command log, the Immune Gym case list,
+  the consortium line, and links to the protocol views (`/timechain`, `/council`,
+  `/hearth`, `/farm`, `/gym`, `/operator`, `/consortium`). It is not the
+  default landing; `/lab` redirects into it.
+
+Both rooms wear the same STATUS banner and footer. The floor never hides the
+disclaimer to feel friendlier: plain words are how it is said, not whether.
+
 ## 1. State drives the scene
 
 The viewport draws **one lab session** — a checked-in fixture or JSON the
@@ -114,6 +140,16 @@ network". **Law:** `tests/honesty.test.ts`.
   `chronarch` and never reads a filesystem. Sessions arrive as fixtures or paste.
 - **Spinning logos, partner carousels** — no.
 - **Amber as an accent colour** — no. Amber means a scar or a fault.
+- **A theme-park loop** — no. A "fun" idle — particles, drift, a looping
+  hero — would make the floor feel alive between records. Nothing happened, so
+  nothing moves. The floor is still until a bench or a record is chosen, then
+  it moves once.
+- **Hiding the disclaimer for visitors** — no. The floor says "not a public
+  blockchain" in plain English above the scene, and the banner and footer say
+  it again. Friendliness changes the words, never the claim.
+- **A live dashboard** — no. Nothing fetches a home, spawns a node or opens a
+  socket. Two saved records and a paste box; the floor is a reading of what
+  was, not a feed of what is.
 - **An editor on the critical path** — no. Monaco's workers failed under
   `vite dev` and, with no boundary, blanked `/lab`. The console shows JSON as
   text; nothing a viewer does can take the page down.

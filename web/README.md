@@ -18,23 +18,17 @@ npm run dev          # http://localhost:5173
 
 ```
 npm run build        # typecheck + vite build → dist/
-npm test             # vitest (jsdom): landing honesty, reduced motion, fixture load, animation law, /lab resilience
+npm test             # vitest (jsdom): floor chrome + honesty, chips 4→5, benches, technician console, reduced motion, animation law, resilience
 npm run check:loops  # the doctrine grep as a script
 ```
 
-## Routes
+## Two rooms
 
-| Route | What it shows |
-|---|---|
-| `/` | landing + viewport, readouts, legend, what this is not |
-| `/lab` | console: load a fixture or paste `memory` / `pulse` / `net status` / session JSON → the scene redraws; the loaded session as read-only plain text |
-| `/timechain` | stacked rings, scars as sealed rim lesions |
-| `/council` | seats + the proposal that docks only when approved and ratified |
-| `/hearth` | the self-bond as a tensegrity; credits by reason (chronons, not a price) |
-| `/farm` | pins as rods in a well; I3 is the only amber |
-| `/gym` | DummyMind as a sealed box; attested compute |
-| `/consortium` | how a research group joins: run the lab, read the law, propose + ballot |
-| `/operator` | the loaded session's literal command log |
+| Route | Who it is for | What it shows |
+|---|---|---|
+| `/` | a visitor | **the lab floor**: one plain STATUS sentence, the scene, two record chips (*Quiet pulse*, *The vote*), four benches (Memory, Vote, Body, Pulse — click: one-shot camera ease + one card in everyday language, then still), readouts in human words. No protocol names in the chrome, no hex, no credits. |
+| `/tech` | a technician | **the console**: paste `memory` / `pulse` / `net status` / session JSON or load a fixture by filename → the scene redraws; the raw session as text; every hash and credit; the operator path's command log; the Immune Gym case list; the consortium line; links to the protocol views. `/lab` redirects here. |
+| `/timechain` `/council` `/hearth` `/farm` `/gym` `/operator` `/consortium` | a technician | the protocol views, linked from `/tech` (never from the floor's chrome) |
 
 ## Fixtures
 

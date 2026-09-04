@@ -6,7 +6,7 @@ import { renderAt } from "./render";
 describe("landing", () => {
   it('says "not a public blockchain" above the fold and in the banner', () => {
     renderAt("/");
-    expect(screen.getByTestId("honesty")).toHaveTextContent(/not a public blockchain/i);
+    expect(screen.getByTestId("plain-status")).toHaveTextContent(/not a public blockchain/i);
     expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public blockchain/i);
   });
 
@@ -14,7 +14,7 @@ describe("landing", () => {
     renderAt("/");
     expect(screen.getByTestId("ring-count")).toHaveTextContent("4");
     expect(screen.getByTestId("scar-count")).toHaveTextContent("0");
-    expect(screen.getByTestId("head-hash")).toHaveTextContent(/^bde78f7d64/);
+    expect(screen.getByTestId("pins-ok")).toHaveTextContent("yes");
   });
 
   it("uses a still fallback when WebGL is unavailable (jsdom) rather than throwing", () => {
