@@ -6,11 +6,12 @@
  *  licence on every record and refuses the cases it can decide. */
 import { Refusal } from "./programme";
 
-export const LICENSES = ["cc-by-4.0", "cc0", "mit", "public-domain", "arxiv-nonexclusive", "stub-metadata", "all-rights-reserved"] as const;
+/** `us-government`: a work of the United States Government, not subject to copyright in the U.S. (17 U.S.C. § 105); documented in specs/WORKS.md. */
+export const LICENSES = ["cc-by-4.0", "cc0", "mit", "public-domain", "us-government", "arxiv-nonexclusive", "stub-metadata", "all-rights-reserved"] as const;
 export type License = (typeof LICENSES)[number];
 
 /** Licences under which `bytes: "present"` is allowed. */
-export const FULLTEXT_LICENSES: ReadonlySet<License> = new Set<License>(["cc-by-4.0", "cc0", "mit", "public-domain", "arxiv-nonexclusive"]);
+export const FULLTEXT_LICENSES: ReadonlySet<License> = new Set<License>(["cc-by-4.0", "cc0", "mit", "public-domain", "us-government", "arxiv-nonexclusive"]);
 
 export type WorkSource = "preload" | "upload" | "index";
 
@@ -25,7 +26,9 @@ export interface Work {
   bytes?: false | "present";
   programme?: string;
   field?: string; // the catalogue field the work is shelved in; a parent needs one
-  text?: string; // the body, when bytes are present under an allowing licence — short, and only ever a stand-in in fixtures
+  text?: string; // the body, when bytes are present under an allowing licence — an excerpt only, never a book
+  source_url?: string; // a citation. The browser never fetches it.
+  attribution?: string; // who wrote it, where it came from (with its URL)
   rights_declared?: boolean;
 }
 
@@ -70,6 +73,7 @@ export interface UploadRequest {
   programme?: string;
   field?: string;
   text?: string; // optional body; giving one is claiming full text
+  source_url?: string; // optional citation; a URL without text is a stub — nothing is fetched
 }
 
 export type UploadResult = { ok: true; work: Work } | { ok: false; code: "FULLTEXT_FORBIDDEN" | "LICENSE_MISSING" | "RIGHTS_UNDECLARED"; detail: string };
@@ -99,6 +103,7 @@ export function acceptUpload(req: UploadRequest): UploadResult {
     ...(req.programme ? { programme: req.programme } : {}),
     ...(req.field ? { field: req.field } : {}),
     ...(text !== undefined ? { text } : {}),
+    ...(req.source_url?.trim() ? { source_url: req.source_url.trim() } : {}),
     rights_declared: !!req.rights,
   };
   return { ok: true, work };

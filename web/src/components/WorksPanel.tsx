@@ -2,7 +2,7 @@
  *  refuse codes. No file binary is stored anywhere; an accepted upload is a
  *  record in this session's memory. */
 import { useState } from "react";
-import { Button, Checkbox, Label, Select, SelectValue, TextField, Input, Popover, ListBox, ListBoxItem } from "react-aria-components";
+import { Button, Checkbox, Label, Select, SelectValue, TextArea, TextField, Input, Popover, ListBox, ListBoxItem } from "react-aria-components";
 
 import { hasFullText, LICENSES, REFUSAL_CODES_WORKS, type License } from "../lib/works";
 import { useProgramme } from "../state/ProgrammeContext";
@@ -10,6 +10,8 @@ import { useProgramme } from "../state/ProgrammeContext";
 export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<string>; onToggle: (id: string) => void }) {
   const { works, preloadCount, upload, catalogue } = useProgramme();
   const [field, setField] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [license, setLicense] = useState<License | "">("");
   const [claimsBytes, setClaimsBytes] = useState(false);
@@ -17,12 +19,14 @@ export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<strin
   const [result, setResult] = useState<string | null>(null);
 
   const submit = () => {
-    const r = upload({ title, license: license || null, claimsBytes, rights, ...(field ? { field } : {}) });
+    const r = upload({ title, license: license || null, claimsBytes, rights, ...(field ? { field } : {}), ...(sourceUrl ? { source_url: sourceUrl } : {}), ...(text.trim() ? { text } : {}) });
     if (r.ok) {
       setResult(`accepted · ${r.work.id} (${r.work.license}${r.work.bytes === "present" ? ", full text flagged" : ", citation only"})`);
       setTitle("");
       setClaimsBytes(false);
       setRights(false);
+      setSourceUrl("");
+      setText("");
     } else {
       setResult(`refused · ${r.code} — ${r.detail}`);
     }
@@ -30,7 +34,7 @@ export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<strin
 
   return (
     <div>
-      <p className="text-xs text-mute">A few legal starter works ship with RexMetrix ({preloadCount} preloaded). A tenant adds what it has rights to. Every record carries a licence; full text may be flagged present only under cc-by-4.0, cc0, mit, public-domain or arxiv-nonexclusive; a stub is a citation, not a body. No bytes are stored here — <code className="readout">bytes</code> is a flag.</p>
+      <p className="text-xs text-mute">A few legal starter works ship with RexMetrix ({preloadCount} preloaded). A tenant adds what it has rights to. Every record carries a licence; full text may be flagged present only under cc-by-4.0, cc0, mit, public-domain, us-government or arxiv-nonexclusive; a stub is a citation, not a body. A URL is a citation: the browser never downloads the web. No bytes are stored here — <code className="readout">bytes</code> is a flag.</p>
 
       <div className="mt-3 overflow-x-auto border hair">
         <table className="readout w-full text-[11px]" data-testid="works-table">
@@ -44,6 +48,7 @@ export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<strin
               <th className="px-2 py-1 text-left">source</th>
               <th className="px-2 py-1 text-left">field</th>
               <th className="px-2 py-1 text-left">body</th>
+              <th className="px-2 py-1 text-left">attribution</th>
             </tr>
           </thead>
           <tbody>
@@ -57,6 +62,7 @@ export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<strin
                 <td className="px-2 py-1">{w.source}</td>
                 <td className="px-2 py-1">{w.field ?? "—"}</td>
                 <td className="px-2 py-1">{hasFullText(w) ? "present" : "STUB_NO_FULLTEXT"}</td>
+                <td className="px-2 py-1 text-[10px]">{w.attribution ?? (w.source_url ? w.source_url : "—")}</td>
               </tr>
             ))}
           </tbody>
@@ -87,6 +93,14 @@ export function WorksPanel({ selected, onToggle }: { selected: ReadonlySet<strin
             ))}
           </select>
         </div>
+        <TextField className="flex flex-col gap-1" value={sourceUrl} onChange={setSourceUrl}>
+          <Label className="readout text-[11px] uppercase tracking-wider text-dim">source url (a citation; nothing is fetched)</Label>
+          <Input className="readout border hair bg-ink p-2 text-xs text-ivory" data-testid="upload-url" placeholder="https://…  — a URL without text is a stub" />
+        </TextField>
+        <TextField className="flex flex-col gap-1" value={text} onChange={setText}>
+          <Label className="readout text-[11px] uppercase tracking-wider text-dim">text (an excerpt you have rights to; giving one is claiming full text)</Label>
+          <TextArea rows={5} spellCheck={false} className="readout w-full resize-y border hair bg-ink p-2 text-xs text-ivory" data-testid="upload-text" />
+        </TextField>
         <label className="flex items-center gap-2 text-xs text-mute">
           <input type="checkbox" checked={claimsBytes} onChange={(e) => setClaimsBytes(e.target.checked)} data-testid="upload-bytes" />
           this record carries full text (flag only; no bytes are stored here)

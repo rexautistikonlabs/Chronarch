@@ -1489,6 +1489,39 @@ Bug: the technician room still exposed a second product — /council,
   token ratio can support, names what would falsify that, and lists what it is
   not. Where the bodies cannot support a section, the section says so.
 
+## RexMetrix — a base of legal works (catalogue and rules)
+
+- `web/fixtures/programme-classics.json`: six fields for public-domain and
+  U.S. government works — natural-history, heredity, optics, electricity,
+  electromagnetism, metrology — with three declared bridges
+  (natural-history—heredity, electricity—electromagnetism,
+  optics—electromagnetism). Metrology stands alone: a one-field compare needs
+  no bridge. Nothing claims all fields couple.
+- `us-government` licence tag (17 U.S.C. § 105), documented in WORKS.md;
+  `source_url` (a citation — never fetched) and `attribution` on works; the
+  upload form takes title, licence, field, source URL, a text excerpt and the
+  rights checkbox. A URL without text is a stub.
+- The six base rows (work-darwin-1859, work-newton-opticks,
+  work-faraday-ere-v1, work-maxwell-elem, work-mendel-1866-de,
+  work-nist-tn1297) take their excerpt, URL and attribution **only** from the
+  operator brief's works table. That table was not attached to this turn and
+  is not in the repository, so the rows are not composed from memory; WORKS.md
+  lists the six ids and fields, and the tests that govern them run over
+  whatever rows carry a `source_url`.
+
+### Rejected (kept rejected)
+
+- **Heath's Euclid** — no. Heath's translation and commentary carry their own
+  copyright questions; a public-domain Euclid would have to be a specific
+  verified edition, and none is in the brief.
+- **A live crawler** — no. The browser never downloads the web; a URL is a
+  citation and nothing in the works, bench or note code calls fetch (tested).
+- **A full-text dump of Project Gutenberg books** — no. A row carries the
+  specified excerpt only, never the book; bodies are short by test.
+- **Excerpts from memory** — no. Quoting a historic text or its URL from
+  recollection risks a misquotation with a real author's name on it; the rows
+  wait for the brief's table.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

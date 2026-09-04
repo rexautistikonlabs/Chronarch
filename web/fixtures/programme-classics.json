@@ -1,0 +1,28 @@
+{
+  "schema": "rexmetrix.programme/1",
+  "id": "programme-classics",
+  "label": "Classics — six fields for public-domain and U.S. government works",
+  "tenant": "example group",
+  "note": "A catalogue extension so the base of public-domain / U.S. government works has fields to be shelved in and bridges to be read across. Only three bridges are declared; metrology stands alone (a one-field compare needs no bridge). Nothing here claims that all fields couple.",
+  "fields": [
+    { "id": "natural-history", "label": "Natural history (19th-century)", "units": "descriptive; counts of specimens and varieties", "sector": "life-sciences", "license_required": false, "anti_overreach": ["no claim about any living person", "no modern taxonomic claim from a historic text"] },
+    { "id": "heredity", "label": "Heredity (19th-century plant hybridisation)", "units": "ratios of offspring classes", "sector": "life-sciences", "license_required": false, "anti_overreach": ["no claim about human heredity", "no clinical or genetic claim from a historic text"] },
+    { "id": "optics", "label": "Optics (17th–19th-century)", "units": "angles, lengths; refraction as ratios", "sector": "physics", "license_required": false, "anti_overreach": ["no claim about vision or perception in people"] },
+    { "id": "electricity", "label": "Electricity (19th-century experimental)", "units": "descriptive experimental series; quantities as named by the author", "sector": "physics", "license_required": false, "anti_overreach": ["no claim about any therapeutic use of electricity"] },
+    { "id": "electromagnetism", "label": "Electromagnetism (19th-century treatise)", "units": "field quantities as named by the author", "sector": "physics", "license_required": false, "anti_overreach": ["no claim beyond the text's own definitions"] },
+    { "id": "metrology", "label": "Metrology (measurement uncertainty guidance)", "units": "standard uncertainty; coverage factors", "sector": "measurement", "license_required": false, "anti_overreach": ["no claim that a guidance document validates any particular measurement"] }
+  ],
+  "bridges": [
+    { "id": "bridge-natural-history-heredity", "left": "natural-history", "right": "heredity", "junction": "which counts of varieties in a natural-history text may stand beside which offspring ratios in a hybridisation text, as descriptions of variation only", "status": "live", "ledger": [{ "id": "assumption-1", "rating": "conjectural" }, { "id": "assumption-2", "rating": "supported" }], "register": [{ "id": "falsifier-1", "consequence": "retire the bridge", "anti_rescue": true }] },
+    { "id": "bridge-electricity-electromagnetism", "left": "electricity", "right": "electromagnetism", "junction": "which experimentally named quantities may stand beside which treatise-defined field quantities, at stated reliability", "status": "live", "ledger": [{ "id": "assumption-1", "rating": "supported" }, { "id": "assumption-2", "rating": "conjectural" }], "register": [{ "id": "falsifier-1", "consequence": "retire the bridge", "anti_rescue": true }] },
+    { "id": "bridge-optics-electromagnetism", "left": "optics", "right": "electromagnetism", "junction": "which optical quantities may stand beside which electromagnetic ones, as the treatise itself relates them", "status": "live", "ledger": [{ "id": "assumption-1", "rating": "conjectural" }], "register": [{ "id": "falsifier-1", "consequence": "retire the bridge", "anti_rescue": true }] }
+  ],
+  "programme": {
+    "fields_used": ["natural-history", "heredity", "optics", "electricity", "electromagnetism", "metrology"],
+    "bridges_used": ["bridge-natural-history-heredity", "bridge-electricity-electromagnetism", "bridge-optics-electromagnetism"],
+    "array_lock": { "items": ["C1", "C2", "C3"], "locked_at": "2026-05-01" },
+    "stop": { "date": "2027-01-31", "rule": "demo stop: abandon at the date whatever the results look like" },
+    "deviations": [],
+    "amendments": []
+  }
+}

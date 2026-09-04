@@ -46,8 +46,8 @@ describe("preload fixture", () => {
 });
 
 describe("licence law", () => {
-  it("full text is allowed only under the five open licences", () => {
-    expect([...FULLTEXT_LICENSES].sort()).toEqual(["arxiv-nonexclusive", "cc-by-4.0", "cc0", "mit", "public-domain"]);
+  it("full text is allowed only under the six open licences (us-government documented in WORKS.md)", () => {
+    expect([...FULLTEXT_LICENSES].sort()).toEqual(["arxiv-nonexclusive", "cc-by-4.0", "cc0", "mit", "public-domain", "us-government"]);
     expect(allowsFullText("all-rights-reserved")).toBe(false);
     expect(allowsFullText("stub-metadata")).toBe(false);
   });

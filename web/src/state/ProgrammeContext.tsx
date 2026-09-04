@@ -3,6 +3,7 @@
  *  static JSON: no fetch, no process, no tenant store this turn. */
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
+import classicsFixture from "../../fixtures/programme-classics.json";
 import toyFixture from "../../fixtures/programme-toy.json";
 import zeroFixture from "../../fixtures/programme-zero.json";
 import childFixture from "../../fixtures/synthesis-child.json";
@@ -15,6 +16,7 @@ import { acceptUpload, worksMap, type UploadRequest, type UploadResult, type Wor
 export const PROGRAMMES = {
   "programme-zero.json": zeroFixture as ProgrammeFile,
   "programme-toy.json": toyFixture as ProgrammeFile,
+  "programme-classics.json": classicsFixture as ProgrammeFile,
 } as const;
 export type ProgrammeName = keyof typeof PROGRAMMES;
 

@@ -134,7 +134,7 @@ export interface WorkRef {
   oa: boolean;
   bytes?: false | "present";
 }
-const FULLTEXT_OK = new Set(["cc-by-4.0", "cc0", "mit", "public-domain", "arxiv-nonexclusive"]);
+const FULLTEXT_OK = new Set(["cc-by-4.0", "cc0", "mit", "public-domain", "us-government", "arxiv-nonexclusive"]);
 
 /** Validate a child against a catalogue (and, when given, the works its parents
  *  cite). Throws a Refusal; returns the ordered field walk of the path (or the

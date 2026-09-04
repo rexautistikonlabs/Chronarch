@@ -92,7 +92,9 @@ export const BENCHES: readonly Bench[] = [
             : "It has no amendments yet. When one comes, the old claim stays beside the new; a deviation records whether results were known at the time.",
           p.id === "programme-zero"
             ? "This is Programme Zero — the first filled template, an example programme and first corpus. Its method is what travels; its content does not get copied into other fields."
-            : "This is an invented demo programme: it stands for nothing real and cites no paper. It exists to show a graph of three fields and a path of two bridges.",
+            : p.id === "programme-classics"
+              ? "This is the classics catalogue: six fields for public-domain and U.S. government works, with three declared bridges. Metrology stands alone — a one-field compare needs no bridge — and nothing here claims that all fields couple."
+              : "This is an invented demo programme: it stands for nothing real and cites no paper. It exists to show a graph of three fields and a path of two bridges.",
         ],
         techPath: "/tech",
       };
@@ -120,6 +122,7 @@ export const BENCHES: readonly Bench[] = [
 export const PROGRAMME_CHIPS = [
   { label: "Programme Zero", fixture: "programme-zero.json", blurb: "two fields, one bridge — the first filled template" },
   { label: "Toy programme", fixture: "programme-toy.json", blurb: "three invented fields, a path of two bridges" },
+  { label: "Classics", fixture: "programme-classics.json", blurb: "six fields for public-domain works, three bridges" },
 ] as const;
 
 /** Technical record chips: the substrate's own session fixtures (technician room). */
