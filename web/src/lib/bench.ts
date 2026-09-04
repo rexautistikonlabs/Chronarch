@@ -37,7 +37,7 @@ export function bridgePath(cat: Catalogue, from: string, to: string): string[] |
         const path: string[] = [];
         let cur: string | null = to;
         while (cur && prev.get(cur)) {
-          const step = prev.get(cur)!;
+          const step: { field: string; bridge: string } = prev.get(cur)!;
           path.unshift(step.bridge);
           cur = step.field;
         }

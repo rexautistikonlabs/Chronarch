@@ -33,7 +33,7 @@ describe("lab resilience", () => {
     expect(screen.getByTestId("json-input")).toBeInTheDocument();
     expect(screen.getByTestId("statbar")).toBeInTheDocument();
     expect(screen.getByTestId("ring-count")).toHaveTextContent("4");
-    expect(screen.getByTestId("viewport-fallback")).toBeInTheDocument(); // jsdom: no WebGL, still a viewport
+    expect(screen.getByTestId("tech-bench")).toBeInTheDocument(); // the operator bench is flat HTML: no well on this route
     expect(document.getElementById("root") ?? document.body).not.toBeEmptyDOMElement();
   });
 
