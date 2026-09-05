@@ -3,16 +3,16 @@ import { describe, expect, it } from "vitest";
 
 import { renderAt } from "./render";
 
-describe("landing", () => {
-  it("says RexMetrix and what it is not, above the fold and in the banner", () => {
-    renderAt("/");
-    expect(screen.getByTestId("plain-status")).toHaveTextContent(/RexMetrix .* not a public chain/);
-    expect(screen.getByTestId("status-banner")).toHaveTextContent(/RexMetrix/);
+describe("chronarch well (/chronarch)", () => {
+  it("says Chronarch and what it is not, above the fold and in the banner", () => {
+    renderAt("/chronarch");
+    expect(screen.getByTestId("plain-status")).toHaveTextContent(/Chronarch .* not a public chain/);
+    expect(screen.getByTestId("status-banner")).toHaveTextContent(/Chronarch/);
     expect(document.title === "" || true).toBe(true);
   });
 
   it("renders the programme readouts from the default fixture (Programme Zero)", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     expect(screen.getByTestId("field-count")).toHaveTextContent("2");
     expect(screen.getByTestId("bridge-count")).toHaveTextContent("1");
     expect(screen.getByTestId("array-size")).toHaveTextContent("5");
@@ -20,7 +20,7 @@ describe("landing", () => {
   });
 
   it("uses a still fallback when WebGL is unavailable (jsdom) rather than throwing", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     expect(screen.getByTestId("viewport-fallback")).toBeInTheDocument();
   });
 });

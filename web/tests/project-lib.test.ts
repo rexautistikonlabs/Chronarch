@@ -123,7 +123,7 @@ describe("project", () => {
     for (const c of PACK_CLOSING) expect(md).toContain(`- ${c}`);
     expect(md).toContain("not Foundation-endorsed");
     expect(md).toContain("not a public chain");
-    expect(packFilename(p)).toBe("rexmetrix-pack-bench-trial.md");
+    expect(packFilename(p)).toBe("chronarch-pack-bench-trial.md");
   });
 
   it("an empty project still packs, honestly", () => {

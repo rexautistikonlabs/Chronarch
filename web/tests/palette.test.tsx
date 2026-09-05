@@ -7,7 +7,7 @@ import { renderAt } from "./render";
 
 describe("command palette", () => {
   it("opens with ⌘K / Ctrl+K and a bench item opens that bench's card", async () => {
-    renderAt("/");
+    renderAt("/chronarch");
     expect(screen.queryByTestId("palette-input")).not.toBeInTheDocument();
     fireEvent.keyDown(window, { key: "k", ctrlKey: true });
     await screen.findByTestId("palette-input");
@@ -17,7 +17,7 @@ describe("command palette", () => {
   });
 
   it("the ⌘K button opens it too; 'Paste session' goes to the technician room, 'About' to the rules", async () => {
-    renderAt("/");
+    renderAt("/chronarch");
     fireEvent.click(screen.getByTestId("open-palette"));
     await screen.findByTestId("palette-input");
     fireEvent.click(screen.getByTestId("palette-paste"));
@@ -26,6 +26,6 @@ describe("command palette", () => {
     fireEvent.click(screen.getByTestId("open-palette"));
     await screen.findByTestId("palette-input");
     fireEvent.click(screen.getByTestId("palette-about"));
-    expect(await screen.findByTestId("about-panel")).toHaveTextContent(/what rexmetrix will not ship/i);
+    expect(await screen.findByTestId("about-panel")).toHaveTextContent(/what chronarch will not ship/i);
   });
 });

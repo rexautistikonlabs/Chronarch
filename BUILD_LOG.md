@@ -1656,6 +1656,37 @@ Bug: the technician room still exposed a second product — /council,
   - **A tutorial-only science path** — no new engine, no sample data, no
     retuned excerpts; the steps run the bench as it is.
 
+## Brand split — RexMetrix the company, Chronarch the product
+
+- RexMetrix is the product house; `/` is its landing: a three-entry catalogue
+  (Chronarch running here; Continuum and Face mapping as one-sentence
+  placeholders with no code), the landing honesty line, no canvas. Chronarch
+  is this product and moved under `/chronarch` (well), `/chronarch/tech`
+  (workbench), `/chronarch/about`; `/tech`, `/about`, `/consortium` and the
+  retired protocol paths redirect so bookmarks live. Title, workbench heading,
+  pack footer, first-run panel and the app honesty sentence now say Chronarch;
+  storage keys stay `rexmetrix.project.v1` / `rexmetrix.seenFirstRun.v1`.
+- Deploy stays static: docs/DEPLOY.md (`npm ci --legacy-peer-deps && npm run
+  build`, SPA fallback `/* → index.html`), `web/public/CNAME` = `rexmetrix.com`
+  ("domain reserved" — no DNS claim), `web/public/_redirects` for hosts that
+  read it.
+- Two copy slips the ban tests caught before the push: "No product is
+  Foundation-endorsed" is not an adjacent negation (reworded), and adjacent
+  list items rendered "chainnot Foundation-endorsed" in textContent — the
+  is-not items are now joined with separators so the negation is visible to
+  the screen as well as the eye.
+- REJECTED:
+  - **Merging three products into one engine** — one codebase wearing the
+    names Chronarch, Continuum and Face mapping, with a shared "analysis core".
+    Each product keeps its own engine and its own refusals; the two
+    placeholders have no code here, and the landing says so.
+  - **Chronarch = RexMetrix** — using the names interchangeably. One is the
+    company, one is a product.
+  - **A face model, a face-analysis stub, or sample images** — the Face
+    mapping entry is a sentence and two negations, nothing else.
+  - **Claiming DNS** — the CNAME file reserves; it does not report.
+  - **A backend, accounts or Stripe on the landing** — static HTML only.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

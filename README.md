@@ -98,16 +98,19 @@ What the suite proves today (the Phase-0/Phase-1 testing bar):
   parameter); gym cases against external targets are rejected at the schema
   layer; prestress below floor demotes eligibility
 
-## RexMetrix (the product)
+## Chronarch, a RexMetrix product
 
-The product built on this substrate is **RexMetrix**: institutional research
-software for hypothesis-led groups — an array of fields, first-class bridges
-between chosen fields, programmes as subgraphs, and synthesis jobs that write
-child pins with explicit parents. Programme Zero (Rex Autistikon / Kim 2026) is
-the example programme and first corpus, not the product. RexMetrix exposes no
-Council, no chain, no coin. See [specs/PRODUCT.md](specs/PRODUCT.md) and
-[specs/LEGAL.md](specs/LEGAL.md); the code name *Chronarch* stays on the
-Python packages.
+**RexMetrix** is the company — a product house whose landing (`/`) is a short
+catalogue of its products. **Chronarch** is this product: institutional
+research software for hypothesis-led groups — an array of fields, first-class
+bridges between chosen fields, programmes as subgraphs, and synthesis jobs that
+write child pins with explicit parents. It runs under `/chronarch` (the
+programme well, the workbench at `/chronarch/tech`, About). Programme Zero (Rex
+Autistikon / Kim 2026) is the example programme and first corpus, not the
+product. Chronarch exposes no Council, no chain, no coin; the research
+substrate in `packages/` sits under it and is not offered as a feature. See
+[specs/PRODUCT.md](specs/PRODUCT.md), [specs/LEGAL.md](specs/LEGAL.md) and
+[docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Web lab UI
 

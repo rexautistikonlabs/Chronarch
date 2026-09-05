@@ -12,7 +12,7 @@ describe("prefers-reduced-motion", () => {
   it("does not throw when matchMedia is missing (jsdom default)", () => {
     expect(typeof window.matchMedia).toBe("undefined");
     expect(prefersReducedMotion()).toBe(false);
-    expect(() => renderAt("/")).not.toThrow();
+    expect(() => renderAt("/chronarch")).not.toThrow();
   });
 
   it("reports motion off when the media query matches, and still renders every route", () => {
@@ -31,7 +31,7 @@ describe("prefers-reduced-motion", () => {
       const { unmount } = renderAt(path);
       unmount();
     }
-    renderAt("/");
+    renderAt("/chronarch");
     expect(screen.getByTestId("motion-badge")).toHaveTextContent(/off/);
   });
 

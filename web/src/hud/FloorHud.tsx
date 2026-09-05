@@ -28,7 +28,7 @@ export function FloorHud() {
             <p key={i} className="mt-2 text-[13px] leading-relaxed text-mute">{para}</p>
           ))}
           <p className="mt-3 text-[11px] text-dim">
-            The written rules: <Link to="/about" className="text-mute underline underline-offset-2 hover:text-ivory">about RexMetrix</Link>. The substrate's hashes: <Link to={card.techPath} className="text-mute underline underline-offset-2 hover:text-ivory">technician room</Link>.
+            The written rules: <Link to="/chronarch/about" className="text-mute underline underline-offset-2 hover:text-ivory">about Chronarch</Link>. The substrate's hashes: <Link to={card.techPath} className="text-mute underline underline-offset-2 hover:text-ivory">technician room</Link>.
           </p>
         </div>
       )}

@@ -22,7 +22,7 @@ describe("first run", () => {
     expect(screen.getByTestId("first-run-step-1")).toHaveTextContent("Filter Classics. Tick Faraday and Maxwell. Compare.");
     expect(screen.getByTestId("first-run-step-2")).toHaveTextContent("Filter Autistikon. Tick both stand-ins. Converge.");
     expect(screen.getByTestId("first-run-step-3")).toHaveTextContent("Download pack.");
-    expect(screen.getByTestId("first-run-honesty")).toHaveTextContent("RexMetrix is research software for hypothesis-led programmes. Not a diagnostic. Not Foundation-endorsed. Not a public chain.");
+    expect(screen.getByTestId("first-run-honesty")).toHaveTextContent("Chronarch is research software for hypothesis-led programmes. Not a diagnostic. Not Foundation-endorsed. Not a public chain.");
     expect(panel.textContent).not.toMatch(/AI scientist|MetaInsight|forest plot/i);
     // the rest of the workbench is reachable: nothing traps focus
     screen.getByTestId("filter-all").focus();

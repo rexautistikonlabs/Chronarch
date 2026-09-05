@@ -14,7 +14,7 @@ describe("operator bench", () => {
     expect(screen.getByTestId("tech-bench")).toBeInTheDocument();
     expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public chain/i);
     tech.unmount();
-    renderAt("/");
+    renderAt("/chronarch");
     // jsdom has no WebGL: the well's still fallback stands where the canvas would
     expect(screen.getByTestId("viewport-fallback")).toBeInTheDocument();
   });

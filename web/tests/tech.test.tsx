@@ -44,7 +44,7 @@ describe("technician room", () => {
     expect(idx(/^programmes/)).toBe(-1); // programmes moved under the substrate details
     const details = screen.getByTestId("substrate-details") as HTMLDetailsElement;
     expect(details.open).toBe(false);
-    expect(details).toHaveTextContent(/internal code name Chronarch — not the product/);
+    expect(details).toHaveTextContent(/the research substrate under Chronarch — not offered as a feature/);
     expect(screen.getByTestId("refuse-codes")).toHaveTextContent(/FULLTEXT_FORBIDDEN/);
     expect(screen.getByTestId("refuse-codes")).toHaveTextContent(/NO_BRIDGE/);
   });

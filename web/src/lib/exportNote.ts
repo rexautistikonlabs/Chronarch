@@ -6,7 +6,7 @@ import { percent } from "./metrics";
 
 export function noteToMarkdown(result: BenchOk, note: AnalysisNote): string {
   const L: string[] = [];
-  L.push(`# RexMetrix note — ${note.job} · ${note.kind} · ${note.ok ? "ok" : "refused"}`);
+  L.push(`# Chronarch note — ${note.job} · ${note.kind} · ${note.ok ? "ok" : "refused"}`);
   L.push("");
   L.push(`Child pin: \`${note.appendix.child_id}\``);
   L.push("");
@@ -45,10 +45,10 @@ export function noteToMarkdown(result: BenchOk, note: AnalysisNote): string {
   if (t) L.push(`- shared tokens: ${t.shared.join(", ") || "—"}`);
   for (const s of note.appendix.snippets) L.push(`- ${s.id}: “${s.text}”`);
   L.push("");
-  L.push("_Built in code by RexMetrix from the works, the token metrics and the accepted child pin. No model wrote this._");
+  L.push("_Built in code by Chronarch, a RexMetrix product, from the works, the token metrics and the accepted child pin. No model wrote this._");
   return L.join("\n");
 }
 
 export function markdownFilename(note: AnalysisNote): string {
-  return `rexmetrix-${note.job}-${note.appendix.child_id}.md`;
+  return `chronarch-${note.job}-${note.appendix.child_id}.md`;
 }

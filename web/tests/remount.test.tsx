@@ -7,7 +7,7 @@ import { renderAt } from "./render";
 
 describe("the well is never remounted by the HUD", () => {
   it("keeps the same DOM node across bench select, hover and a programme switch", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     const node = screen.getByTestId("viewport-fallback");
     fireEvent.mouseEnter(screen.getByTestId("bench-fields"));
     fireEvent.click(screen.getByTestId("bench-fields"));

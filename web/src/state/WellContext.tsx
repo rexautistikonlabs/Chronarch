@@ -28,7 +28,7 @@ interface WellCtx {
 const Ctx = createContext<WellCtx | null>(null);
 
 /** The operator room is one route (plus its old alias). */
-export const TECH_PATHS = ["/tech", "/lab"] as const;
+export const TECH_PATHS = ["/chronarch/tech", "/tech", "/lab"] as const;
 
 export function isTechPath(pathname: string): boolean {
   return TECH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

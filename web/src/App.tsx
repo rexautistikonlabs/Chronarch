@@ -10,10 +10,17 @@ import { ProgrammeProvider } from "./state/ProgrammeContext";
 import { SessionProvider } from "./state/SessionContext";
 import { WellProvider } from "./state/WellContext";
 
-/** One app, two rooms: the programme well (/) and the technician room (/tech).
- *  The old protocol pages are gone as surfaces; their paths still resolve so
- *  no link 404s, but they land in the one operator room (or About). */
-const RETIRED_TO_TECH = ["/lab", "/council", "/timechain", "/hearth", "/farm", "/gym", "/operator"];
+import { Landing } from "./pages/Landing";
+
+/** RexMetrix (the company) lands at /. Chronarch (this product) lives under
+ *  /chronarch: the programme well, /chronarch/tech (the workbench) and
+ *  /chronarch/about. Old paths still resolve so bookmarks live: /tech and the
+ *  retired protocol pages land in the workbench; /about and /consortium in
+ *  About Chronarch. */
+const RETIRED_TO_TECH = ["/tech", "/lab", "/council", "/timechain", "/hearth", "/farm", "/gym", "/operator"];
+export const CHRONARCH = "/chronarch";
+export const CHRONARCH_TECH = "/chronarch/tech";
+export const CHRONARCH_ABOUT = "/chronarch/about";
 
 export function App() {
   return (
@@ -23,13 +30,15 @@ export function App() {
       <Shell>
         <ErrorBoundary name="page">
           <Routes>
-            <Route path="/" element={<Floor />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/tech" element={<Technician />} />
+            <Route path="/" element={<Landing />} />
+            <Route path={CHRONARCH} element={<Floor />} />
+            <Route path={CHRONARCH_ABOUT} element={<About />} />
+            <Route path={CHRONARCH_TECH} element={<Technician />} />
             {RETIRED_TO_TECH.map((p) => (
-              <Route key={p} path={p} element={<Navigate to="/tech" replace />} />
+              <Route key={p} path={p} element={<Navigate to={CHRONARCH_TECH} replace />} />
             ))}
-            <Route path="/consortium" element={<Navigate to="/about" replace />} />
+            <Route path="/about" element={<Navigate to={CHRONARCH_ABOUT} replace />} />
+            <Route path="/consortium" element={<Navigate to={CHRONARCH_ABOUT} replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ErrorBoundary>

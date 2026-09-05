@@ -1,6 +1,29 @@
-# PRODUCT.md — RexMetrix
+# PRODUCT.md — Chronarch, a RexMetrix product
 
-**RexMetrix** is institutional research software for hypothesis-led groups and
+## Brand
+
+- **RexMetrix** is the company: a product house, and the landing site at `/`
+  for all of its products. The landing is a short catalogue — Chronarch (this
+  lab), Continuum (a one-sentence placeholder), Face mapping (a one-sentence
+  placeholder that says: not a diagnostic; not a person-score). Its honesty
+  line: *RexMetrix is a product house. Chronarch is research software. Not a
+  public chain. Not Foundation-endorsed. Not a diagnostic.*
+- **Chronarch** is this product: the programme well (`/chronarch`), the
+  technician's workbench (`/chronarch/tech`), About (`/chronarch/about`). Its
+  name is on the title, the workbench heading, the pack footer, the first-run
+  panel and the honesty sentence on the app. `/tech` and the retired paths
+  redirect to `/chronarch/tech`; `/about` and `/consortium` to
+  `/chronarch/about`.
+- Chronarch is *one product of* RexMetrix. Neither name stands for the other,
+  and no page says the Foundation endorses any product.
+- Each product keeps its own engine and its own refusals. Continuum and Face
+  mapping have no code in this repository; their entries are placeholders.
+
+The sections below describe the product — Chronarch. Where older text says
+"RexMetrix" for the product, read Chronarch; the company name stays on the
+landing, the pack footer ("a RexMetrix product") and the storage keys.
+
+**Chronarch** is institutional research software for hypothesis-led groups and
 institutions. A tenant (a group, a department, an institute) maintains an
 **array of fields** — the literatures it works in — declares **bridges**
 between chosen pairs of fields, and runs **programmes** that are subgraphs of

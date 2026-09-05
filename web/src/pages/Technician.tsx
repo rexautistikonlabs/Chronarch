@@ -51,7 +51,7 @@ const EXAMPLE = `{"ok": true, "result": {"identity": "chronarch-pulse", "height"
 /** The technician room — RexMetrix's one operator route. Sections in order:
  *  works, programmes/fixtures, paste JSON, hashes, refuse codes, and a closed
  *  <details> with the substrate instrument's readouts (internal code name
- *  Chronarch — not the product). Not the default landing. */
+ *  the research substrate under Chronarch; not offered as a feature). Not the default landing. */
 export function Technician() {
   const { session, error, loadFixture, loadText } = useSession();
   const { programmeName, loadProgramme, works, catalogue, results, notes } = useProgramme();
@@ -84,7 +84,7 @@ export function Technician() {
 
   return (
     <div>
-      <PageHeader eyebrow="rexmetrix · technician · workbench" title="One room for the operator." lede={<>Filters, the field–bridge graph, the project and its session bridges, the works and their licences, a selection, three actions that enable only when the bench law would pass, the note, the notes library, and the export — a note or the whole project as one pack. HTML only — no well on this route. The workbench calls no model, fetches nothing, adds no bridge on its own, and refuses anything that is not a well-formed input.</>} />
+      <PageHeader eyebrow="chronarch · technician · workbench" title="One room for the operator." lede={<>Filters, the field–bridge graph, the project and its session bridges, the works and their licences, a selection, three actions that enable only when the bench law would pass, the note, the notes library, and the export — a note or the whole project as one pack. HTML only — no well on this route. The workbench calls no model, fetches nothing, adds no bridge on its own, and refuses anything that is not a well-formed input.</>} />
 
       {firstRun && <FirstRun notes={notes} packDone={packDone} onDismiss={dismissFirstRun} onGo={(f) => { setFilter(f); setFieldFilter(null); }} />}
 
@@ -156,10 +156,10 @@ export function Technician() {
       <details className="mt-8 border hair bg-ink" data-testid="substrate-details">
         <summary className="cursor-pointer px-4 py-2 text-xs text-mute">
           <span className="readout uppercase tracking-wider text-dim">substrate instrument</span>
-          <span className="ml-2">internal code name Chronarch — not the product</span>
+          <span className="ml-2">the research substrate under Chronarch — not offered as a feature</span>
         </summary>
         <div className="px-4 pb-4 text-sm text-mute">
-          <p className="mt-2 text-xs">Under RexMetrix sits a research substrate: an append-only history of pins, a forbidden-key screen, a fail-closed replay. None of this is offered to a tenant as a feature; it is here so an operator can read what the node JSON says.</p>
+          <p className="mt-2 text-xs">Under Chronarch sits a research substrate: an append-only history of pins, a forbidden-key screen, a fail-closed replay. None of this is offered to a tenant as a feature; it is here so an operator can read what the node JSON says.</p>
           <Section title="programmes (drive the visitor well)">
             <div className="flex flex-wrap items-center gap-2" data-testid="tech-programmes">
               {PROGRAMME_CHIPS.map((chip) => (

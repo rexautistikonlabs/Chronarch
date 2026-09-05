@@ -36,7 +36,7 @@ export function Palette() {
         <Command.Empty className="palette-empty">Nothing on that bench.</Command.Empty>
         <Command.Group heading="Benches">
           {BENCHES.map((b) => (
-            <Command.Item key={b.key} value={`bench ${b.title}`} onSelect={run(() => { navigate("/"); selectBench(b.key); })} className="palette-item" data-testid={`palette-${b.key}`}>
+            <Command.Item key={b.key} value={`bench ${b.title}`} onSelect={run(() => { navigate("/chronarch"); selectBench(b.key); })} className="palette-item" data-testid={`palette-${b.key}`}>
               <span>{b.title}</span>
               <span className="palette-hint">{b.tagline}</span>
             </Command.Item>
@@ -44,22 +44,22 @@ export function Palette() {
         </Command.Group>
         <Command.Group heading="Programmes">
           {PROGRAMME_CHIPS.map((c) => (
-            <Command.Item key={c.fixture} value={`programme ${c.label}`} onSelect={run(() => { navigate("/"); loadProgramme(c.fixture as ProgrammeName); })} className="palette-item">
+            <Command.Item key={c.fixture} value={`programme ${c.label}`} onSelect={run(() => { navigate("/chronarch"); loadProgramme(c.fixture as ProgrammeName); })} className="palette-item">
               <span>{c.label}</span>
               <span className="palette-hint">{c.blurb}</span>
             </Command.Item>
           ))}
         </Command.Group>
         <Command.Group heading="Rooms">
-          <Command.Item value="paste session technician" onSelect={run(() => navigate("/tech"))} className="palette-item" data-testid="palette-paste">
+          <Command.Item value="paste session technician" onSelect={run(() => navigate("/chronarch/tech"))} className="palette-item" data-testid="palette-paste">
             <span>Paste session</span>
             <span className="palette-hint">the technician room: paste session JSON, fixtures by file, hashes</span>
           </Command.Item>
-          <Command.Item value="about rexmetrix legal" onSelect={run(() => navigate("/about"))} className="palette-item" data-testid="palette-about">
-            <span>About RexMetrix</span>
+          <Command.Item value="about chronarch legal" onSelect={run(() => navigate("/chronarch/about"))} className="palette-item" data-testid="palette-about">
+            <span>About Chronarch</span>
             <span className="palette-hint">what it is, what it will not ship, Programme Zero</span>
           </Command.Item>
-          <Command.Item value="programme well" onSelect={run(() => navigate("/"))} className="palette-item">
+          <Command.Item value="programme well" onSelect={run(() => navigate("/chronarch"))} className="palette-item">
             <span>Programme well</span>
             <span className="palette-hint">back to the well</span>
           </Command.Item>

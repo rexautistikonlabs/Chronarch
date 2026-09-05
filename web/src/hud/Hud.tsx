@@ -10,7 +10,7 @@ import { useSession } from "../state/SessionContext";
 import { useWell } from "../state/WellContext";
 
 export const PLAIN_STATUS =
-  "RexMetrix is research software for hypothesis-led programmes: an array of fields, the bridges a group declares between them, and syntheses that name their parents. It is not a diagnostic, it is not Foundation-endorsed, and it is not a public chain.";
+  "Chronarch is research software for hypothesis-led programmes: an array of fields, the bridges a group declares between them, and syntheses that name their parents. It is not a diagnostic, it is not Foundation-endorsed, and it is not a public chain. Made by RexMetrix, a product house.";
 
 export function HudTop({ fixed = true }: { fixed?: boolean }) {
   const { isTech, setPaletteOpen } = useWell();
@@ -24,8 +24,8 @@ export function HudTop({ fixed = true }: { fixed?: boolean }) {
       </div>
       <div className="flex flex-wrap items-start justify-between gap-4 px-5 pt-4">
         <div className="pointer-events-auto max-w-2xl">
-          <NavLink to="/" className="flex items-baseline gap-2">
-            <span className="text-lg font-semibold tracking-tight text-ivory" data-testid="title-row">{isTech ? "RexMetrix · Technician · workbench" : "RexMetrix"}</span>
+          <NavLink to="/chronarch" className="flex items-baseline gap-2">
+            <span className="text-lg font-semibold tracking-tight text-ivory" data-testid="title-row">{isTech ? "Chronarch · Technician · workbench" : "Chronarch"}</span>
             <span className="hud-label">{isTech ? "operator" : "programme well"}</span>
           </NavLink>
           <p className="mt-2 text-sm leading-relaxed text-ivory/90" data-testid="plain-status">{PLAIN_STATUS}</p>
@@ -36,12 +36,13 @@ export function HudTop({ fixed = true }: { fixed?: boolean }) {
             <Command size={13} strokeWidth={1.75} aria-hidden />
             <span className="readout">⌘K</span>
           </Button>
-          <Link to="/about" className="hud-button" data-testid="to-about">About</Link>
+          <Link to="/chronarch/about" className="hud-button" data-testid="to-about">About</Link>
           {isTech ? (
-            <Link to="/" className="hud-button">Programme well</Link>
+            <Link to="/chronarch" className="hud-button">Programme well</Link>
           ) : (
-            <Link to="/tech" className="hud-button" data-testid="to-tech">Technician</Link>
+            <Link to="/chronarch/tech" className="hud-button" data-testid="to-tech">Technician</Link>
           )}
+          <Link to="/" className="hud-button" data-testid="to-rexmetrix">RexMetrix</Link>
         </nav>
       </div>
     </header>

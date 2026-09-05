@@ -18,7 +18,7 @@ describe("workbench chrome", () => {
     expect(banner).toHaveAttribute("data-fixed", "false");
     expect(screen.getByTestId("hud-top")).toHaveAttribute("data-fixed", "false");
     expect(banner).toHaveTextContent(/not a public chain/i);
-    expect(screen.getByTestId("title-row")).toHaveTextContent("RexMetrix · Technician · workbench");
+    expect(screen.getByTestId("title-row")).toHaveTextContent("Chronarch · Technician · workbench");
     expect(screen.getByTestId("amateur-strip")).toHaveTextContent("Pick two or more works → choose Converge, Compare, or Analyze → read the note.");
     // the banner precedes the title in document order (it cannot overlap it)
     const title = screen.getByTestId("title-row");

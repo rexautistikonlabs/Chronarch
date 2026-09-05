@@ -4,7 +4,9 @@ import { assertHonest } from "../lib/banned";
 /** The honesty line, on every page, above the fold. The sentence is fixed
  *  copy; the longer paragraph comes from the session's own `chronarch status`
  *  output when present (screened for banned language before display). */
-export const HONESTY = "RexMetrix is research software for hypothesis-led programmes. Not a diagnostic. Not Foundation-endorsed. Not a public chain.";
+export const HONESTY = "Chronarch is research software for hypothesis-led programmes. Not a diagnostic. Not Foundation-endorsed. Not a public chain.";
+/** The landing's sentence: the company, the product, and the three negations. */
+export const HONESTY_LANDING = "RexMetrix is a product house. Chronarch is research software. Not a public chain. Not Foundation-endorsed. Not a diagnostic.";
 
 export function StatusBanner() {
   const { session } = useSession();

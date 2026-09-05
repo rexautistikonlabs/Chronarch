@@ -1,0 +1,102 @@
+/** Brand split: RexMetrix is the company and lands at /; Chronarch is this
+ *  product and runs under /chronarch. Old paths keep working. The landing is a
+ *  flat catalogue with the honesty sentence and no canvas. */
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fireEvent, screen, within } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { findVisitorBanned } from "../src/lib/banned";
+import { STAND_INS } from "../src/lib/filters";
+import { CATALOGUE } from "../src/pages/Landing";
+import { renderAt } from "./render";
+
+const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
+
+describe("RexMetrix landing", () => {
+  it("/ is the catalogue: Chronarch, Continuum, Face mapping, the honesty sentence, no canvas, no well", () => {
+    renderAt("/");
+    const body = document.body.textContent ?? "";
+    expect(screen.getByTestId("landing-page")).toBeInTheDocument();
+    expect(screen.getByTestId("landing-title")).toHaveTextContent("RexMetrix");
+    expect(body).toContain("Chronarch");
+    expect(body).toContain("Continuum");
+    expect(body).toContain("Face mapping");
+    expect(body).toMatch(/not a diagnostic/i);
+    expect(screen.getByTestId("landing-honesty")).toHaveTextContent("RexMetrix is a product house. Chronarch is research software. Not a public chain. Not Foundation-endorsed. Not a diagnostic.");
+    expect(document.querySelectorAll("canvas")).toHaveLength(0);
+    expect(screen.queryByTestId("viewport")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("viewport-fallback")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("hud-top")).not.toBeInTheDocument();
+    expect(within(screen.getByTestId("catalogue")).getAllByRole("listitem").filter((li) => li.hasAttribute("data-status"))).toHaveLength(3);
+    expect(screen.getByTestId("product-chronarch")).toHaveAttribute("data-status", "running here");
+    expect(screen.getByTestId("product-continuum")).toHaveAttribute("data-status", "placeholder");
+    expect(screen.getByTestId("product-face-mapping")).toHaveAttribute("data-status", "placeholder");
+    expect(screen.getByTestId("product-face-mapping")).toHaveTextContent(/not a diagnostic/);
+    expect(screen.getByTestId("product-face-mapping")).toHaveTextContent(/not a person-score/);
+    expect(screen.getByTestId("landing-footer")).toHaveTextContent(/Domain reserved for the RexMetrix landing/);
+    expect(screen.getByTestId("landing-footer")).not.toHaveTextContent(/DNS is live/);
+  });
+
+  it("the landing carries no banned phrase and makes none of the forbidden positive claims", () => {
+    renderAt("/");
+    const body = document.body.textContent ?? "";
+    expect(findVisitorBanned(body)).toBeNull();
+    // Foundation-endorsed only ever negated
+    expect(body.replace(/(not|no|never)[\s-]+Foundation-endorsed/gi, "")).not.toMatch(/Foundation-endorsed/);
+    // the product is never called a public chain (only "not a public chain")
+    expect(body.replace(/not a public chain/gi, "")).not.toMatch(/public chain/i);
+    // face mapping is never an assessment or a score of a person
+    expect(body).not.toMatch(/\b(is|as|an?) (assessment|score|scoring|rating) of (a|any|the|each) person\b/i);
+    expect(body).not.toMatch(/\bscores? (a|the|each) person\b/i);
+    expect(body).not.toMatch(/\bassess(es|ing)? (a|the|each) person\b/i);
+    // Chronarch is a product of the company, not the company
+    expect(body).not.toMatch(/Chronarch is RexMetrix/);
+    expect(body).toMatch(/Chronarch is one of its products/);
+    // placeholders are placeholders: one sentence each, no engine
+    for (const c of CATALOGUE.filter((x) => x.status === "placeholder")) {
+      expect(c.line.split(/(?<=[.;])\s+(?=[A-Z])/).length).toBe(1);
+      expect(c.links).toEqual([]);
+    }
+  });
+
+  it("Chronarch still runs the bench: /chronarch/tech is the workbench, /tech redirects there, Autistikon shows exactly two stand-ins; /chronarch is the well; /about redirects to About Chronarch", () => {
+    const direct = renderAt("/chronarch/tech");
+    expect(screen.getByTestId("tech-bench")).toBeInTheDocument();
+    expect(screen.getByTestId("filters")).toBeInTheDocument();
+    expect(screen.getByTestId("title-row")).toHaveTextContent("Chronarch · Technician · workbench");
+    expect(document.querySelectorAll("canvas")).toHaveLength(0);
+    direct.unmount();
+
+    const old = renderAt("/tech");
+    expect(screen.getByTestId("tech-bench")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("filter-autistikon"));
+    expect(new Set(visibleIds())).toEqual(new Set(STAND_INS));
+    expect(visibleIds()).toHaveLength(2);
+    expect(screen.getByTestId("to-rexmetrix")).toHaveAttribute("href", "/");
+    old.unmount();
+
+    const well = renderAt("/chronarch");
+    expect(screen.getByTestId("viewport-fallback")).toBeInTheDocument(); // jsdom: the well's still fallback
+    expect(screen.getByTestId("title-row")).toHaveTextContent("Chronarch");
+    expect(screen.getByTestId("to-tech")).toHaveAttribute("href", "/chronarch/tech");
+    expect(screen.getByTestId("to-about")).toHaveAttribute("href", "/chronarch/about");
+    well.unmount();
+
+    renderAt("/about");
+    expect(screen.getByTestId("about-panel")).toHaveTextContent(/Chronarch/);
+    expect(screen.getByTestId("about-panel")).toHaveTextContent(/what chronarch will not ship/i);
+  });
+
+  it("landing links point into Chronarch", () => {
+    renderAt("/");
+    expect(screen.getByTestId("landing-to-chronarch")).toHaveAttribute("href", "/chronarch");
+    expect(screen.getByTestId("landing-to-tech")).toHaveAttribute("href", "/chronarch/tech");
+    expect(screen.getByTestId("link-chronarch-about-chronarch")).toHaveAttribute("href", "/chronarch/about");
+  });
+
+  it("public/CNAME is exactly rexmetrix.com and the SPA fallback file exists", () => {
+    expect(readFileSync(join(__dirname, "..", "public", "CNAME"), "utf8").trim()).toBe("rexmetrix.com");
+    expect(readFileSync(join(__dirname, "..", "public", "_redirects"), "utf8")).toMatch(/^\/\*\s+\/index\.html\s+200\s*$/);
+  });
+});

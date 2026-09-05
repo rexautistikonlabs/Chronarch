@@ -52,7 +52,7 @@ export const BENCHES: readonly Bench[] = [
           "Every field carries an anti-overreach pack: claims its data may never be made to carry. Those are refusals in code, not footnotes. The catalogue is open-ended; a group adds fields as its work grows, and adding one to a programme is an amendment, not a quiet edit.",
           used.some((f) => f.license_required) ? "One field here is at arm's length: the Programme Zero corpus. Its pins can parent a synthesis only under a written grant." : "None of these fields is at arm's length; none carries a licence requirement.",
         ],
-        techPath: "/tech",
+        techPath: "/chronarch/tech",
       };
     },
   },
@@ -72,7 +72,7 @@ export const BENCHES: readonly Bench[] = [
           `Each bridge keeps its assumptions in a ledger with a rating — none starts as established — and a register of what would falsify it, what that costs, and a rule that it may not be rescued afterwards by renaming its terms. Here: ${list(used.map((b) => `${b.id} (${b.ledger.length} assumptions, ${b.register.length} falsifiers)`))}.`,
           "A synthesis that needs an edge that is not declared and live is refused. The word for that refusal is NO_BRIDGE.",
         ],
-        techPath: "/tech",
+        techPath: "/chronarch/tech",
       };
     },
   },
@@ -96,7 +96,7 @@ export const BENCHES: readonly Bench[] = [
               ? "This is the classics catalogue: six fields for public-domain and U.S. government works, with three declared bridges. Metrology stands alone — a one-field compare needs no bridge — and nothing here claims that all fields couple."
               : "This is an invented demo programme: it stands for nothing real and cites no paper. It exists to show a graph of three fields and a path of two bridges.",
         ],
-        techPath: "/tech",
+        techPath: "/chronarch/tech",
       };
     },
   },
@@ -114,7 +114,7 @@ export const BENCHES: readonly Bench[] = [
           : `This child was refused (${verdict.code}) and wrote nothing.`,
         "Four things are refused outright: a missing or non-live edge (NO_BRIDGE), a licensed parent with no grant (LICENSE_MISSING), any person-level score or index (INDIVIDUAL_SCORE_FORBIDDEN), and a write into a field of another sector (CROSS_SECTOR_WRITE).",
       ],
-      techPath: "/tech",
+      techPath: "/chronarch/tech",
     }),
   },
 ];

@@ -10,14 +10,25 @@ import { useLocation } from "react-router-dom";
 import { useWell } from "../state/WellContext";
 import { ErrorBoundary } from "./ErrorBoundary";
 
-/** One app, two rooms. The visitor gets the well and its HUD. The technician
- *  gets a flat HTML bench — no canvas, no rig, no scanlines on that route:
- *  works, selection, three actions, result, programmes, paste, hashes,
- *  glossary. Both wear the STATUS line and the same chrome. */
+/** The RexMetrix landing at / is a flat catalogue page with its own header —
+ *  no well, no Chronarch chrome. Under /chronarch: the visitor gets the well
+ *  and its HUD; the technician gets a flat HTML bench — no canvas, no rig, no
+ *  scanlines on that route. Both Chronarch rooms wear the STATUS line. */
 export function Shell({ children }: { children: ReactNode }) {
   const { isTech } = useWell();
   const { pathname } = useLocation();
-  const about = pathname === "/about";
+  const landing = pathname === "/";
+  const about = pathname === "/chronarch/about";
+  if (landing) {
+    return (
+      <div className="min-h-screen bg-void text-ivory" data-testid="landing-page">
+        <ErrorBoundary name="palette" fallback={() => null}>
+          <Palette />
+        </ErrorBoundary>
+        <main className="mx-auto max-w-5xl px-6 pb-16 pt-6">{children}</main>
+      </div>
+    );
+  }
   return (
     <div className="min-h-full text-ivory">
       {!isTech && <Well />}

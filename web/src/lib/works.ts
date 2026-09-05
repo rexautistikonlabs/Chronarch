@@ -1,4 +1,4 @@
-/** Works: only legal works enter RexMetrix (specs/WORKS.md).
+/** Works: only legal works enter Chronarch (specs/WORKS.md).
  *
  *  A work is a record — title, licence, flags — never bytes. Full text may be
  *  flagged present only under an allowing licence; a stub is a citation, not a

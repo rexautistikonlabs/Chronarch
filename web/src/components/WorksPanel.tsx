@@ -35,7 +35,7 @@ export function WorksPanel({ selected, onToggle, visible }: { selected: Readonly
 
   return (
     <div>
-      <p className="text-xs text-mute">A few legal starter works ship with RexMetrix ({preloadCount} preloaded). A tenant adds what it has rights to. Every record carries a licence; full text may be flagged present only under cc-by-4.0, cc0, mit, public-domain, us-government or arxiv-nonexclusive; a stub is a citation, not a body. A URL is a citation: the browser never downloads the web. No bytes are stored here — <code className="readout">bytes</code> is a flag.</p>
+      <p className="text-xs text-mute">A few legal starter works ship with Chronarch ({preloadCount} preloaded). A tenant adds what it has rights to. Every record carries a licence; full text may be flagged present only under cc-by-4.0, cc0, mit, public-domain, us-government or arxiv-nonexclusive; a stub is a citation, not a body. A URL is a citation: the browser never downloads the web. No bytes are stored here — <code className="readout">bytes</code> is a flag.</p>
 
       <div className="mt-3 overflow-x-auto border hair">
         <table className="readout w-full text-[11px]" data-testid="works-table">

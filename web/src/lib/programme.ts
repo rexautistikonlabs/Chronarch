@@ -1,4 +1,4 @@
-/** RexMetrix model: fields, bridges, programmes, synthesis children — and the
+/** Chronarch model: fields, bridges, programmes, synthesis children — and the
  *  refusals, implemented as hard errors, not footnotes (specs/SYNTHESIS.md). */
 
 export type Rating = "conjectural" | "supported" | "contested" | "established";
@@ -122,9 +122,9 @@ const INDIVIDUAL_WORDS = /\b(individual|person|per[- ]person|patient|subject)\b[
 
 /** The only thing a request for a person-level score on the Programme Zero
  *  construct can do here is refuse. There is no derived index, scoring
- *  algorithm or assessment instrument in RexMetrix. */
+ *  algorithm or assessment instrument in Chronarch. */
 export function requestIndividualScore(_field: string, _subject?: string): never {
-  throw new Refusal("INDIVIDUAL_SCORE_FORBIDDEN", "RexMetrix computes no individual-level score, index or assessment on any field's construct; the Programme Zero corpus forbids it explicitly");
+  throw new Refusal("INDIVIDUAL_SCORE_FORBIDDEN", "Chronarch computes no individual-level score, index or assessment on any field's construct; the Programme Zero corpus forbids it explicitly");
 }
 
 /** Jobs that read bodies, not citations. A `question` may cite a stub. */

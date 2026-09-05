@@ -106,7 +106,7 @@ export function projectToMarkdown(project: Project): string {
   const L: string[] = [];
   L.push(`# ${project.name}`);
   L.push("");
-  L.push(`RexMetrix project pack · \`${project.id}\` · programmes: ${project.programme_ids.join(", ")} · ${project.notes.length} note${project.notes.length === 1 ? "" : "s"} · created ${project.created_at}`);
+  L.push(`Chronarch project pack · \`${project.id}\` · programmes: ${project.programme_ids.join(", ")} · ${project.notes.length} note${project.notes.length === 1 ? "" : "s"} · created ${project.created_at}`);
   L.push("");
   L.push("## Works used");
   L.push("");
@@ -135,11 +135,11 @@ export function projectToMarkdown(project: Project): string {
   L.push("");
   for (const c of PACK_CLOSING) L.push(`- ${c}`);
   L.push("");
-  L.push("_Built in code by RexMetrix from the works, the token metrics and the accepted child pins. No model wrote this. Memory only until downloaded: nothing was sent anywhere._");
+  L.push("_Built in code by Chronarch, a RexMetrix product, from the works, the token metrics and the accepted child pins. No model wrote this. Memory only until downloaded: nothing was sent anywhere._");
   return L.join("\n");
 }
 
 export function packFilename(project: Project): string {
   const slug = project.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "project";
-  return `rexmetrix-pack-${slug}.md`;
+  return `chronarch-pack-${slug}.md`;
 }

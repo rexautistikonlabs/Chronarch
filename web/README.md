@@ -1,4 +1,4 @@
-# web/ — RexMetrix programme well + technician room
+# web/ — RexMetrix landing + Chronarch (programme well, technician room)
 
 A static Vite app: the visitor's **programme well** for RexMetrix, and the
 **technician room** for whoever runs the substrate. It draws static JSON
@@ -40,9 +40,10 @@ awake only while something holds the render policy and for 200 ms after. See
 
 | Route | Who | What |
 |---|---|---|
-| `/` | a visitor | the programme well: honesty sentence, two programme chips (*Programme Zero*, *Toy programme*), four benches (**Fields, Bridges, Programmes, Synthesis**), readouts in programme words (fields, bridges, assumptions rated, falsifiers registered, items locked, stops on). No protocol names, no hex, no credits. |
-| `/about` | a visitor | what RexMetrix is, Programme Zero as the example programme, what RexMetrix will not ship |
-| `/tech` | a technician | **one workbench**, one column: filters (All \| Autistikon \| Classics), a field–bridge graph of live bridges only, the project (name, Declare bridge as a session amendment, Clear extra bridges), the works table with a Programme column and the upload model, Converge / Compare / Analyze that disable with a reason, the AnalysisNote, the notes library, Copy Markdown / Download .md, Download pack (the whole project as one .md) and Download project.json / import (saved in this browser only under `rexmetrix.project.v1`; no server); then the refuse glossary and a closed "substrate instrument" details block (programmes, fixtures, paste JSON, hashes; internal code name Chronarch — not the product). `/lab`, `/council`, `/timechain`, `/hearth`, `/farm`, `/gym`, `/operator` redirect here; `/consortium` to `/about`. |
+| `/` | anyone | the **RexMetrix landing**: the company's catalogue — Chronarch (this lab, running), Continuum and Face mapping (one-sentence placeholders); the landing honesty line; flat HTML, no canvas |
+| `/chronarch` | a visitor | **Chronarch** — the programme well: honesty sentence, two programme chips (*Programme Zero*, *Toy programme*), four benches (**Fields, Bridges, Programmes, Synthesis**), readouts in programme words (fields, bridges, assumptions rated, falsifiers registered, items locked, stops on). No protocol names, no hex, no credits. |
+| `/chronarch/about` | a visitor | what Chronarch is, Programme Zero as the example programme, what Chronarch will not ship; `/about` and `/consortium` redirect here |
+| `/chronarch/tech` | a technician | **one workbench**, one column: filters (All \| Autistikon \| Classics), a field–bridge graph of live bridges only, the project (name, Declare bridge as a session amendment, Clear extra bridges), the works table with a Programme column and the upload model, Converge / Compare / Analyze that disable with a reason, the AnalysisNote, the notes library, Copy Markdown / Download .md, Download pack (the whole project as one .md) and Download project.json / import (saved in this browser only under `rexmetrix.project.v1`; no server); then the refuse glossary and a closed "substrate instrument" details block (programmes, fixtures, paste JSON, hashes; the research substrate under Chronarch, not offered as a feature). `/tech`, `/lab`, `/council`, `/timechain`, `/hearth`, `/farm`, `/gym`, `/operator` redirect here. |
 
 ## Fixtures
 

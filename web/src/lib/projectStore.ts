@@ -102,7 +102,7 @@ export function projectToJSON(project: Project): string {
 
 export function projectJsonFilename(project: Project): string {
   const slug = project.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "project";
-  return `rexmetrix-project-${slug}.json`;
+  return `chronarch-project-${slug}.json`;
 }
 
 function storage(): Storage | null {

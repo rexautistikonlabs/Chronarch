@@ -21,17 +21,23 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 describe("RexMetrix honesty", () => {
-  it("the floor names RexMetrix and says what it is not", () => {
+  it("the floor names Chronarch and says what it is not; the landing names RexMetrix and Chronarch and says the same", () => {
+    const floor = renderAt("/chronarch");
+    let text = document.body.textContent ?? "";
+    expect(text).toMatch(/Chronarch/);
+    expect(text).toMatch(/not Foundation-endorsed/i);
+    expect(text).toMatch(/not a diagnostic/i);
+    expect(text).toMatch(/not a public chain/i);
+    floor.unmount();
     renderAt("/");
-    const text = document.body.textContent ?? "";
-    expect(text).toMatch(/RexMetrix/);
-    expect(text).toMatch(/not Foundation-endorsed/);
-    expect(text).toMatch(/not a diagnostic/);
-    expect(text).toMatch(/not a public chain/);
+    text = document.body.textContent ?? "";
+    expect(text).toMatch(/RexMetrix is a product house/);
+    expect(text).toMatch(/Chronarch is research software/);
+    expect(text).toMatch(/Not a public chain\. Not Foundation-endorsed\. Not a diagnostic\./);
   });
 
-  it("the rendered floor and about page carry no banned visitor phrase", () => {
-    for (const path of ["/", "/about"]) {
+  it("the rendered landing, floor and about page carry no banned visitor phrase", () => {
+    for (const path of ["/", "/chronarch", "/chronarch/about"]) {
       const { unmount } = renderAt(path);
       const text = document.body.textContent ?? "";
       expect(findVisitorBanned(text), `${path}: ${findVisitorBanned(text)}`).toBeNull();
@@ -44,6 +50,7 @@ describe("RexMetrix honesty", () => {
       ...walk(join(ROOT, "src/hud")),
       join(ROOT, "src/pages/Floor.tsx"),
       join(ROOT, "src/pages/About.tsx"),
+      join(ROOT, "src/pages/Landing.tsx"),
       join(ROOT, "src/lib/human.ts"),
       join(ROOT, "src/lib/programme.ts"),
       join(ROOT, "src/components/StatusBanner.tsx"),
@@ -71,8 +78,9 @@ describe("RexMetrix honesty", () => {
   });
 
   it("the about page says who owns the volume's prose and that Autistikon is the example programme", () => {
-    renderAt("/about");
+    renderAt("/chronarch/about");
     const panel = screen.getByTestId("about-panel");
+    expect(panel).toHaveTextContent(/^.*Chronarch/);
     expect(panel).toHaveTextContent(/example programme and first corpus/);
     expect(panel).toHaveTextContent(/author's copyright/);
     expect(panel).toHaveTextContent(/INDIVIDUAL_SCORE_FORBIDDEN/);

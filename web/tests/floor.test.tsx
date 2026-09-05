@@ -9,7 +9,7 @@ const PROTOCOL = /^(Timechain|Council|Hearth|Farm|Gym|Operator)$/i;
 
 describe("programme well", () => {
   it("has no primary nav item named after a protocol object", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     const nav = screen.getByTestId("primary-nav");
     const labels = [...within(nav).getAllByRole("link"), ...within(nav).getAllByRole("button")].map((a) => a.textContent?.trim() ?? "");
     expect(labels).toContain("Technician");
@@ -21,9 +21,9 @@ describe("programme well", () => {
   });
 
   it("says what it is and is not, in plain English", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     const plain = screen.getByTestId("plain-status");
-    expect(plain).toHaveTextContent(/RexMetrix/);
+    expect(plain).toHaveTextContent(/^Chronarch/);
     expect(plain).toHaveTextContent(/research software for hypothesis-led programmes/);
     expect(plain).toHaveTextContent(/not a diagnostic/);
     expect(plain).toHaveTextContent(/not Foundation-endorsed/);
@@ -32,7 +32,7 @@ describe("programme well", () => {
   });
 
   it("Programme Zero vs the toy programme changes field_count 2 → 3 and bridge_count 1 → 2", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     expect(screen.getByTestId("field-count")).toHaveTextContent("2");
     expect(screen.getByTestId("bridge-count")).toHaveTextContent("1");
     fireEvent.click(screen.getByTestId("chip-programme-toy.json"));
@@ -46,7 +46,7 @@ describe("programme well", () => {
   });
 
   it("readouts are programme words; hex, credits and substrate names stay in the technician room", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     const floor = screen.getByTestId("human-readouts");
     for (const word of ["fields in this programme", "bridges declared", "assumptions rated", "falsifiers registered", "items locked", "stops on"]) expect(floor).toHaveTextContent(word);
     const main = document.querySelector("main")!;
@@ -56,7 +56,7 @@ describe("programme well", () => {
   });
 
   it("the benches read Fields, Bridges, Programmes, Synthesis; a click focuses once and opens one card", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     const benches = screen.getByTestId("benches");
     expect(within(benches).getAllByRole("button").map((b) => b.textContent)).toEqual(expect.arrayContaining([expect.stringMatching(/^Fields/), expect.stringMatching(/^Bridges/), expect.stringMatching(/^Programmes/), expect.stringMatching(/^Synthesis/)]));
     expect(benches.textContent).not.toMatch(/Vote|Council|Memory|Pulse/);
@@ -77,7 +77,7 @@ describe("programme well", () => {
   });
 
   it("the programmes card tells the truth about each programme", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     fireEvent.click(screen.getByTestId("bench-programmes"));
     expect(screen.getByTestId("bench-card")).toHaveTextContent(/Programme Zero/);
     expect(screen.getByTestId("bench-card")).toHaveTextContent(/example programme and first corpus/);

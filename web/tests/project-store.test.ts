@@ -95,7 +95,7 @@ describe("canonical JSON and storage", () => {
     const back = parseProject(json, PRELOAD);
     if (!back.ok) throw new Error(back.detail);
     expect(back.project).toEqual(p);
-    expect(projectJsonFilename(p)).toBe("rexmetrix-project-round-trip.json");
+    expect(projectJsonFilename(p)).toBe("chronarch-project-round-trip.json");
   });
 
   it("saveProject writes the one key; loadProject reads it back; corrupt storage → null (start Untitled); clear removes it", () => {

@@ -10,7 +10,7 @@ const COUNT = (preload as { works: unknown[] }).works.length;
 
 describe("works in the UI", () => {
   it("the floor reads out the starter-works count and says what a tenant adds", () => {
-    renderAt("/");
+    renderAt("/chronarch");
     expect(screen.getByTestId("works-count")).toHaveTextContent(String(COUNT));
     expect(screen.getByTestId("works-line")).toHaveTextContent("A few legal starter works. You add what you have rights to.");
   });
