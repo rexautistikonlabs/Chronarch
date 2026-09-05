@@ -19,19 +19,64 @@ amendments), the AnalysisNotes, and one pack they can download.
 }
 ```
 
-`created_at` is an ISO string in `web/fixtures/project-example.json`. In the app
+`created_at` is an ISO string in `web/fixtures/project-example.json`; an
+imported project keeps whatever string it carried. In the app
 it is `tick:<n>` from a counter: the well bans clock reads and the workbench
 needs no wall clock either. (Date.now would be allowed on `/tech` HTML only; it
 is not used.)
 
 ## Session project
 
-`/tech` holds one project in memory. Its name defaults to "Untitled project"
-and is editable. Every accepted upload, every declared bridge and every
-successful note appends to it. Switching the works filter (All | Autistikon |
-Classics) does not touch the project. Nothing persists across a reload, and
-the page says so. (If a later turn adds localStorage it is the project JSON
-only, under `rexmetrix.project.v1`, and it is never sent anywhere.)
+`/tech` holds one project. Its name defaults to "Untitled project" and is
+editable. Every accepted upload, every declared bridge and every successful
+note appends to it. Switching the works filter (All | Autistikon | Classics)
+does not touch the project.
+
+## Persistence
+
+The project survives a reload **on the same browser** and can be handed
+around as JSON. Memory-only is no longer the story.
+
+- **Key:** `rexmetrix.project.v1` in `localStorage`. The value is the
+  canonical JSON of the Project object above (sorted keys). Nothing else is
+  stored. No cookies, no backend, no analytics, no accounts; the value is
+  never sent anywhere.
+- **Write:** after any successful note, upload, rename, declared bridge or
+  clear of extra bridges (every change to the project object is written back).
+  A browser that refuses storage (quota, private mode) leaves the project in
+  memory and the page says so.
+- **Read:** on `/tech` mount, the key is parsed through the same fail-closed
+  guard an import gets (below). Corrupt JSON, a missing name or a wrong shape
+  is ignored and the project starts Untitled — never a crash.
+- **Clear project:** wipes memory and the key, after a confirm checkbox. Clear
+  extra bridges (above) is narrower and keeps the notes.
+- The page carries one line under the project name: "Saved in this browser
+  only."
+
+## Export project.json
+
+**Download project.json** writes the canonical JSON of the Project — sorted
+keys, no functions — next to Download pack. It is the file a colleague
+imports; the pack is the file a reader reads.
+
+## Import
+
+A file input (`application/json`). The guard is fail-closed:
+
+- bad JSON or a missing `name` → `IMPORT_INVALID`; the project is unchanged;
+- `extra_bridges` entries without `origin: "operator"` (or malformed) are
+  **stripped** and counted; they are never applied as shipped bridges;
+- `works` that are preload ids are references to the shipped rows; any other
+  work enters only as a session upload that `acceptUpload` would accept
+  (licence required; full text only under an allowing licence with rights
+  declared), otherwise it is dropped and counted ("2 works skipped");
+- `notes` need an ok result with a child id and parents and a note body with
+  question, findings and is_not; others are dropped and counted.
+
+`web/fixtures/project-example.json` is an importable example: a name, two
+preload works by id, one operator-declared natural-history — optics bridge,
+no notes. Importing it restores the name and the bridge; Darwin + Newton
+Analyze enables on the imported project.
 
 ## Session bridge amendment
 
@@ -70,5 +115,5 @@ a public chain. No zip, no network, no model.
 
 - not a programme file: amendments never merge into a shipped catalogue
 - not evidence: a declared bridge is an operator's amendment and the note says so
-- not persistent: memory only until downloaded
+- not a server record: saved in this browser only, portable as project.json
 - not a score of anything or anyone

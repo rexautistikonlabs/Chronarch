@@ -25,8 +25,8 @@ describe("session project", () => {
     const h2 = Array.from(document.querySelectorAll("main > div > section > h2")).map((h) => (h.textContent ?? "").split(" ·")[0]);
     expect(h2).toEqual(["filters", "field–bridge graph", "project", "works", "actions", "result", "notes library", "export", "refuse glossary"]);
     expect(screen.getByTestId("project-name")).toHaveValue("Untitled project");
-    expect(screen.getByTestId("project-summary")).toHaveTextContent(/memory only, not kept across reload/);
-    expect(screen.getByTestId("notes-library")).toHaveTextContent(/not kept across reload/);
+    expect(screen.getByTestId("saved-line")).toHaveTextContent(/Saved in this browser only\./);
+    expect(screen.getByTestId("notes-library")).toHaveTextContent(/saved in this browser only/);
     expect(document.querySelectorAll("canvas")).toHaveLength(0);
   });
 

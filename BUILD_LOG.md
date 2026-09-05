@@ -1601,6 +1601,36 @@ Bug: the technician room still exposed a second product — /council,
   - **Persisting the project to a server** — the pack is the only way a
     project leaves the browser.
 
+## RexMetrix — the Project persists
+
+- The project is saved in this browser only: one localStorage key
+  `rexmetrix.project.v1`, canonical JSON, written after every change (note,
+  upload, rename, declare, clear extra bridges). On mount the key is read
+  through the same fail-closed guard an import gets; corrupt JSON or a missing
+  name starts Untitled and never crashes. Clear project wipes memory and the
+  key after a confirm checkbox. No cookies, no backend, no analytics, no
+  accounts.
+- Download project.json (canonical, sorted keys) sits next to Download pack.
+  Import is a file input: `IMPORT_INVALID` on bad JSON or no name (project
+  unchanged); extra_bridges without origin operator are stripped and counted,
+  never applied as shipped; works outside the preload enter only if
+  acceptUpload would take them, otherwise dropped and counted ("2 works
+  skipped"); malformed notes dropped and counted.
+- Tests: declare → unmount → remount keeps Darwin + Newton enabled and the
+  note in the library; "{" is IMPORT_INVALID; the fixture project.json
+  restores its name and one bridge; a non-operator bridge is stripped;
+  programme-classics.json unchanged against main.
+- REJECTED:
+  - **Server sync** — an account, a backend, a sync endpoint, or any
+    telemetry about the project. The project leaves the browser only as a
+    file the operator downloads; nothing is posted anywhere.
+  - **Silent catalogue writes** — importing a bridge as if it were shipped, or
+    letting hydration write an amendment into a programme file. Everything
+    that comes in passes the guard, keeps `origin: "operator"`, and stays on
+    the project.
+  - **Trusting the key** — hydrating stored JSON without the guard. Storage is
+    just another untrusted input.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

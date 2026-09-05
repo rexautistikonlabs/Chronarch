@@ -1,5 +1,5 @@
 /** The project's notes in time order. Clicking one re-opens its eight-section
- *  card. Memory only: the library does not survive a reload. */
+ *  card. Saved in this browser only (with the project); portable as project.json. */
 import { Button } from "react-aria-components";
 
 import { percent } from "../lib/metrics";
@@ -10,7 +10,7 @@ export function NotesLibrary({ current, onOpen }: { current: string | null; onOp
   const { notes } = useProgramme();
   return (
     <div data-testid="notes-library">
-      <p className="text-xs text-mute">{notes.length === 0 ? "No notes in this project yet. A successful action adds one." : `${notes.length} note${notes.length === 1 ? "" : "s"} in this project, oldest first.`} <span className="readout text-dim">memory only — not kept across reload</span></p>
+      <p className="text-xs text-mute">{notes.length === 0 ? "No notes in this project yet. A successful action adds one." : `${notes.length} note${notes.length === 1 ? "" : "s"} in this project, oldest first.`} <span className="readout text-dim">saved in this browser only — reload keeps them; project.json carries them elsewhere</span></p>
       {notes.length > 0 && (
         <ol className="mt-2 space-y-1" data-testid="notes-list">
           {notes.map((n) => {

@@ -1,7 +1,7 @@
 /** The loaded programme (a fixture), the catalogue it sits in (the union of
  *  the fixtures' fields and bridges), and the example synthesis child. All
  *  static JSON: no fetch, no process, no tenant store this turn. */
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import classicsFixture from "../../fixtures/programme-classics.json";
 import toyFixture from "../../fixtures/programme-toy.json";
@@ -12,6 +12,7 @@ import { catalogueOf, programmeCounts, Refusal, validateChild, type Catalogue, t
 import type { AnalysisNote } from "../lib/analysisNote";
 import type { BenchOk } from "../lib/bench";
 import { declareBridge as declareOn, newProject, operatorBridgeIds, withExtraBridges, withNote, withUpload, type DeclareResult, type Project, type ProjectNote } from "../lib/project";
+import { clearSavedProject, loadProject, parseProject, saveProject, type ParseResult } from "../lib/projectStore";
 import { acceptUpload, worksMap, type UploadRequest, type UploadResult, type Work, type WorksFile } from "../lib/works";
 
 export const PROGRAMMES = {
@@ -38,8 +39,12 @@ interface ProgrammeCtx {
   files: ProgrammeFile[];
   results: (BenchOk & { note: AnalysisNote })[]; // the project's notes, flattened (memory only)
   addResult: (r: BenchOk & { note: AnalysisNote }) => void;
-  /** The session project: name, works used, session bridges, notes. Memory only. */
+  /** The project: name, works used, session bridges, notes. Saved in this
+   *  browser only (localStorage, one key); imported and exported as JSON. */
   project: Project;
+  importProject: (text: string) => ParseResult;
+  clearProject: () => void;
+  saved: boolean; // whether the last write to this browser's storage succeeded
   notes: ProjectNote[];
   setProjectName: (name: string) => void;
   declareBridge: (left: string, right: string, amendment: boolean) => DeclareResult;
@@ -53,10 +58,14 @@ const Ctx = createContext<ProgrammeCtx | null>(null);
 
 export function ProgrammeProvider({ children, initial = "programme-zero.json" }: { children: ReactNode; initial?: ProgrammeName }) {
   const [programmeName, setName] = useState<ProgrammeName>(initial);
-  const [uploads, setUploads] = useState<Work[]>([]);
-  const [project, setProject] = useState<Project>(() => newProject(1));
+  // Hydrate once from this browser's storage through the fail-closed guard;
+  // a missing or corrupt key starts Untitled. Every change is written back.
+  const [project, setProject] = useState<Project>(() => loadProject(PRELOAD_WORKS) ?? newProject(1));
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { setSaved(saveProject(project)); }, [project]);
   const files = useMemo(() => Object.values(PROGRAMMES), []);
-  const works = useMemo(() => [...PRELOAD_WORKS, ...uploads], [uploads]);
+  // The works table: the preload plus this project's session uploads.
+  const works = useMemo(() => [...PRELOAD_WORKS, ...project.works.filter((w) => w.source === "upload")], [project.works]);
   const shippedCatalogue = useMemo(() => catalogueOf(Object.values(PROGRAMMES)), []);
   // The bench reads the shipped catalogue plus this project's amendments; the
   // shipped Map is never mutated and no programme file is written.
@@ -75,6 +84,15 @@ export function ProgrammeProvider({ children, initial = "programme-zero.json" }:
     return r;
   }, [project, catalogue]);
   const clearExtraBridges = useCallback(() => setProject((p) => ({ ...p, extra_bridges: [] })), []);
+  const importProject = useCallback((text: string): ParseResult => {
+    const r = parseProject(text, PRELOAD_WORKS);
+    if (r.ok) setProject(r.project);
+    return r;
+  }, []);
+  const clearProject = useCallback(() => {
+    clearSavedProject();
+    setProject((p) => newProject(Number(p.created_at.replace(/^tick:/, "")) + 1 || 1));
+  }, []);
   const programme = PROGRAMMES[programmeName];
   const counts = useMemo(() => programmeCounts(programme), [programme]);
   const childVerdict = useMemo<ProgrammeCtx["childVerdict"]>(() => {
@@ -92,14 +110,18 @@ export function ProgrammeProvider({ children, initial = "programme-zero.json" }:
   const upload = useCallback((req: UploadRequest) => {
     const r = acceptUpload(req);
     if (r.ok) {
-      setUploads((u) => [...u, r.work]);
-      setProject((p) => withUpload(p, r.work));
+      // an imported project may already hold an upload id from another session: never collide, never drop
+      setProject((p) => {
+        let w = r.work;
+        for (let n = 2; p.works.some((x) => x.id === w.id); n++) w = { ...r.work, id: `${r.work.id}-${n}` };
+        return withUpload(p, w);
+      });
     }
     return r;
   }, []);
   const value = useMemo(
-    () => ({ programme, programmeName, catalogue, counts, child: CHILD, childVerdict, loadProgramme, works, preloadCount: PRELOAD_WORKS.length, upload, files, results, addResult, project, notes: project.notes, setProjectName, declareBridge, clearExtraBridges, shippedCatalogue, operatorBridges }),
-    [programme, programmeName, catalogue, counts, childVerdict, loadProgramme, works, upload, files, results, addResult, project, setProjectName, declareBridge, clearExtraBridges, shippedCatalogue, operatorBridges],
+    () => ({ programme, programmeName, catalogue, counts, child: CHILD, childVerdict, loadProgramme, works, preloadCount: PRELOAD_WORKS.length, upload, files, results, addResult, project, notes: project.notes, setProjectName, declareBridge, clearExtraBridges, shippedCatalogue, operatorBridges, importProject, clearProject, saved }),
+    [programme, programmeName, catalogue, counts, childVerdict, loadProgramme, works, upload, files, results, addResult, project, setProjectName, declareBridge, clearExtraBridges, shippedCatalogue, operatorBridges, importProject, clearProject, saved],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -119,9 +119,15 @@ note."), the column runs in this order:
 
 A **Project** ([PROJECT.md](PROJECT.md)) is what a group takes home: the works
 used, the live bridges the notes ran over, the AnalysisNotes, and one Markdown
-pack to download. `/tech` holds one in memory ("Untitled project", editable);
-uploads, declared bridges and successful notes append to it; filters never
-touch it; nothing persists across a reload and the page says so.
+pack to download. `/tech` holds one ("Untitled project", editable); uploads,
+declared bridges and successful notes append to it; filters never touch it.
+It is saved in this browser only (`localStorage`, key `rexmetrix.project.v1`,
+no cookies, no server, no analytics), survives a reload, and travels as
+**project.json**: Download project.json writes the canonical JSON; a file
+input imports one through a fail-closed guard (bad JSON or no name is
+`IMPORT_INVALID`; bridges not marked operator-declared are stripped; works
+outside the preload enter only under the upload law). **Clear project** wipes
+memory and storage after a confirm checkbox.
 
 **Declare bridge** (left field, right field, "amendment, not evidence.") adds
 a live, operator-declared bridge to the project only — never to a programme

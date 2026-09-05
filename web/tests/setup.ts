@@ -15,4 +15,8 @@ if (typeof (globalThis as { ResizeObserver?: unknown }).ResizeObserver === "unde
   };
 }
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  // the project persists in this browser only; tests start each case Untitled
+  try { window.localStorage.clear(); } catch { /* no storage in this environment */ }
+});
