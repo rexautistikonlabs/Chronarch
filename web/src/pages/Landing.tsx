@@ -71,17 +71,18 @@ function Hero() {
       <LegalStrip />
       {/* text takes no pointer: the buildings behind it stay clickable; only the links do */}
       <div className="pointer-events-none flex flex-wrap items-baseline justify-between gap-6 px-6 pt-5">
-        <div className="max-w-2xl">
-          <h1 className="text-2xl font-semibold tracking-tight" data-testid="landing-title">RexMetrix <span className="readout text-[11px] uppercase tracking-wider text-dim">· {LLC}</span></h1>
-          <p className="mt-2 text-[14px] leading-relaxed text-mute" data-testid="buyer-line">{BUYER_LINE}</p>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-tight" data-testid="landing-title">RexMetrix <span className="readout text-[11px] uppercase tracking-wider text-dim">· {LLC}</span></h1>
         <nav aria-label="Products" className="pointer-events-auto flex items-center gap-5 text-sm" data-testid="landing-nav">
           <Link to="/chronarch" className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-chronarch">Chronarch</Link>
           <a href={CONTINUUM_URL} className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-continuum">Continuum</a>
           <Link to="/chronarch/tech" className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-tech">Workbench</Link>
         </nav>
       </div>
-      <p className="readout pointer-events-auto mt-auto self-start px-6 pb-6 text-[11px] text-dim" data-testid="hero-hint">scroll</p>
+      {/* the buyer line sits low, over the empty pad, so it never covers a sign; still above the fold */}
+      <div className="pointer-events-none mt-auto px-6 pb-6">
+        <p className="max-w-xl text-[14px] leading-relaxed text-mute" data-testid="buyer-line">{BUYER_LINE}</p>
+        <p className="readout mt-3 text-[11px] text-dim" data-testid="hero-hint">scroll</p>
+      </div>
     </section>
   );
 }
