@@ -94,6 +94,9 @@ anything. A URL is a citation.
 - `claimsBytes` and the licence does not allow full text → `{ ok: false, code: "FULLTEXT_FORBIDDEN" }`
 - no licence → `{ ok: false, code: "LICENSE_MISSING" }`
 - `claimsBytes` without the rights declaration → `{ ok: false, code: "RIGHTS_UNDECLARED" }`
+- `text` longer than **20 000 characters** → `{ ok: false, code: "TEXT_TOO_LONG" }`; no
+  row. A pasted body is an excerpt, never a book. The form says: "Paste only
+  what you have rights to. Max 20 000 characters."
 - otherwise → `{ ok: true, work }` with `source: "upload"`, appended to the
   session catalogue **in memory**. Nothing is written to disk from the browser;
   no cloud bucket exists in this version.

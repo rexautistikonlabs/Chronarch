@@ -103,6 +103,7 @@ export function WorksPanel({ selected, onToggle, visible }: { selected: Readonly
         <TextField className="flex flex-col gap-1" value={text} onChange={setText}>
           <Label className="readout text-[11px] uppercase tracking-wider text-dim">text (an excerpt you have rights to; giving one is claiming full text)</Label>
           <TextArea rows={5} spellCheck={false} className="readout w-full resize-y border hair bg-ink p-2 text-xs text-ivory" data-testid="upload-text" />
+          <span className="text-[11px] text-mute" data-testid="upload-help">Paste only what you have rights to. Max 20 000 characters.{text.length > 0 ? <span className="readout text-dim" data-testid="upload-count"> · {text.length.toLocaleString("en-US").replace(/,/g, " ")} / 20 000</span> : null}</span>
         </TextField>
         <label className="flex items-center gap-2 text-xs text-mute">
           <input type="checkbox" checked={claimsBytes} onChange={(e) => setClaimsBytes(e.target.checked)} data-testid="upload-bytes" />
@@ -125,7 +126,7 @@ export function WorksPanel({ selected, onToggle, visible }: { selected: Readonly
             <li key={c} className="text-mute"><span className="text-ivory">{c}</span></li>
           ))}
         </ul>
-        <p className="mt-2 text-mute">FULLTEXT_FORBIDDEN: full text claimed under a licence that does not allow it. LICENSE_MISSING: no licence on the record. STUB_NO_FULLTEXT: a citation, not a body — overlap, match and couple refuse it; a question may cite it. RIGHTS_UNDECLARED: full text claimed without the rights declaration.</p>
+        <p className="mt-2 text-mute">FULLTEXT_FORBIDDEN: full text claimed under a licence that does not allow it. LICENSE_MISSING: no licence on the record. STUB_NO_FULLTEXT: a citation, not a body — overlap, match and couple refuse it; a question may cite it. RIGHTS_UNDECLARED: full text claimed without the rights declaration. TEXT_TOO_LONG: a pasted body over 20 000 characters — an excerpt, never a book; no row is added.</p>
       </div>
       {/* react-aria pieces imported for parity with the rest of the console; the native select keeps the form testable */}
       <span className="hidden"><Select aria-label="unused"><SelectValue /><Popover><ListBox><ListBoxItem>—</ListBoxItem></ListBox></Popover></Select><Checkbox aria-label="unused" /></span>

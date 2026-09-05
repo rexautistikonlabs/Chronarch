@@ -8,7 +8,7 @@ import { packFilename, projectToMarkdown } from "../lib/project";
 import { projectJsonFilename, projectToJSON } from "../lib/projectStore";
 import { useProgramme } from "../state/ProgrammeContext";
 
-export function PackPanel() {
+export function PackPanel({ onDownloaded }: { onDownloaded?: () => void } = {}) {
   const { project } = useProgramme();
   const md = projectToMarkdown(project);
   const json = projectToJSON(project);
@@ -28,6 +28,7 @@ export function PackPanel() {
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 0);
       setStatus(`downloaded ${name}`);
+      if (name.endsWith(".md")) onDownloaded?.();
     } catch {
       setStatus("download refused — open the preview and select the text");
     }

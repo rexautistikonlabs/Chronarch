@@ -48,4 +48,18 @@ describe("works in the UI", () => {
     expect(within(screen.getByTestId("works-table")).getAllByRole("row")).toHaveLength(COUNT + 2);
     expect(screen.getByTestId("works-table")).toHaveTextContent(/My cc-by preprint/);
   });
+
+  it("the upload form says what may be pasted and refuses 20 001 characters with TEXT_TOO_LONG and no row", () => {
+    renderAt("/tech");
+    expect(screen.getByTestId("upload-help")).toHaveTextContent("Paste only what you have rights to. Max 20 000 characters.");
+    const before = document.querySelectorAll('[data-testid^="select-work-"]').length;
+    fireEvent.change(screen.getByTestId("upload-title"), { target: { value: "Far too long" } });
+    fireEvent.change(screen.getByTestId("upload-license"), { target: { value: "cc0" } });
+    fireEvent.change(screen.getByTestId("upload-text"), { target: { value: "z".repeat(20001) } });
+    fireEvent.click(screen.getByTestId("upload-rights"));
+    fireEvent.click(screen.getByTestId("upload-submit"));
+    expect(screen.getByTestId("upload-result")).toHaveTextContent(/refused · TEXT_TOO_LONG/);
+    expect(document.querySelectorAll('[data-testid^="select-work-"]')).toHaveLength(before);
+    expect(screen.getByTestId("works-refusals")).toHaveTextContent(/TEXT_TOO_LONG/);
+  });
 });

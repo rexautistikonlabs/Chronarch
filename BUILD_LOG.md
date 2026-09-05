@@ -1631,6 +1631,31 @@ Bug: the technician room still exposed a second product — /council,
   - **Trusting the key** — hydrating stored JSON without the guard. Storage is
     just another untrusted input.
 
+## RexMetrix — first run and the paste limit
+
+- A dismissible three-step aside above the filters while
+  `rexmetrix.seenFirstRun.v1` is absent: Classics → Faraday + Maxwell →
+  Compare; Autistikon → both stand-ins → Converge; Download pack. Steps tick
+  from the project's notes (job + parent ids) and the pack click. Skip, Esc
+  or finishing writes the flag. The project key stays `rexmetrix.project.v1`
+  alone; the flag is a second, one-character key.
+- `acceptUpload` refuses `text` over 20 000 characters with `TEXT_TOO_LONG`
+  and adds no row; the form says "Paste only what you have rights to. Max
+  20 000 characters." An imported project.json with an over-long body is
+  skipped by the same law.
+- Pinned unchanged: Faraday + Maxwell Compare reads 8%; the stand-ins
+  Converge reads 16%; the excerpts were not retuned to make the tutorial look
+  better.
+- REJECTED:
+  - **A forced tutorial on every load after skip** — the panel returns only
+    if the flag is gone (a cleared browser). Skip means skip.
+  - **A modal that traps focus** — the panel is an aside in the column; Esc
+    and the skip button close it; the filters stay reachable while it shows.
+  - **"AI scientist" copy, a dashboard, a plot** — the panel repeats the
+    honesty sentence and names the three clicks.
+  - **A tutorial-only science path** — no new engine, no sample data, no
+    retuned excerpts; the steps run the bench as it is.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

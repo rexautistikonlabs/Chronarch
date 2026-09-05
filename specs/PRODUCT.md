@@ -138,6 +138,28 @@ and re-opens any card. **Download pack** writes the whole project as one
 Markdown file, closing with: not a fitted model; not peer review; not
 Foundation-endorsed; not a public chain.
 
+## First run
+
+An amateur should finish one real Compare and one Autistikon Converge without
+reading the glossary; a professional should be able to wave it away. On
+`/tech`, while the flag `rexmetrix.seenFirstRun.v1` is absent from this
+browser, a three-step panel sits **above the filters** — an aside in the
+column, not a modal; nothing traps focus:
+
+1. "Filter Classics. Tick Faraday and Maxwell. Compare."
+2. "Filter Autistikon. Tick both stand-ins. Converge."
+3. "Download pack."
+
+Each step ticks itself when the matching note exists in the project (steps 1
+and 2 read the project's notes by job and parent ids; step 3 by the pack
+download). "I'm a professional — skip", Esc, or finishing writes the flag and
+the panel stays away on every later load. The panel repeats the honesty
+sentence and nothing else: no "AI scientist", no dashboard, no plot. It adds
+no science engine — the three steps are the bench as it is.
+
+Pasted bodies are excerpts: `acceptUpload` refuses more than 20 000
+characters with `TEXT_TOO_LONG` and adds no row ([WORKS.md](WORKS.md)).
+
 ## Works
 
 Only legal works enter RexMetrix: a few preloaded starter works with a licence

@@ -6,7 +6,7 @@ import zero from "../fixtures/programme-zero.json";
 import childFixture from "../fixtures/synthesis-child.json";
 import preload from "../fixtures/works-preload.json";
 import { catalogueOf, validateChild, type ChildPin, type ProgrammeFile } from "../src/lib/programme";
-import { acceptUpload, allowsFullText, FULLTEXT_LICENSES, hasFullText, LICENSES, validateWork, worksMap, type Work, type WorksFile } from "../src/lib/works";
+import { acceptUpload, allowsFullText, FULLTEXT_LICENSES, hasFullText, LICENSES, MAX_UPLOAD_TEXT, REFUSAL_CODES_WORKS, validateWork, worksMap, type Work, type WorksFile } from "../src/lib/works";
 
 const WORKS = (preload as WorksFile).works;
 const cat = catalogueOf([zero as ProgrammeFile, toy as ProgrammeFile]);
@@ -70,6 +70,16 @@ describe("acceptUpload (model only)", () => {
     expect(acceptUpload({ title: "Untitled", license: null, claimsBytes: false })).toMatchObject({ ok: false, code: "LICENSE_MISSING" });
     expect(acceptUpload({ title: "Untitled", license: "not-a-licence", claimsBytes: false })).toMatchObject({ ok: false, code: "LICENSE_MISSING" });
   });
+  it("a pasted body over 20 000 characters → TEXT_TOO_LONG and no row; exactly 20 000 is accepted", () => {
+    expect(MAX_UPLOAD_TEXT).toBe(20000);
+    const over = "x".repeat(20001);
+    expect(acceptUpload({ title: "Too long", license: "cc0", claimsBytes: true, rights: true, text: over })).toMatchObject({ ok: false, code: "TEXT_TOO_LONG" });
+    const r = acceptUpload({ title: "At the limit", license: "cc0", claimsBytes: true, rights: true, text: "y".repeat(20000) });
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.work.text).toHaveLength(20000);
+    expect(REFUSAL_CODES_WORKS).toContain("TEXT_TOO_LONG");
+  });
+
   it("bytes claimed without the rights declaration → RIGHTS_UNDECLARED", () => {
     expect(acceptUpload({ title: "Mine", license: "cc-by-4.0", claimsBytes: true, rights: false })).toMatchObject({ ok: false, code: "RIGHTS_UNDECLARED" });
   });

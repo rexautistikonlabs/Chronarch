@@ -76,7 +76,9 @@ export interface UploadRequest {
   source_url?: string; // optional citation; a URL without text is a stub — nothing is fetched
 }
 
-export type UploadResult = { ok: true; work: Work } | { ok: false; code: "FULLTEXT_FORBIDDEN" | "LICENSE_MISSING" | "RIGHTS_UNDECLARED"; detail: string };
+/** A pasted body is an excerpt, never a book: the hard ceiling on `text`. */
+export const MAX_UPLOAD_TEXT = 20000;
+export type UploadResult = { ok: true; work: Work } | { ok: false; code: "FULLTEXT_FORBIDDEN" | "LICENSE_MISSING" | "RIGHTS_UNDECLARED" | "TEXT_TOO_LONG"; detail: string };
 
 let uploadSeq = 0;
 
@@ -85,6 +87,7 @@ let uploadSeq = 0;
 export function acceptUpload(req: UploadRequest): UploadResult {
   if (!isLicense(req.license)) return { ok: false, code: "LICENSE_MISSING", detail: "a licence is required on every record" };
   const text = req.text?.trim() || undefined;
+  if (text !== undefined && text.length > MAX_UPLOAD_TEXT) return { ok: false, code: "TEXT_TOO_LONG", detail: `a pasted body is an excerpt: ${text.length} characters is over the ${MAX_UPLOAD_TEXT} limit; no row was added` };
   const claimsBytes = req.claimsBytes || text !== undefined; // a body is a claim of full text
   if (claimsBytes && !allowsFullText(req.license)) return { ok: false, code: "FULLTEXT_FORBIDDEN", detail: `full text may not be claimed under ${req.license}` };
   if (claimsBytes && !req.rights) return { ok: false, code: "RIGHTS_UNDECLARED", detail: "declare that you have rights to this file before claiming its full text" };
@@ -113,4 +116,4 @@ export function worksMap(list: Work[]): Map<string, Work> {
   return new Map(list.map((w) => [w.id, w]));
 }
 
-export const REFUSAL_CODES_WORKS = ["FULLTEXT_FORBIDDEN", "LICENSE_MISSING", "STUB_NO_FULLTEXT", "RIGHTS_UNDECLARED"] as const;
+export const REFUSAL_CODES_WORKS = ["FULLTEXT_FORBIDDEN", "LICENSE_MISSING", "STUB_NO_FULLTEXT", "RIGHTS_UNDECLARED", "TEXT_TOO_LONG"] as const;

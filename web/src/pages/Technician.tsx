@@ -6,6 +6,7 @@ import type { AnalysisNote } from "../lib/analysisNote";
 import type { BenchResult } from "../lib/bench";
 import { BenchActions } from "../components/BenchActions";
 import { ExportPanel } from "../components/ExportPanel";
+import { FirstRun } from "../components/FirstRun";
 import { FieldGraph } from "../components/FieldGraph";
 import { NotesLibrary } from "../components/NotesLibrary";
 import { PackPanel } from "../components/PackPanel";
@@ -23,6 +24,7 @@ import { WorksPanel } from "../components/WorksPanel";
 import { fmtChronons } from "../lib/format";
 import { GYM_CASES } from "../lib/gym";
 import { applyFilter, FILTERS, type FilterKey } from "../lib/filters";
+import { markFirstRunSeen, seenFirstRun } from "../lib/firstRun";
 import { PROGRAMME_CHIPS } from "../lib/human";
 import { percent } from "../lib/metrics";
 import { bridgePath } from "../lib/bench";
@@ -38,6 +40,7 @@ const REFUSE_CODES: readonly [string, string][] = [
   ["FULLTEXT_FORBIDDEN", "full text claimed under a licence that does not allow it"],
   ["STUB_NO_FULLTEXT", "a citation, not a body: overlap, match and couple refuse it; a question may cite it"],
   ["RIGHTS_UNDECLARED", "full text claimed without the rights declaration"],
+  ["TEXT_TOO_LONG", "a pasted body over 20 000 characters; an excerpt, never a book"],
   ["BAD_KIND", "a job kind outside overlap | match | couple | question"],
   ["UNKNOWN_FIELD", "a parent names a field not in the catalogue"],
   ["UNKNOWN_WORK", "a parent cites a work not in the works catalogue"],
@@ -51,7 +54,11 @@ const EXAMPLE = `{"ok": true, "result": {"identity": "chronarch-pulse", "height"
  *  Chronarch — not the product). Not the default landing. */
 export function Technician() {
   const { session, error, loadFixture, loadText } = useSession();
-  const { programmeName, loadProgramme, works, catalogue, results } = useProgramme();
+  const { programmeName, loadProgramme, works, catalogue, results, notes } = useProgramme();
+  // First run: shown until the operator skips or finishes it (one flag in this browser).
+  const [firstRun, setFirstRun] = useState<boolean>(() => !seenFirstRun());
+  const [packDone, setPackDone] = useState(false);
+  const dismissFirstRun = () => { markFirstRunSeen(); setFirstRun(false); };
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [filter, setFilter] = useState<FilterKey>("all");
   const [fieldFilter, setFieldFilter] = useState<string | null>(null);
@@ -78,6 +85,8 @@ export function Technician() {
   return (
     <div>
       <PageHeader eyebrow="rexmetrix · technician · workbench" title="One room for the operator." lede={<>Filters, the field–bridge graph, the project and its session bridges, the works and their licences, a selection, three actions that enable only when the bench law would pass, the note, the notes library, and the export — a note or the whole project as one pack. HTML only — no well on this route. The workbench calls no model, fetches nothing, adds no bridge on its own, and refuses anything that is not a well-formed input.</>} />
+
+      {firstRun && <FirstRun notes={notes} packDone={packDone} onDismiss={dismissFirstRun} onGo={(f) => { setFilter(f); setFieldFilter(null); }} />}
 
       <Section title="filters">
         <div className="flex flex-wrap items-center gap-2" data-testid="filters">
@@ -132,7 +141,7 @@ export function Technician() {
 
       <Section title="export">
         {outcome?.r.ok && outcome.n ? <ExportPanel result={outcome.r} note={outcome.n} /> : <p className="text-xs text-dim">Run an action; a successful note can be copied or downloaded as Markdown. The pack below carries the whole project. No network.</p>}
-        <PackPanel />
+        <PackPanel onDownloaded={() => setPackDone(true)} />
       </Section>
 
       <Section title="refuse glossary">
