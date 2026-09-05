@@ -327,10 +327,13 @@ place, never a wall.
 Two buildings are doors and one is not:
 
 - **CHRONARCH · RUNNING** — the door tween, then `/chronarch`.
-- **CONTINUUM · RUNNING** — one state everywhere; the same door tween, then
-  this origin is left for `https://continuum.rexmetrix.com`, Continuum's one
-  product URL. Its source repository is named once, as a source, never as
-  the door. Continuum is never mounted inside this app.
+- **CONTINUUM · RUNNING** — one state everywhere; a door to another origin,
+  `https://continuum.rexmetrix.com`, Continuum's one product URL. It opens in
+  a **new tab with no opener** (`window.open(url, "_blank",
+  "noopener,noreferrer")`; the anchors carry `target="_blank"`), at once,
+  inside the click — so this tab never holds a half-open door and Back never
+  lands on an ivory plane. Its source repository is named once, as a source,
+  never as the door. Continuum is never mounted inside this app.
 - **LATERION · FORTHCOMING · NOT A DIAGNOSTIC** — no door: the chapter only,
   with its three negations.
 
@@ -338,7 +341,12 @@ The **door tween** (`DoorIris.tsx`, ≤ 800 ms): an ivory plane rises from the
 volume while the rig eases the camera at it (`doorGoal`); it holds the render
 ledger and invalidates per tick; on completion the route changes and the
 campus unmounts. Under reduced motion, or without the campus, a door is an
-immediate route change.
+immediate route change. **A door never stays half-open**: `doorState.ts`
+resets it when the tween completes or when the document hides or shows
+again — `pagehide`, `pageshow` (a BFCache restore included),
+`visibilitychange` to visible — so the plane unmounts, its hold on the ledger
+is released, the rig's door goal clears, and one frame is asked for. The
+campus is clickable again.
 
 No substrate word — DACO, Timechain, Chronos, Council, "not a public chain",
 Chia, PoST — appears on the landing chrome or the Chronarch well chrome;

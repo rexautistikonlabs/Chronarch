@@ -2,12 +2,12 @@
  *  with the law in a compact strip — no checkbox, no wall. The footer repeats
  *  the LLC and both attributions and expands the same text behind "Legal".
  *  Continuum has one state and one URL. The Canvas is stubbed (jsdom). */
-import { fireEvent, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { BuildingKey } from "../src/campus/campusLayout";
 import { findVisitorBanned } from "../src/lib/banned";
-import { ATTRIBUTIONS, BUYER_LINE, CONTINUUM_URL, LEGAL, LEGAL_LINES, LLC, SCIENTIFICLAB_URL } from "../src/lib/legal";
+import { ATTRIBUTIONS, BUYER_LINE, CONTINUUM_URL, exits, LEGAL, LEGAL_LINES, LLC, SCIENTIFICLAB_URL } from "../src/lib/legal";
 import { renderAt } from "./render";
 
 vi.mock("../src/campus/Campus", () => ({
@@ -16,6 +16,7 @@ vi.mock("../src/campus/Campus", () => ({
     <div data-testid="campus-viewport">
       <canvas data-testid="campus-canvas" />
       <button type="button" data-testid="sign-continuum" onClick={() => onPick("continuum")}>CONTINUUM · RUNNING</button>
+      <button type="button" data-testid="sign-chronarch" onClick={() => onPick("chronarch")}>CHRONARCH · RUNNING</button>
     </div>
   ),
 }));
@@ -89,6 +90,11 @@ describe("Continuum has one state and one URL", () => {
     expect(screen.getByTestId("landing-to-continuum")).toHaveAttribute("href", CONTINUUM_URL);
     expect(screen.getByTestId("cta-continuum")).toHaveAttribute("href", CONTINUUM_URL);
     expect(screen.getByTestId("cta-continuum")).toHaveAttribute("data-door", "external");
+    // the door to another origin opens a new tab with no opener, so this tab never holds a half-open door
+    for (const id of ["landing-to-continuum", "cta-continuum"]) {
+      expect(screen.getByTestId(id)).toHaveAttribute("target", "_blank");
+      expect(screen.getByTestId(id)).toHaveAttribute("rel", "noopener noreferrer");
+    }
     expect(screen.getByTestId("chapter-continuum")).toHaveAttribute("data-status", "RUNNING");
     expect(screen.getByTestId("chapter-continuum")).toHaveTextContent(/CONTINUUM · RUNNING/);
     const github = Array.from(document.querySelectorAll("a")).filter((a) => a.getAttribute("href") === SCIENTIFICLAB_URL);
@@ -125,5 +131,60 @@ describe("Continuum has one state and one URL", () => {
     const h1 = document.querySelector("main h1")?.textContent ?? "";
     expect(h1).not.toMatch(/Autistikon|RexMetrix/);
     expect(document.querySelectorAll("canvas")).toHaveLength(0);
+  });
+
+});
+
+describe("doors never stay half-open", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("the Continuum sign opens a new tab at once (window.open, noopener) — no door plane, still on /", () => {
+    const open = vi.spyOn(exits, "open").mockImplementation(() => {});
+    renderAt("/");
+    fireEvent.click(screen.getByTestId("sign-continuum"));
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(open).toHaveBeenCalledWith(CONTINUUM_URL);
+    expect(screen.queryByTestId("door-iris")).not.toBeInTheDocument();
+    expect(screen.getByTestId("landing-body")).toHaveAttribute("data-leaving", "");
+    expect(screen.getByTestId("campus-viewport")).toBeInTheDocument();
+  });
+
+  it("exits.open asks the browser for a new tab with no opener and no referrer", () => {
+    const w = vi.spyOn(window, "open").mockImplementation(() => ({}) as Window);
+    exits.open(CONTINUUM_URL);
+    expect(w).toHaveBeenCalledWith(CONTINUUM_URL, "_blank", "noopener,noreferrer");
+  });
+
+  it("a Chronarch door in flight is reset by pagehide + pageshow (persisted): plane gone, flag clear, no navigation; the door then works again", async () => {
+    renderAt("/");
+    fireEvent.click(screen.getByTestId("sign-chronarch"));
+    expect(screen.getByTestId("door-iris")).toBeInTheDocument();
+    expect(screen.getByTestId("landing-body")).toHaveAttribute("data-leaving", "chronarch");
+    act(() => {
+      window.dispatchEvent(new Event("pagehide"));
+      const show = new Event("pageshow");
+      Object.defineProperty(show, "persisted", { value: true });
+      window.dispatchEvent(show);
+    });
+    expect(screen.queryByTestId("door-iris")).not.toBeInTheDocument();
+    expect(screen.getByTestId("landing-body")).toHaveAttribute("data-leaving", "");
+    await new Promise((r) => setTimeout(r, 900)); // longer than the door: the killed tween never navigates
+    expect(screen.getByTestId("landing-body")).toBeInTheDocument();
+    expect(screen.queryByTestId("viewport-fallback")).not.toBeInTheDocument();
+    // and the door is usable again
+    fireEvent.click(screen.getByTestId("sign-chronarch"));
+    expect(screen.getByTestId("door-iris")).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByTestId("landing-body")).not.toBeInTheDocument(), { timeout: 4000 });
+    expect(screen.getByTestId("viewport-fallback")).toBeInTheDocument();
+  }, 8000);
+
+  it("visibilitychange back to visible resets an open door too", () => {
+    renderAt("/");
+    fireEvent.click(screen.getByTestId("sign-chronarch"));
+    expect(screen.getByTestId("door-iris")).toBeInTheDocument();
+    Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
+    act(() => { document.dispatchEvent(new Event("visibilitychange")); });
+    expect(screen.queryByTestId("door-iris")).not.toBeInTheDocument();
+    expect(screen.getByTestId("landing-body")).toHaveAttribute("data-leaving", "");
   });
 });

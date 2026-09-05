@@ -1861,6 +1861,32 @@ Bug: the technician room still exposed a second product — /council,
   - **Silent analytics** — stays rejected: no beacon without the strip saying
     so first.
 
+## The door never stays half-open
+
+- Bug: the same-tab door to Continuum, then Back, restored / from the BFCache
+  with the ivory door plane still up and the ledger held — a blank slab.
+  Chronarch's in-app door was fine because its route change unmounted the
+  campus.
+- Fix: `doorState.ts` gives the door a lifecycle — start, complete, reset —
+  and `attachDoorReset` clears it on pagehide, pageshow (persisted or not)
+  and visibilitychange to visible; the landing follows it, so the plane
+  unmounts (releasing its hold and killing the tween), the rig's door goal
+  clears, and one frame is requested. Continuum now opens in a new tab with
+  no opener (`window.open(url, "_blank", "noopener,noreferrer")`,
+  synchronously inside the click; anchors carry `target="_blank"`), so this
+  tab never enters a half-tween at all; a blocked popup falls back to the
+  same tab, where the reset still applies. Chronarch's door is unchanged.
+- Tests: the helper (start / complete / pagehide + pageshow persisted /
+  visibilitychange / detach); the Continuum controls are new-tab anchors and
+  the sign calls `exits.open`; a Chronarch door in flight is reset by
+  pagehide + pageshow with no navigation and works again afterwards; the
+  probe fakes a pageshow after starting a door and finds no ivory overlay.
+- REJECTED:
+  - **Leaving the door mesh across an origin change** — a tween that assumes
+    the page is about to die. Pages come back (BFCache, Back, tab switch);
+    every door must be able to close without navigating.
+  - **An iframe for Continuum** — stays rejected; the door is a new tab.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
