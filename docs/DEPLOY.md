@@ -41,6 +41,19 @@ The app is a single-page application. Every path must fall back to
 
 ## Domain
 
+Intended hosts, **later** — none of this is configured from the repository,
+and nothing here claims either host is live, resolves, or has certificates:
+
+| Host | Serves |
+|---|---|
+| `rexmetrix.com` | the landing (`/`, the campus story) |
+| `chronarch.rexmetrix.com` | this same app opened at `/chronarch` (the product) |
+
+Both would be the one static build; the second is a hostname that lands on
+`/chronarch`, which a host's redirect rule (or the SPA fallback plus a small
+redirect) can do without a second build. Until DNS exists, the app is one
+origin and `/chronarch` is a path.
+
 `web/public/CNAME` contains exactly `rexmetrix.com`. It is copied into
 `dist/` by the build. **Domain reserved for the RexMetrix landing.** Nothing in
 this repository claims that DNS for it is live, points anywhere, or has been

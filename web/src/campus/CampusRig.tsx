@@ -1,29 +1,28 @@
-/** The campus rig: the same law as the well's pointer rig, on a simpler goal.
+/** The campus rig: scroll drives the camera; the hand may add a slow orbit.
  *
- *  The camera damps toward the selected building's rest pose plus what the hand
- *  adds — a slow orbit while dragging on the ground plane, a zoom on wheel. No
- *  hover parallax, no vehicle, no physics. Frames come from the render policy:
- *  the rig holds the loop while the pointer is down, touches it per move, holds
- *  it for the selection tween, and holds it while damping converges; then the
- *  loop sleeps and the campus is still. `useFrame` reads `delta` only. */
-import { invalidate, useFrame, useThree } from "@react-three/fiber";
-import gsap from "gsap";
-import { useEffect, useRef } from "react";
+ *  The goal is `storyGoal(progress)` — the scroll position of the page, read
+ *  from a ref the page updates — plus an azimuth offset from dragging on the
+ *  canvas. The camera damps toward it. Frames come from the render policy:
+ *  the page touches the ledger on every scroll event, the rig holds it while
+ *  the pointer is down and while damping converges; when the hand and the
+ *  page are still, the loop sleeps and the frame is byte-identical. No
+ *  physics, no vehicle, no zoom on wheel (the wheel scrolls the story). No
+ *  idle spin. `useFrame` reads `delta` only. */
+import { useFrame, useThree, invalidate } from "@react-three/fiber";
+import { useEffect, useRef, type RefObject } from "react";
 
-import { ONE_SHOT } from "../lib/motion";
 import { damp, sphericalToPosition, type Spherical } from "../scene/focus";
 import { hold, touch, type Release } from "../scene/renderPolicy";
-import { campusGoal, type BuildingKey } from "./campusLayout";
+import { storyGoal } from "./campusLayout";
 
 const CONVERGE_EPS = 0.003;
 const SETTLE_CAP_S = 1.6; // summed frame deltas, not a clock
 
-export function CampusRig({ selected }: { selected: BuildingKey | null }) {
+export function CampusRig({ progress }: { progress: RefObject<number> }) {
   const camera = useThree((s) => s.camera);
   const gl = useThree((s) => s.gl);
-  const base = useRef<Spherical>(campusGoal(selected));
-  const offset = useRef({ az: 0, el: 0, zoom: 1 });
-  const cur = useRef<Spherical>({ ...base.current });
+  const offset = useRef({ az: 0, el: 0 });
+  const cur = useRef<Spherical>(storyGoal(progress.current ?? 0));
   const dampHold = useRef<Release | null>(null);
   const settle = useRef({ since: 0, key: "" });
 
@@ -33,13 +32,14 @@ export function CampusRig({ selected }: { selected: BuildingKey | null }) {
     camera.lookAt(s.target[0], s.target[1], s.target[2]);
   };
   const goal = (): Spherical => {
-    const b = base.current;
+    const b = storyGoal(progress.current ?? 0);
     const o = offset.current;
-    return { az: b.az + o.az, el: Math.min(1.2, Math.max(0.12, b.el + o.el)), dist: Math.min(48, Math.max(8, b.dist * o.zoom)), target: b.target };
+    return { az: b.az + o.az, el: Math.min(1.1, Math.max(0.14, b.el + o.el)), dist: b.dist, target: b.target };
   };
   const gap = (g: Spherical, c: Spherical) =>
     Math.max(Math.abs(g.az - c.az), Math.abs(g.el - c.el), Math.abs(g.dist - c.dist) / 10, Math.abs(g.target[0] - c.target[0]), Math.abs(g.target[1] - c.target[1]), Math.abs(g.target[2] - c.target[2]));
 
+  // Land exactly on the first frame.
   useEffect(() => {
     cur.current = goal();
     apply(cur.current);
@@ -47,31 +47,8 @@ export function CampusRig({ selected }: { selected: BuildingKey | null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Selection change: one-shot tween of the base goal, held for its duration.
-  useEffect(() => {
-    const next = campusGoal(selected);
-    const release = hold("focus");
-    const from = { ...base.current, tx: base.current.target[0], ty: base.current.target[1], tz: base.current.target[2] };
-    const tl = gsap.timeline({
-      ...ONE_SHOT,
-      onUpdate: () => {
-        base.current = { az: from.az, el: from.el, dist: from.dist, target: [from.tx, from.ty, from.tz] };
-        invalidate();
-      },
-      onComplete: () => {
-        base.current = next;
-        release();
-      },
-    });
-    tl.to(from, { az: next.az, el: next.el, dist: next.dist, tx: next.target[0], ty: next.target[1], tz: next.target[2], duration: 1.1, ease: "power2.inOut" });
-    return () => {
-      tl.kill();
-      release();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
-
-  // Pointer on the canvas: drag = slow orbit on the ground plane; wheel = zoom.
+  // Drag on the canvas: a slow orbit added to the story's goal. Wheel is left
+  // to the page — it scrolls the story, which is the camera's driver.
   useEffect(() => {
     const el = gl.domElement;
     let dragging = false;
@@ -82,7 +59,8 @@ export function CampusRig({ selected }: { selected: BuildingKey | null }) {
       if (!dragging) return;
       offset.current.az += (e.clientX - lastX) * 0.0045;
       offset.current.el += (e.clientY - lastY) * 0.003;
-      offset.current.el = Math.min(0.5, Math.max(-0.2, offset.current.el));
+      offset.current.el = Math.min(0.4, Math.max(-0.15, offset.current.el));
+      offset.current.az = Math.min(0.9, Math.max(-0.9, offset.current.az));
       lastX = e.clientX;
       lastY = e.clientY;
       touch("pointer-move");
@@ -98,34 +76,26 @@ export function CampusRig({ selected }: { selected: BuildingKey | null }) {
       dragHold?.();
       dragHold = null;
     };
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      offset.current.zoom = Math.min(1.8, Math.max(0.5, offset.current.zoom * (1 + e.deltaY * 0.001)));
-      touch("pointer-move");
-    };
     el.addEventListener("pointermove", onMove);
     el.addEventListener("pointerdown", onDown);
     window.addEventListener("pointerup", onUp);
     el.addEventListener("pointerleave", onUp);
-    el.addEventListener("wheel", onWheel, { passive: false });
     return () => {
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointerup", onUp);
       el.removeEventListener("pointerleave", onUp);
-      el.removeEventListener("wheel", onWheel);
       dragHold?.();
       dampHold.current?.();
       dampHold.current = null;
     };
   }, [gl]);
 
-  // One damping step per drawn frame; delta in, clock never. Holds the loop
-  // while closing the gap, lands exactly, releases: the last frame is rest.
+  // One damping step per drawn frame; delta in, clock never.
   useFrame((_state, delta) => {
     const g = goal();
     const c = cur.current;
-    const key = `${g.az.toFixed(4)}|${g.el.toFixed(4)}|${g.dist.toFixed(3)}|${g.target.join(",")}`;
+    const key = `${g.az.toFixed(4)}|${g.el.toFixed(4)}|${g.dist.toFixed(3)}|${g.target.map((v) => v.toFixed(3)).join(",")}`;
     if (key !== settle.current.key) settle.current = { since: 0, key };
     else settle.current.since += delta;
     if (gap(g, c) < CONVERGE_EPS || settle.current.since > SETTLE_CAP_S) {
@@ -140,10 +110,10 @@ export function CampusRig({ selected }: { selected: BuildingKey | null }) {
     dampHold.current ??= hold("damping");
     const dt = Math.min(delta, 0.1);
     cur.current = {
-      az: damp(c.az, g.az, dt, 6),
-      el: damp(c.el, g.el, dt, 6),
-      dist: damp(c.dist, g.dist, dt, 6),
-      target: [damp(c.target[0], g.target[0], dt, 6), damp(c.target[1], g.target[1], dt, 6), damp(c.target[2], g.target[2], dt, 6)],
+      az: damp(c.az, g.az, dt, 7),
+      el: damp(c.el, g.el, dt, 7),
+      dist: damp(c.dist, g.dist, dt, 7),
+      target: [damp(c.target[0], g.target[0], dt, 7), damp(c.target[1], g.target[1], dt, 7), damp(c.target[2], g.target[2], dt, 7)],
     };
     apply(cur.current);
   });

@@ -98,11 +98,13 @@ describe("animation law", () => {
     expect(campus).not.toMatch(/castShadow|receiveShadow|EffectComposer|Environment|useTexture|TextureLoader|RGBELoader|Physics|useRapier|cannon/);
     expect(campus).not.toMatch(/scene\/Well|Catalogue3D|scene\/Timechain|scene\/Council/);
     const landing = readFileSync(join(ROOT, "src/pages/Landing.tsx"), "utf8");
-    expect(landing).not.toMatch(/scene\/Well|Catalogue3D|useFrame|Canvas/);
+    expect(landing).not.toMatch(/scene\/Well|Catalogue3D|useFrame|<Canvas|frameloop/); // scroll never sets the loop mode; it touches the ledger
+    expect(landing).toContain('touch("scroll")');
     const rig = readFileSync(join(ROOT, "src/campus/CampusRig.tsx"), "utf8");
     for (const t of rig.match(/gsap\.timeline\(\{[\s\S]*?\}\);/g) ?? []) expect(t).toMatch(/onUpdate: \(\) => \{[\s\S]*invalidate\(\)/);
     expect(rig).toMatch(/hold\("/);
-    expect(stripComments(rig)).not.toMatch(/parallax|hover|Physics|velocity|wheelbase|honk/i); // drag orbit and wheel only
+    expect(stripComments(rig)).not.toMatch(/parallax|hover|Physics|velocity|wheelbase|honk|wheel|autoRot|spin/i); // drag orbit only; scroll is the driver, and nothing spins on its own
+    expect(rig).toContain("storyGoal(progress.current");
   });
 
   it("every tween that moves the camera, the iris or the bloom invalidates on every tick and holds the loop", () => {

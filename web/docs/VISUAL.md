@@ -268,6 +268,42 @@ so the well has the GPU to itself — one WebGL context at a time, and never a
 second one on `/chronarch/tech`, which stays HTML. The landing never imports
 the well scene.
 
+## 5c. Campus story (the landing as a product story)
+
+`/` reads like a product page: one 3D campus fixed behind the page, and the
+**scroll position is the only driver of the camera**. Almost no chrome.
+
+- **Hero (progress 0).** Three buildings in frame and the gate plated
+  REXMETRIX. The chrome is one STATUS line (the landing honesty sentence — it
+  appears here and nowhere else on the page), the wordmark *RexMetrix*, and
+  two text links: *Chronarch*, *Workbench*. No manifesto box, no plates row;
+  the 3D signs already name the buildings.
+- **Chapter 1 (⅓) — Chronarch** fills the frame. "Research software that is
+  running." Two more sentences at most, the negations, and the one CTA on the
+  page: *Open Chronarch* → `/chronarch`.
+- **Chapter 2 (⅔) — Continuum.** One sentence and FORTHCOMING. No engine link.
+- **Chapter 3 (1) — Face mapping.** Forthcoming; *not a diagnostic; not a
+  person-score; not an assessment of anyone*. No engine link.
+
+Chapters are `<section id=…>` with a scroll margin, so `#chronarch`,
+`#continuum` and `#face-mapping` deep-link. Clicking the Chronarch building
+or its sign is the door (`/chronarch`); clicking Continuum or Face mapping
+scrolls to its chapter and nothing else.
+
+**Light.** Hemisphere plus a dim ivory key and a faint phosphor fill; faces
+lifted to `#2a322e`; Chronarch's windows are an emissive phosphor material
+(no bloom composer, no neon), its edge phosphor, the others a lit hairline.
+`tests/campus-materials.test.ts` pins that no material is a black basic
+material and that the windows emit.
+
+**Motion.** `storyGoal(progress)` interpolates four keyframes with a
+smoothstep; the rig damps toward it, reading `delta` only. Every scroll event
+touches the render ledger; drag holds it; when both stop the loop returns to
+demand and the frame is byte-identical. Wheel is left to the page (it is the
+driver), so there is no wheel zoom and no idle spin. Under
+prefers-reduced-motion, or without WebGL, the campus is not mounted: the hero
+and the three chapters stand as stacked HTML, 0 canvas.
+
 ## 6. Rejected (kept rejected)
 
 - **Idle drift / breathing / slow orbit** — no. It reads as life the organism
@@ -301,6 +337,13 @@ the well scene.
   HTML; the campus unmounts before the well mounts.
 - **A face model on the landing** — no. Face mapping is a windowless block
   and a sentence; no image is read, no landmark code exists here.
+- **A manifesto on the hero** — no. The first screen is three readable
+  buildings, one STATUS line, a wordmark and two links; the story is told by
+  scrolling, not by a box of rules over the render.
+- **Idle spin** — no. The camera moves when the page scrolls or the hand
+  drags; at rest no frame is drawn.
+- **Claiming a live subdomain** — no. DEPLOY.md names the intended hosts;
+  nothing here says they resolve.
 - **A theme-park loop** — no. A "fun" idle — particles, drift, a looping
   hero — would make the floor feel alive between records. Nothing happened, so
   nothing moves. The floor is still until a bench or a record is chosen, then

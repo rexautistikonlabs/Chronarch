@@ -1,38 +1,50 @@
-/** The campus is data first: three volumes, one door, one gate, no speed. */
+/** The campus is data first: three volumes, one door, one gate; the story's
+ *  camera is a function of scroll progress and nothing else. */
 import { describe, expect, it } from "vitest";
 
-import { BUILDINGS, buildingByKey, campusGoal, GATE, SIGN_LINES } from "../src/campus/campusLayout";
-import { CATALOGUE, RULES } from "../src/pages/Landing";
+import { BUILDINGS, buildingByKey, GATE, KEYFRAMES, SIGN_LINES, storyGoal } from "../src/campus/campusLayout";
+import { CHAPTERS, FOOTER_RULES } from "../src/pages/Landing";
 
 const TOY = /\b(car|kart|vehicle|honk|balloon|collectible|rainbow|bounc\w*|kids?|playground|fun lab|joke|NPC|mascot)\b/i;
 
 describe("campus layout", () => {
   it("three buildings; only Chronarch runs, has windows and a door; the others are forthcoming with no route", () => {
     expect(BUILDINGS.map((b) => b.key)).toEqual(["chronarch", "continuum", "face-mapping"]);
-    expect(buildingByKey("chronarch")).toMatchObject({ status: "RUNNING", windows: true, route: "/chronarch", shade: "lab" });
-    expect(buildingByKey("continuum")).toMatchObject({ status: "FORTHCOMING", windows: false, route: null, shade: "shed" });
-    expect(buildingByKey("face-mapping")).toMatchObject({ status: "FORTHCOMING", windows: false, route: null, shade: "blank" });
-    expect(SIGN_LINES.chronarch).toBe("CHRONARCH · RUNNING");
-    expect(SIGN_LINES.continuum).toBe("CONTINUUM · FORTHCOMING");
+    expect(buildingByKey("chronarch")).toMatchObject({ status: "RUNNING", windows: true, route: "/chronarch", shade: "lab", at: 1 / 3 });
+    expect(buildingByKey("continuum")).toMatchObject({ status: "FORTHCOMING", windows: false, route: null, shade: "shed", at: 2 / 3 });
+    expect(buildingByKey("face-mapping")).toMatchObject({ status: "FORTHCOMING", windows: false, route: null, shade: "blank", at: 1 });
     expect(SIGN_LINES["face-mapping"]).toBe("FACE MAP · FORTHCOMING · NOT A DIAGNOSTIC");
     expect(GATE.label).toBe("REXMETRIX");
   });
 
-  it("camera goals are finite rest poses, one per building plus the overview; the overview is the farthest", () => {
-    const over = campusGoal(null);
+  it("the story: 0 is the hero (farthest, all in frame), 1/3 Chronarch, 2/3 Continuum, 1 Face mapping; between keyframes the goal interpolates; out of range clamps", () => {
+    expect(KEYFRAMES.map((k) => k.at)).toEqual([0, 1 / 3, 2 / 3, 1]);
+    const hero = storyGoal(0);
     for (const b of BUILDINGS) {
-      const g = campusGoal(b.key);
-      for (const v of [g.az, g.el, g.dist, ...g.target]) expect(Number.isFinite(v)).toBe(true);
-      expect(g.dist).toBeLessThan(over.dist);
-      expect(g.target[0]).toBe(b.center[0]);
+      const g = storyGoal(b.at);
+      expect(g.target[0]).toBeCloseTo(b.center[0]);
+      expect(g.target[2]).toBeCloseTo(b.center[2]);
+      expect(g.dist).toBeLessThan(hero.dist);
     }
+    const mid = storyGoal(1 / 6);
+    expect(mid.dist).toBeLessThan(hero.dist);
+    expect(mid.dist).toBeGreaterThan(storyGoal(1 / 3).dist);
+    expect(storyGoal(-1)).toEqual(storyGoal(0));
+    expect(storyGoal(2)).toEqual(storyGoal(1));
+    expect(storyGoal(Number.NaN)).toEqual(storyGoal(0));
+    for (const p of [0, 0.1, 0.33, 0.5, 0.66, 0.9, 1]) for (const v of Object.values(storyGoal(p)).flat()) expect(Number.isFinite(v as number)).toBe(true);
   });
 
-  it("the copy is a contractor's, not a playground's", () => {
-    const copy = [...Object.values(SIGN_LINES), GATE.label, ...RULES, ...CATALOGUE.flatMap((c) => [c.name, c.line, ...c.isNot])].join("\n");
+  it("chapters: at most three sentences each; Chronarch alone has a CTA; the copy is a contractor's, not a playground's", () => {
+    expect(CHAPTERS.map((c) => c.key)).toEqual(["chronarch", "continuum", "face-mapping"]);
+    for (const c of CHAPTERS) expect(c.sentences.length).toBeLessThanOrEqual(3);
+    expect(CHAPTERS[0]!.cta).toEqual({ to: "/chronarch", label: "Open Chronarch" });
+    expect(CHAPTERS[0]!.sentences[0]).toBe("Research software that is running.");
+    expect(CHAPTERS[1]!.cta).toBeNull();
+    expect(CHAPTERS[2]!.cta).toBeNull();
+    expect(CHAPTERS[2]!.isNot).toEqual(["not a diagnostic", "not a person-score", "not an assessment of anyone"]);
+    const copy = [...Object.values(SIGN_LINES), GATE.label, ...FOOTER_RULES, ...CHAPTERS.flatMap((c) => [c.name, ...c.sentences, ...c.isNot])].join("\n");
     expect(copy).not.toMatch(TOY);
-    expect(copy).toMatch(/not a diagnostic/);
-    expect(copy).toMatch(/not a person-score/);
-    expect(copy).toMatch(/not an assessment of anyone/);
+    expect(copy).not.toMatch(/Three buildings on one plate/); // the manifesto is gone
   });
 });

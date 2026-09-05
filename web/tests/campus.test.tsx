@@ -1,8 +1,8 @@
-/** The campus on /: one canvas when motion is allowed and WebGL is present,
- *  none under prefers-reduced-motion; buildings open a docked panel; only
- *  Chronarch has a door; navigating into Chronarch unmounts the campus.
- *  The Canvas itself is stubbed here (jsdom has no WebGL); the real one is
- *  checked in the browser. */
+/** The campus story on /: one canvas when motion is allowed and WebGL is
+ *  present, none under prefers-reduced-motion; almost no chrome on the hero;
+ *  three chapters; Chronarch is the only door; the other buildings scroll to
+ *  their chapter. The Canvas is stubbed here (jsdom has no WebGL); the real
+ *  one is checked in the browser. */
 import { fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -11,84 +11,91 @@ import { renderAt } from "./render";
 
 vi.mock("../src/campus/Campus", () => ({
   webglAvailable: () => true,
-  Campus: ({ selected, onSelect }: { selected: BuildingKey | null; onSelect: (k: BuildingKey | null) => void }) => (
-    <div data-testid="campus-viewport" data-selected={selected ?? ""}>
+  Campus: ({ onPick }: { onPick: (k: BuildingKey) => void }) => (
+    <div data-testid="campus-viewport">
       <canvas data-testid="campus-canvas" />
-      <button type="button" data-testid="sign-chronarch" onClick={() => onSelect("chronarch")}>CHRONARCH · RUNNING</button>
+      <button type="button" data-testid="sign-chronarch" onClick={() => onPick("chronarch")}>CHRONARCH · RUNNING</button>
+      <button type="button" data-testid="sign-continuum" onClick={() => onPick("continuum")}>CONTINUUM · FORTHCOMING</button>
+      <button type="button" data-testid="sign-face-mapping" onClick={() => onPick("face-mapping")}>FACE MAP · FORTHCOMING · NOT A DIAGNOSTIC</button>
     </div>
   ),
 }));
 
 const reduceStub = (matches: boolean) => (q: string) => ({ matches: matches && q.includes("reduce"), media: q, onchange: null, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {}, dispatchEvent: () => false });
 
-describe("RexMetrix campus", () => {
+describe("RexMetrix campus story", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("/ mounts one canvas when motion is allowed; the still HUD carries the honesty sentence, the three plates and the footer reservation", () => {
+  it("/ mounts one canvas when motion is allowed; the hero is STATUS, the wordmark and two text links — no manifesto box, no plates row", () => {
     renderAt("/");
     expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "campus");
     expect(document.querySelectorAll("canvas")).toHaveLength(1);
-    expect(screen.getByTestId("landing-honesty")).toHaveTextContent("RexMetrix is a product house. Chronarch is research software. Not a public chain. Not Foundation-endorsed. Not a diagnostic.");
-    const legend = screen.getByTestId("campus-legend");
-    expect(within(legend).getByTestId("plate-chronarch")).toHaveTextContent("CHRONARCH · RUNNING");
-    expect(within(legend).getByTestId("plate-continuum")).toHaveTextContent("CONTINUUM · FORTHCOMING");
-    expect(within(legend).getByTestId("plate-face-mapping")).toHaveTextContent("FACE MAP · FORTHCOMING · NOT A DIAGNOSTIC");
-    const body = document.body.textContent ?? "";
-    for (const s of ["Chronarch", "Continuum", "Face map", "not a diagnostic", "not Foundation-endorsed"]) expect(body).toContain(s);
-    expect(screen.getByTestId("landing-footer")).toHaveTextContent(/Domain reserved for the RexMetrix landing/);
-    expect(screen.getByTestId("landing-footer")).not.toHaveTextContent(/DNS is live/);
-    expect(screen.queryByTestId("viewport")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("viewport-fallback")).not.toBeInTheDocument();
-    expect(body).not.toMatch(/\b(car|honk|balloon|collectible|rainbow|kids?|playground)\b/i);
+    const hero = screen.getByTestId("hero");
+    expect(within(hero).getByTestId("landing-honesty")).toHaveTextContent("RexMetrix is a product house. Chronarch is research software. Not a public chain. Not Foundation-endorsed. Not a diagnostic.");
+    expect(within(hero).getByTestId("landing-title")).toHaveTextContent("RexMetrix");
+    const links = within(within(hero).getByTestId("landing-nav")).getAllByRole("link");
+    expect(links.map((a) => a.textContent)).toEqual(["Chronarch", "Workbench"]);
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/chronarch", "/chronarch/tech"]);
+    // the busyness is gone
+    expect(screen.queryByTestId("campus-panel")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("campus-legend")).not.toBeInTheDocument();
+    expect(hero.textContent).not.toMatch(/Three buildings on one plate|how RexMetrix talks|builds research instruments/);
+    expect(hero.querySelectorAll("button")).toHaveLength(0);
+    // honesty lives in STATUS on the first screen only
+    expect(screen.getAllByText(/Not Foundation-endorsed\./)).toHaveLength(1);
   });
 
-  it("0 canvas under prefers-reduced-motion: the campus is not mounted and the three cards stand", () => {
+  it("three chapters follow the hero with deep-link ids and scroll margins; Chronarch has the CTA, the others say forthcoming with no route and no engine link", () => {
+    renderAt("/");
+    const chapters = screen.getByTestId("chapters");
+    const ids = Array.from(chapters.querySelectorAll("section")).map((s) => s.id);
+    expect(ids).toEqual(["chronarch", "continuum", "face-mapping"]);
+    for (const s of Array.from(chapters.querySelectorAll("section"))) expect((s as HTMLElement).style.scrollMarginTop).toBe("3rem");
+    const ch = screen.getByTestId("chapter-chronarch");
+    expect(ch).toHaveTextContent("Research software that is running.");
+    expect(within(ch).getByTestId("cta-chronarch")).toHaveAttribute("href", "/chronarch");
+    expect(within(ch).getByTestId("cta-chronarch")).toHaveTextContent("Open Chronarch");
+    expect(ch.querySelectorAll("p").length).toBeLessThanOrEqual(6); // label, ≤3 sentences, is-not
+    const co = screen.getByTestId("chapter-continuum");
+    expect(co).toHaveTextContent(/FORTHCOMING/);
+    expect(co.querySelectorAll("a")).toHaveLength(0);
+    expect(within(co).getByTestId("forthcoming-continuum")).toBeInTheDocument();
+    const fm = screen.getByTestId("chapter-face-mapping");
+    expect(fm).toHaveTextContent(/FORTHCOMING/);
+    expect(within(fm).getByTestId("is-not-face-mapping")).toHaveTextContent("not a diagnostic · not a person-score · not an assessment of anyone");
+    expect(fm.querySelectorAll("a")).toHaveLength(0);
+    for (const a of Array.from(document.querySelectorAll("a"))) expect(a.getAttribute("href") ?? "").not.toMatch(/\/(continuum|face)/);
+    expect(screen.getByTestId("landing-footer")).toHaveTextContent(/Domain reserved for the RexMetrix landing/);
+    expect(screen.getByTestId("landing-footer")).not.toHaveTextContent(/DNS is live|is live/);
+  });
+
+  it("clicking the Chronarch building navigates to /chronarch and unmounts the campus; clicking Continuum or Face mapping only scrolls to the chapter", () => {
+    const spy = vi.spyOn(Element.prototype, "scrollIntoView").mockImplementation(function (this: Element) { (this as HTMLElement).dataset.scrolledTo = "1"; });
+    renderAt("/");
+    fireEvent.click(screen.getByTestId("sign-continuum"));
+    expect(screen.getByTestId("landing-body")).toBeInTheDocument(); // still on /
+    expect(screen.getByTestId("chapter-continuum")).toHaveAttribute("data-scrolled-to", "1");
+    fireEvent.click(screen.getByTestId("sign-face-mapping"));
+    expect(screen.getByTestId("chapter-face-mapping")).toHaveAttribute("data-scrolled-to", "1");
+    expect(screen.getByTestId("landing-body")).toBeInTheDocument();
+    expect(spy).toHaveBeenCalledTimes(2);
+    fireEvent.click(screen.getByTestId("sign-chronarch"));
+    expect(screen.queryByTestId("campus-viewport")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("landing-body")).not.toBeInTheDocument();
+    expect(screen.getByTestId("viewport-fallback")).toBeInTheDocument(); // the well (jsdom: its still fallback)
+    expect(screen.getByTestId("title-row")).toHaveTextContent("Chronarch");
+    spy.mockRestore();
+  });
+
+  it("0 canvas under prefers-reduced-motion: three stacked HTML chapters with the three names", () => {
     vi.stubGlobal("matchMedia", reduceStub(true));
     renderAt("/");
     expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "reduced-motion");
     expect(document.querySelectorAll("canvas")).toHaveLength(0);
     expect(screen.queryByTestId("campus-viewport")).not.toBeInTheDocument();
-    expect(screen.getByTestId("campus-fallback")).toHaveAttribute("data-reason", "reduced-motion");
-    expect(within(screen.getByTestId("catalogue")).getAllByRole("listitem").filter((li) => li.hasAttribute("data-status"))).toHaveLength(3);
-    expect(screen.getByTestId("product-face-mapping")).toHaveTextContent(/not a diagnostic · not a person-score · not an assessment of anyone/);
-  });
-
-  it("Continuum and Face mapping open a card, not a door: no navigation, no engine route, the copy stays", () => {
-    renderAt("/");
-    fireEvent.click(screen.getByTestId("plate-continuum"));
-    const panel = screen.getByTestId("campus-panel");
-    expect(panel).toHaveAttribute("data-selected", "continuum");
-    expect(panel).toHaveTextContent(/Continuum/);
-    expect(screen.getByTestId("no-door")).toBeInTheDocument();
-    expect(screen.queryByTestId("enter-chronarch")).not.toBeInTheDocument();
-    expect(Array.from(panel.querySelectorAll("a")).map((a) => a.getAttribute("href"))).toEqual([]);
-    expect(screen.getByTestId("landing-body")).toBeInTheDocument(); // still on /
-    expect(screen.getByTestId("campus-viewport")).toHaveAttribute("data-selected", "continuum");
-
-    fireEvent.click(screen.getByTestId("plate-face-mapping"));
-    expect(screen.getByTestId("campus-panel")).toHaveAttribute("data-selected", "face-mapping");
-    expect(screen.getByTestId("campus-panel")).toHaveTextContent(/not a diagnostic · not a person-score · not an assessment of anyone/);
-    expect(screen.getByTestId("no-door")).toBeInTheDocument();
-    expect(screen.getByTestId("campus-panel").querySelectorAll("a")).toHaveLength(0);
-    expect(screen.getByTestId("landing-body")).toBeInTheDocument();
-    // the same plate again closes the panel
-    fireEvent.click(screen.getByTestId("plate-face-mapping"));
-    expect(screen.getByTestId("campus-panel")).toHaveAttribute("data-selected", "");
-    expect(screen.getByTestId("campus-panel")).toHaveTextContent(/Chronarch is one of its products/);
-  });
-
-  it("Chronarch opens with Enter Chronarch; entering unmounts the campus and mounts the well", () => {
-    renderAt("/");
-    fireEvent.click(screen.getByTestId("sign-chronarch")); // a click in the scene
-    expect(screen.getByTestId("campus-panel")).toHaveAttribute("data-selected", "chronarch");
-    const enter = screen.getByTestId("enter-chronarch");
-    expect(enter).toHaveAttribute("href", "/chronarch");
-    expect(screen.getByTestId("campus-panel")).toHaveTextContent(/RUNNING/);
-    fireEvent.click(enter);
-    expect(screen.queryByTestId("campus-viewport")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("campus-canvas")).not.toBeInTheDocument();
-    expect(screen.getByTestId("viewport-fallback")).toBeInTheDocument(); // the well (jsdom: its still fallback) has the GPU to itself
-    expect(screen.getByTestId("title-row")).toHaveTextContent("Chronarch");
+    expect(screen.getByTestId("chapters").querySelectorAll("section")).toHaveLength(3);
+    const body = document.body.textContent ?? "";
+    for (const s of ["Chronarch", "Continuum", "Face mapping", "not a diagnostic", "not a person-score", "not an assessment of anyone"]) expect(body).toContain(s);
   });
 
   it("/chronarch/tech is still HTML with 0 canvas and the Autistikon filter shows exactly two stand-ins", () => {

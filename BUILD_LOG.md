@@ -1719,6 +1719,37 @@ Bug: the technician room still exposed a second product — /council,
   - **Idle motion on the campus** — nothing breathes, drifts or orbits on
     its own; at rest no frame is drawn.
 
+## Campus story — scroll drives the camera
+
+- `/` is a product story over the campus: a hero of one STATUS line, the
+  wordmark and two text links (the manifesto box and the plates row are
+  gone), then three chapters — Chronarch at ⅓ ("Research software that is
+  running.", CTA Open Chronarch), Continuum at ⅔ (one sentence, FORTHCOMING,
+  no link), Face mapping at 1 (forthcoming, not a diagnostic, not a
+  person-score, not an assessment of anyone, no link). Scroll progress 0–1 is
+  the only camera driver (`storyGoal`, four keyframes, smoothstep); drag adds
+  a bounded orbit; wheel scrolls the page. Chapters deep-link by id.
+- Light: hemisphere + dim ivory key + faint phosphor fill; faces lifted to
+  #2a322e; emissive phosphor windows on Chronarch; no bloom composer, no
+  neon. A unit test pins that no material is a black basic material and that
+  the windows emit.
+- Render law unchanged: scroll and drag touch/hold the ledger; after they
+  stop the loop returns to demand and frames are byte-identical (probe).
+  Reduced motion or no WebGL: hero + three stacked HTML chapters, 0 canvas.
+  The landing never sets the loop mode itself.
+- DEPLOY.md names the intended hosts (rexmetrix.com → landing;
+  chronarch.rexmetrix.com → /chronarch) and says they are not live.
+- REJECTED:
+  - **Manifesto on the hero** — a box of rules over the render on the first
+    screen. The rules moved to the footer; the first screen is the buildings.
+  - **Idle spin** — an auto-rotating campus. Motion comes from the scroll
+    position and the hand only.
+  - **Live subdomain claim** — saying chronarch.rexmetrix.com resolves. It is
+    an intention in DEPLOY.md, not a record.
+  - **Wheel zoom** — it would fight the page scroll that drives the story.
+  - **Bloom to make windows read** — a composer at rest; the material emits
+    instead.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

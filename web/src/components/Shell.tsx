@@ -25,7 +25,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <ErrorBoundary name="palette" fallback={() => null}>
           <Palette />
         </ErrorBoundary>
-        <main className="mx-auto max-w-5xl px-6 pb-16 pt-6">{children}</main>
+        <main>{children}</main>
       </div>
     );
   }
