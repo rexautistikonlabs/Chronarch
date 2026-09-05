@@ -4,12 +4,13 @@
  *  to see the campus; rexmetrix.gate.v1, if a browser still holds it, is
  *  ignored. One canvas behind the story; scroll progress is the camera's
  *  only driver. Chronarch is a door (a ≤ 800 ms door tween, then /chronarch;
- *  the campus unmounts). Continuum is a door to another origin: it opens in a
- *  new tab with no opener, at once, so this tab never holds a half-open door
- *  and Back never lands on an ivory plane. Whatever is open resets when the
- *  document hides or shows again (pagehide, pageshow incl. BFCache,
- *  visibilitychange): plane gone, ledger asleep, campus clickable. Laterion
- *  has no door.
+ *  the campus unmounts). Continuum is a door to another origin, in this same
+ *  tab: the same tween, then one location.assign to continuum.rexmetrix.com;
+ *  the header link and the chapter CTA are ordinary anchors to that URL. One
+ *  click, one navigation. Whatever is open resets when the document hides or
+ *  shows again (pagehide, pageshow incl. a BFCache restore, visibilitychange):
+ *  plane gone, ledger asleep, campus clickable — so Back from Continuum shows
+ *  the campus, not an ivory plane. Laterion has no door.
  *  Continuum has one state (RUNNING) and one product URL; its source
  *  repository is named once, as a source. Under prefers-reduced-motion, or
  *  without WebGL, the campus is not mounted and the same page stands as
@@ -81,7 +82,7 @@ function Hero() {
         <h1 className="text-2xl font-semibold tracking-tight" data-testid="landing-title">RexMetrix <span className="readout text-[11px] uppercase tracking-wider text-dim">· {LLC}</span></h1>
         <nav aria-label="Products" className="pointer-events-auto flex items-center gap-5 text-sm" data-testid="landing-nav">
           <Link to="/chronarch" className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-chronarch">Chronarch</Link>
-          <a href={CONTINUUM_URL} target="_blank" rel="noopener noreferrer" className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-continuum">Continuum</a>
+          <a href={CONTINUUM_URL} className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-continuum">Continuum</a>
           <Link to="/chronarch/tech" className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-tech">Workbench</Link>
         </nav>
       </div>
@@ -106,7 +107,7 @@ function ChapterBlock({ c, stacked, onDoor }: { c: Chapter; stacked: boolean; on
             <a href={c.door.to} onClick={(e) => { e.preventDefault(); onDoor(c.key); }} className="hud-button inline-block" data-testid={`cta-${c.key}`} data-door="route">Open {c.name}</a>
           )}
           {c.door?.kind === "external" && (
-            <a href={c.door.href} target="_blank" rel="noopener noreferrer" className="hud-button inline-block" data-testid={`cta-${c.key}`} data-door="external">Open {c.name} ↗</a>
+            <a href={c.door.href} className="hud-button inline-block" data-testid={`cta-${c.key}`} data-door="external">Open {c.name} ↗</a>
           )}
           {c.source && (
             <a href={c.source.href} target="_blank" rel="noopener noreferrer" className="readout text-[11px] text-dim underline underline-offset-2 hover:text-ivory" data-testid={`source-${c.key}`}>{c.source.label}</a>
@@ -173,24 +174,30 @@ export function Landing() {
     };
   }, [campus]);
 
-  // A building is a door (Chronarch: a route, after the tween; Continuum:
-  // another origin, at once, in a new tab) or a bookmark (Laterion).
+  // Where a door leads, once it has opened: a route in this app, or one
+  // navigation of this tab to the other origin.
+  const go = useCallback((k: BuildingKey) => {
+    const d = BUILDINGS.find((x) => x.key === k)!.door;
+    if (!d) return;
+    if (d.kind === "route") navigate(d.to);
+    else exits.leave(d.href);
+  }, [navigate]);
+
+  // A building is a door (Chronarch, Continuum) or a bookmark (Laterion).
   const pick = useCallback((k: BuildingKey) => {
     const b = BUILDINGS.find((x) => x.key === k)!;
     if (!b.door) {
       document.getElementById(k)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
       return;
     }
-    if (b.door.kind === "external") { exits.open(b.door.href); return; } // synchronous: inside the click, no tween, no half-open door
     if (doorState.isOpen()) return;
-    if (!campus) { navigate(b.door.to); return; } // no tween without the campus
+    if (!campus) { go(k); return; } // no tween without the campus
     doorState.start(k); // the rig eases at the volume while the door opens
-  }, [campus, doorState, navigate, reduced]);
+  }, [campus, doorState, go, reduced]);
   const doorDone = useCallback(() => {
-    const k = doorState.complete();
-    const d = k ? BUILDINGS.find((x) => x.key === k)?.door : null;
-    if (d?.kind === "route") navigate(d.to);
-  }, [doorState, navigate]);
+    const k = doorState.complete() as BuildingKey | null;
+    if (k) go(k);
+  }, [doorState, go]);
 
   return (
     <div data-testid="landing-body" data-mode={campus ? "campus" : reduced ? "reduced-motion" : "no-webgl"} data-leaving={leaving ?? ""}>

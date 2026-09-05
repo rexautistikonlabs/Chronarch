@@ -1921,6 +1921,28 @@ Bug: the technician room still exposed a second product — /council,
   - **A second Continuum** — a "forthcoming" state, a ledger-reader
     description, or the GitHub URL as the door. One product, one host.
 
+## One click, one navigation: the Continuum door is same-tab again
+
+- Bug: a Continuum click opened a new tab *and* navigated the original tab.
+  Cause: `window.open(url, "_blank", "noopener,noreferrer")` returns null by
+  specification when "noopener" is set, so the "blocked popup" fallback
+  (`location.assign`) fired as well — two navigations from one click.
+- Fix: `window.open` is deleted from web/src. The Continuum sign runs the
+  door tween, then one `location.assign` to https://continuum.rexmetrix.com;
+  the header link and the chapter CTA are ordinary anchors to that URL with
+  no `target`. The Chronarch door is unchanged (tween, then /chronarch). The
+  door reset on pagehide / pageshow (BFCache) / visibilitychange stays, so
+  Back from Continuum shows the campus, not the ivory plane.
+- Tests: no `window.open(` under web/src; Continuum hrefs exact and never
+  `_blank`; the sign leaves exactly once via `exits.leave` after the door;
+  pageshow persisted mid-door clears the plane and the flag; the probe counts
+  one navigation to the Continuum host, one page (no popup), Back to a campus
+  with no plane.
+- REJECTED:
+  - **A new-tab door with a same-tab fallback** — the fallback cannot tell a
+    blocked popup from the null that "noopener" always returns.
+  - **An iframe for Continuum** — stays rejected.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

@@ -2,6 +2,8 @@
  *  with the law in a compact strip — no checkbox, no wall. The footer repeats
  *  the LLC and both attributions and expands the same text behind "Legal".
  *  Continuum has one state and one URL. The Canvas is stubbed (jsdom). */
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -90,10 +92,10 @@ describe("Continuum has one state and one URL", () => {
     expect(screen.getByTestId("landing-to-continuum")).toHaveAttribute("href", CONTINUUM_URL);
     expect(screen.getByTestId("cta-continuum")).toHaveAttribute("href", CONTINUUM_URL);
     expect(screen.getByTestId("cta-continuum")).toHaveAttribute("data-door", "external");
-    // the door to another origin opens a new tab with no opener, so this tab never holds a half-open door
+    // the door to another origin is an ordinary same-tab anchor: one click, one navigation
     for (const id of ["landing-to-continuum", "cta-continuum"]) {
-      expect(screen.getByTestId(id)).toHaveAttribute("target", "_blank");
-      expect(screen.getByTestId(id)).toHaveAttribute("rel", "noopener noreferrer");
+      expect(screen.getByTestId(id)).toHaveAttribute("href", CONTINUUM_URL);
+      expect(screen.getByTestId(id).getAttribute("target") ?? "_self").not.toBe("_blank");
     }
     expect(screen.getByTestId("chapter-continuum")).toHaveAttribute("data-status", "RUNNING");
     expect(screen.getByTestId("chapter-continuum")).toHaveTextContent(/CONTINUUM · RUNNING/);
@@ -138,21 +140,22 @@ describe("Continuum has one state and one URL", () => {
 describe("doors never stay half-open", () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it("the Continuum sign opens a new tab at once (window.open, noopener) — no door plane, still on /", () => {
-    const open = vi.spyOn(exits, "open").mockImplementation(() => {});
+  it("the Continuum sign: the door tween, then exactly one same-tab navigation to continuum.rexmetrix.com — never window.open", async () => {
+    const leave = vi.spyOn(exits, "leave").mockImplementation(() => {});
+    const open = vi.spyOn(window, "open").mockImplementation(() => null);
     renderAt("/");
     fireEvent.click(screen.getByTestId("sign-continuum"));
-    expect(open).toHaveBeenCalledTimes(1);
-    expect(open).toHaveBeenCalledWith(CONTINUUM_URL);
-    expect(screen.queryByTestId("door-iris")).not.toBeInTheDocument();
-    expect(screen.getByTestId("landing-body")).toHaveAttribute("data-leaving", "");
-    expect(screen.getByTestId("campus-viewport")).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("door-iris")).toBeInTheDocument();
+    expect(screen.getByTestId("landing-body")).toHaveAttribute("data-leaving", "continuum");
+    expect(leave).not.toHaveBeenCalled(); // not before the door has opened
+    await waitFor(() => expect(leave).toHaveBeenCalledWith(CONTINUUM_URL), { timeout: 4000 });
+    expect(leave).toHaveBeenCalledTimes(1);
+    expect(open).not.toHaveBeenCalled();
+  }, 8000);
 
-  it("exits.open asks the browser for a new tab with no opener and no referrer", () => {
-    const w = vi.spyOn(window, "open").mockImplementation(() => ({}) as Window);
-    exits.open(CONTINUUM_URL);
-    expect(w).toHaveBeenCalledWith(CONTINUUM_URL, "_blank", "noopener,noreferrer");
+  it("no window.open anywhere under web/src", () => {
+    const walk = (d: string, out: string[] = []): string[] => { for (const n of readdirSync(d)) { const p = join(d, n); if (statSync(p).isDirectory()) walk(p, out); else if (/\.(tsx?|mjs|js)$/.test(n)) out.push(p); } return out; };
+    for (const f of walk(join(__dirname, "..", "src"))) expect(readFileSync(f, "utf8"), f).not.toMatch(/window\.open\(/);
   });
 
   it("a Chronarch door in flight is reset by pagehide + pageshow (persisted): plane gone, flag clear, no navigation; the door then works again", async () => {

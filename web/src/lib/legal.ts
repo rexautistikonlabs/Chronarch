@@ -29,15 +29,13 @@ export const CONTINUUM_URL = "https://continuum.rexmetrix.com";
 /** Continuum's source repository — named once, as a source, never as the door. */
 export const SCIENTIFICLAB_URL = "https://github.com/rexautistikonlabs/scientificlab";
 
-/** Leaving this origin goes through one object so a test can watch it.
- *  `open` is the door to another product: a new tab with no opener, so this
- *  tab never enters a half-tween and Back never lands on a door plane. `leave`
- *  is kept for a same-tab exit and is not used by the campus. */
+/** Leaving this origin goes through one function so a test can watch it:
+ *  one navigation, in this tab. (A new-tab door was tried and removed — with
+ *  "noopener" the browser returns null from the open call, so a same-tab
+ *  fallback fired too and one click navigated twice. See BUILD_LOG.) The
+ *  door plane and the ledger are reset by the document's hide/show events, so
+ *  Back from the other origin shows the campus, not a plane. */
 export const exits = {
-  open(href: string): void {
-    const w = window.open(href, "_blank", "noopener,noreferrer");
-    if (!w) window.location.assign(href); // a blocked popup falls back to the same tab
-  },
   leave(href: string): void {
     window.location.assign(href);
   },

@@ -329,12 +329,13 @@ Two buildings are doors and one is not:
 
 - **CHRONARCH · RUNNING** — the door tween, then `/chronarch`.
 - **CONTINUUM · RUNNING** — one state everywhere; a door to another origin,
-  `https://continuum.rexmetrix.com`, Continuum's one product URL. It opens in
-  a **new tab with no opener** (`window.open(url, "_blank",
-  "noopener,noreferrer")`; the anchors carry `target="_blank"`), at once,
-  inside the click — so this tab never holds a half-open door and Back never
-  lands on an ivory plane. Its source repository is named once, as a source,
-  never as the door. Continuum is never mounted inside this app.
+  `https://continuum.rexmetrix.com`, Continuum's one product URL, **in this
+  same tab**: the same door tween, then one `location.assign`; the header link
+  and the chapter CTA are ordinary anchors to that URL. One click, one
+  navigation. (A new-tab door was tried and removed: with "noopener" the
+  browser returns null from `window.open`, so a same-tab fallback fired too
+  and one click navigated twice.) Its source repository is named once, as a
+  source, never as the door. Continuum is never mounted inside this app.
 - **LATERION · FORTHCOMING · NOT A DIAGNOSTIC** — no door: the chapter only,
   with its three negations.
 
