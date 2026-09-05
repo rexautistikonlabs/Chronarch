@@ -48,6 +48,7 @@ and nothing here claims either host is live, resolves, or has certificates:
 |---|---|
 | `rexmetrix.com` | the landing (`/`, the campus story) |
 | `chronarch.rexmetrix.com` | this same app opened at `/chronarch` (the product) |
+| `continuum.rexmetrix.com` | Continuum — a separate deployment from its own repository (github.com/rexautistikonlabs/scientificlab); the landing's Continuum door leaves this origin for it. Not built or served from this repository. |
 
 Both would be the one static build; the second is a hostname that lands on
 `/chronarch`, which a host's redirect rule (or the SPA fallback plus a small

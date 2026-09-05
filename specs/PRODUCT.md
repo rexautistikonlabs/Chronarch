@@ -12,12 +12,21 @@
   | Product | Where | On the landing |
   |---|---|---|
   | **Chronarch** | this repository, `/chronarch` | RUNNING · the lit lab block · the one door |
-  | **Continuum** | `https://github.com/rexautistikonlabs/scientificlab` | FORTHCOMING · a dark shed · one external text link, *Continuum source* · no in-app route; nothing of it is embedded here |
+  | **Continuum** | `https://continuum.rexmetrix.com` (its own deployment; source at `https://github.com/rexautistikonlabs/scientificlab`) | RUNNING · the shed, lit · a door: the door tween, then this origin is left for its address · never mounted inside this app · "Continuum is a simulation; its numbers are model outputs, not measurements of any person." |
   | **Laterion** | a separate codebase, not in this repository | FORTHCOMING · NOT A DIAGNOSTIC · a windowless block · "Laterion records facial kinematics including partial trials and laterality. It is not a diagnostic, not a person-score, and not an assessment of anyone." · no route, no camera, no image, no landmark code here |
 
   This repository never claims Laterion is shipping, never claims
   scientificlab is embedded, and never adds scientificlab as a submodule or
   copies face-landmark, action-unit or trial-payload code.
+
+  **The gate.** The landing's first paint is a still panel: *RexMetrix is a
+  product house. Chronarch and Continuum are research software. / Not a public
+  chain. Not Foundation-endorsed. Not a diagnostic. Not a medical device. /
+  Continuum is a simulation; its numbers are model outputs, not measurements
+  of any person. / Laterion is not shipping here.* — with two attributions
+  (rexautistikonlabs.org; cyberphysics.ai — credit, not endorsement), a
+  checkbox and a button. `rexmetrix.gate.v1` remembers acceptance in that
+  browser. Then one title beat, *Measurement is King!*, once; then the campus.
 - **Chronarch** is this product: the programme well (`/chronarch`), the
   technician's workbench (`/chronarch/tech`), About (`/chronarch/about`). Its
   name is on the title, the workbench heading, the pack footer, the first-run

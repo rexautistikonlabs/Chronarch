@@ -6,6 +6,9 @@ import type { Spherical } from "../scene/focus";
 
 export type BuildingKey = "chronarch" | "continuum" | "laterion";
 
+/** A door leaves the campus: a route in this app, or another origin. */
+export type Door = { kind: "route"; to: string } | { kind: "external"; href: string };
+
 export interface Building {
   key: BuildingKey;
   sign: string;
@@ -14,19 +17,21 @@ export interface Building {
   size: [number, number, number];
   windows: boolean;
   shade: "lab" | "shed" | "blank";
-  route: string | null; // only the running product has a door
+  door: Door | null; // a running product has a door; a forthcoming one has none
   at: number; // scroll progress at which its chapter is in frame
 }
 
+export const CONTINUUM_HOST = "https://continuum.rexmetrix.com";
+
 export const BUILDINGS: readonly Building[] = [
-  { key: "chronarch", sign: "CHRONARCH", status: "RUNNING", center: [-6.5, 0, -1], size: [7, 4.2, 5], windows: true, shade: "lab", route: "/chronarch", at: 1 / 3 },
-  { key: "continuum", sign: "CONTINUUM", status: "FORTHCOMING", center: [3.5, 0, -4.5], size: [6, 2.6, 4], windows: false, shade: "shed", route: null, at: 2 / 3 },
-  { key: "laterion", sign: "LATERION", status: "FORTHCOMING", center: [6.5, 0, 3.5], size: [4, 3.4, 4], windows: false, shade: "blank", route: null, at: 1 },
+  { key: "chronarch", sign: "CHRONARCH", status: "RUNNING", center: [-6.5, 0, -1], size: [7, 4.2, 5], windows: true, shade: "lab", door: { kind: "route", to: "/chronarch" }, at: 1 / 3 },
+  { key: "continuum", sign: "CONTINUUM", status: "RUNNING", center: [3.5, 0, -4.5], size: [6, 2.6, 4], windows: true, shade: "shed", door: { kind: "external", href: CONTINUUM_HOST }, at: 2 / 3 },
+  { key: "laterion", sign: "LATERION", status: "FORTHCOMING", center: [6.5, 0, 3.5], size: [4, 3.4, 4], windows: false, shade: "blank", door: null, at: 1 },
 ];
 
 export const SIGN_LINES: Record<BuildingKey, string> = {
   chronarch: "CHRONARCH · RUNNING",
-  continuum: "CONTINUUM · FORTHCOMING",
+  continuum: "CONTINUUM · RUNNING",
   laterion: "LATERION · FORTHCOMING · NOT A DIAGNOSTIC",
 };
 
@@ -54,6 +59,12 @@ export const KEYFRAMES: readonly Keyframe[] = [
 
 const smooth = (t: number) => t * t * (3 - 2 * t);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+/** Where the camera eases while a door opens: at the volume, closer, lower. */
+export function doorGoal(key: BuildingKey, from: Spherical): Spherical {
+  const b = buildingByKey(key);
+  return { az: from.az, el: 0.2, dist: Math.max(6, b.size[0] * 1.1), target: [b.center[0], b.size[1] * 0.45, b.center[2] + b.size[2] / 2] };
+}
 
 /** The camera goal at scroll progress p ∈ [0, 1]: a smoothstep between the two nearest keyframes. */
 export function storyGoal(p: number): Spherical {

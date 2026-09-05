@@ -4,9 +4,10 @@
  *  their chapter. The Canvas is stubbed here (jsdom has no WebGL); the real
  *  one is checked in the browser. */
 import { fireEvent, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BuildingKey } from "../src/campus/campusLayout";
+import { GATE_KEY } from "../src/lib/gate";
 import { renderAt } from "./render";
 
 vi.mock("../src/campus/Campus", () => ({
@@ -15,7 +16,7 @@ vi.mock("../src/campus/Campus", () => ({
     <div data-testid="campus-viewport">
       <canvas data-testid="campus-canvas" />
       <button type="button" data-testid="sign-chronarch" onClick={() => onPick("chronarch")}>CHRONARCH · RUNNING</button>
-      <button type="button" data-testid="sign-continuum" onClick={() => onPick("continuum")}>CONTINUUM · FORTHCOMING</button>
+      <button type="button" data-testid="sign-continuum" onClick={() => onPick("continuum")}>CONTINUUM · RUNNING</button>
       <button type="button" data-testid="sign-laterion" onClick={() => onPick("laterion")}>LATERION · FORTHCOMING · NOT A DIAGNOSTIC</button>
     </div>
   ),
@@ -24,9 +25,10 @@ vi.mock("../src/campus/Campus", () => ({
 const reduceStub = (matches: boolean) => (q: string) => ({ matches: matches && q.includes("reduce"), media: q, onchange: null, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {}, dispatchEvent: () => false });
 
 describe("RexMetrix campus story", () => {
+  beforeEach(() => window.localStorage.setItem(GATE_KEY, "1")); // a return visit: past the gate
   afterEach(() => vi.unstubAllGlobals());
 
-  it("/ mounts one canvas when motion is allowed; the hero is STATUS, the wordmark and two text links — no manifesto box, no plates row", () => {
+  it("/ mounts one canvas when motion is allowed; the hero is STATUS, the wordmark and three text links — no manifesto box, no plates row", () => {
     renderAt("/");
     expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "campus");
     expect(document.querySelectorAll("canvas")).toHaveLength(1);
@@ -34,8 +36,8 @@ describe("RexMetrix campus story", () => {
     expect(within(hero).getByTestId("landing-honesty")).toHaveTextContent("RexMetrix is a product house. Chronarch is research software. Not a public chain. Not Foundation-endorsed. Not a diagnostic.");
     expect(within(hero).getByTestId("landing-title")).toHaveTextContent("RexMetrix");
     const links = within(within(hero).getByTestId("landing-nav")).getAllByRole("link");
-    expect(links.map((a) => a.textContent)).toEqual(["Chronarch", "Workbench"]);
-    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/chronarch", "/chronarch/tech"]);
+    expect(links.map((a) => a.textContent)).toEqual(["Chronarch", "Continuum", "Workbench"]);
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/chronarch", "https://continuum.rexmetrix.com", "/chronarch/tech"]);
     // the busyness is gone
     expect(screen.queryByTestId("campus-panel")).not.toBeInTheDocument();
     expect(screen.queryByTestId("campus-legend")).not.toBeInTheDocument();
@@ -45,7 +47,7 @@ describe("RexMetrix campus story", () => {
     expect(screen.getAllByText(/Not Foundation-endorsed\./)).toHaveLength(1);
   });
 
-  it("three chapters follow the hero with deep-link ids and scroll margins; Chronarch has the CTA, the others say forthcoming with no route and no engine link", () => {
+  it("three chapters follow the hero with deep-link ids and scroll margins; Chronarch and Continuum have doors, Laterion says forthcoming with no route and no engine link", () => {
     renderAt("/");
     const chapters = screen.getByTestId("chapters");
     const ids = Array.from(chapters.querySelectorAll("section")).map((s) => s.id);
@@ -57,16 +59,15 @@ describe("RexMetrix campus story", () => {
     expect(within(ch).getByTestId("cta-chronarch")).toHaveTextContent("Open Chronarch");
     expect(ch.querySelectorAll("p").length).toBeLessThanOrEqual(6); // label, ≤3 sentences, is-not
     const co = screen.getByTestId("chapter-continuum");
-    expect(co).toHaveTextContent(/FORTHCOMING/);
-    // Continuum's one link is its source on GitHub: an external text link, not an in-app route
-    const anchors = co.querySelectorAll("a");
-    expect(anchors).toHaveLength(1);
-    expect(anchors[0]).toHaveAttribute("href", "https://github.com/rexautistikonlabs/scientificlab");
-    expect(anchors[0]).toHaveAttribute("target", "_blank");
-    expect(anchors[0]).toHaveAttribute("rel", "noopener noreferrer");
-    expect(anchors[0]).toHaveTextContent(/^Continuum source/);
-    expect(within(co).getByTestId("forthcoming-continuum")).toBeInTheDocument();
-    expect(co).toHaveTextContent(/nothing of it is embedded here/);
+    expect(co).toHaveTextContent(/RUNNING/);
+    // Continuum's door leaves this origin; its source is a secondary new-tab link; no in-app route
+    expect(within(co).getByTestId("cta-continuum")).toHaveAttribute("href", "https://continuum.rexmetrix.com");
+    const source = within(co).getByTestId("source-continuum");
+    expect(source).toHaveAttribute("href", "https://github.com/rexautistikonlabs/scientificlab");
+    expect(source).toHaveAttribute("target", "_blank");
+    expect(source).toHaveAttribute("rel", "noopener noreferrer");
+    expect(source).toHaveTextContent(/^Continuum source/);
+    expect(co).toHaveTextContent(/not inside this app/);
     const fm = screen.getByTestId("chapter-laterion");
     expect(fm).toHaveTextContent(/FORTHCOMING/);
     expect(within(fm).getByTestId("is-not-laterion")).toHaveTextContent("not a diagnostic · not a person-score · not an assessment of anyone");
@@ -81,21 +82,14 @@ describe("RexMetrix campus story", () => {
     expect(screen.getByTestId("landing-footer")).not.toHaveTextContent(/DNS is live|is live/);
   });
 
-  it("clicking the Chronarch building navigates to /chronarch and unmounts the campus; clicking Continuum or Laterion only scrolls to the chapter", () => {
+  it("clicking the Laterion building only scrolls to its chapter; the doors are covered in gate.test", () => {
     const spy = vi.spyOn(Element.prototype, "scrollIntoView").mockImplementation(function (this: Element) { (this as HTMLElement).dataset.scrolledTo = "1"; });
     renderAt("/");
-    fireEvent.click(screen.getByTestId("sign-continuum"));
-    expect(screen.getByTestId("landing-body")).toBeInTheDocument(); // still on /
-    expect(screen.getByTestId("chapter-continuum")).toHaveAttribute("data-scrolled-to", "1");
     fireEvent.click(screen.getByTestId("sign-laterion"));
     expect(screen.getByTestId("chapter-laterion")).toHaveAttribute("data-scrolled-to", "1");
     expect(screen.getByTestId("landing-body")).toBeInTheDocument();
-    expect(spy).toHaveBeenCalledTimes(2);
-    fireEvent.click(screen.getByTestId("sign-chronarch"));
-    expect(screen.queryByTestId("campus-viewport")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("landing-body")).not.toBeInTheDocument();
-    expect(screen.getByTestId("viewport-fallback")).toBeInTheDocument(); // the well (jsdom: its still fallback)
-    expect(screen.getByTestId("title-row")).toHaveTextContent("Chronarch");
+    expect(screen.queryByTestId("door-iris")).not.toBeInTheDocument();
+    expect(spy).toHaveBeenCalledTimes(1);
     spy.mockRestore();
   });
 

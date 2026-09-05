@@ -1777,6 +1777,37 @@ Bug: the technician room still exposed a second product — /council,
     that does not exist here.
   - **Fetching GitHub** — the link is a link; nothing is fetched.
 
+## Gate, title beat, two doors
+
+- `/` opens on law: a full-screen still gate (four lines with adjacent
+  negations, two attribution links in a new tab with rel noopener noreferrer,
+  a checkbox, an Enter button disabled until ticked). Accepting writes
+  `rexmetrix.gate.v1`; a return visit skips it. Same panel under reduced
+  motion, no animation.
+- Then one title beat, "Measurement is King!" — a GSAP one-shot (fade in,
+  hold ~1.2 s, fade out) that unmounts itself; skipped under reduced motion
+  and on return visits. DOM only; the campus stays on demand.
+- Continuum is now RUNNING and a door: the same ≤ 800 ms door tween as
+  Chronarch (an ivory plane rises while the rig eases at the volume; the
+  ledger is held and invalidated per tick), then `exits.leave()` assigns
+  https://continuum.rexmetrix.com. Continuum is never mounted here. Laterion
+  has no door: chapter only, three negations, no href anywhere.
+- Chrome after the gate: STATUS, wordmark, three text links (Chronarch,
+  Continuum, Workbench); the footer carries both attribution URLs.
+- Tests: first visit is the gate alone with a disabled button and no canvas;
+  tick + Enter → flag, title once then gone, campus; remount skips; reduced
+  motion has no title tween; Continuum's sign and CTA leave the origin
+  (spied) after the door; Laterion has no href; both attribution URLs in the
+  footer; the door constant ≤ 800 ms; the beat is one-shot.
+- REJECTED:
+  - **An idle "Measurement is King" loop** — one beat, once, after the gate.
+  - **Embedding Continuum** — no iframe, no in-app route, no shared engine;
+    the door leaves this origin.
+  - **Foundation endorsement** — attributions are credit for literature and
+    cited materials; endorsement appears on the site only as a negation.
+  - **Skipping the gate by default** — first paint is the law; only the
+    visitor's own acceptance, stored in their browser, skips it.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

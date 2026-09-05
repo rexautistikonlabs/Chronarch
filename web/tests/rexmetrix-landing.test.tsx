@@ -4,7 +4,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fireEvent, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+
+import { GATE_KEY } from "../src/lib/gate";
 
 import { findVisitorBanned } from "../src/lib/banned";
 import { STAND_INS } from "../src/lib/filters";
@@ -14,6 +16,7 @@ import { renderAt } from "./render";
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
 
 describe("RexMetrix landing", () => {
+  beforeEach(() => window.localStorage.setItem(GATE_KEY, "1"));
   it("/ is the story: hero, then Chronarch, Continuum, Laterion; the honesty sentence; no canvas without WebGL; no well", () => {
     renderAt("/");
     const body = document.body.textContent ?? "";
@@ -30,7 +33,7 @@ describe("RexMetrix landing", () => {
     expect(screen.queryByTestId("hud-top")).not.toBeInTheDocument();
     expect(screen.getByTestId("chapters").querySelectorAll("section")).toHaveLength(3);
     expect(screen.getByTestId("chapter-chronarch")).toHaveAttribute("data-status", "RUNNING");
-    expect(screen.getByTestId("chapter-continuum")).toHaveAttribute("data-status", "FORTHCOMING");
+    expect(screen.getByTestId("chapter-continuum")).toHaveAttribute("data-status", "RUNNING");
     expect(screen.getByTestId("chapter-laterion")).toHaveAttribute("data-status", "FORTHCOMING");
     expect(screen.getByTestId("chapter-laterion")).toHaveTextContent(/not a diagnostic/);
     expect(screen.getByTestId("chapter-laterion")).toHaveTextContent(/not a person-score/);
@@ -49,7 +52,7 @@ describe("RexMetrix landing", () => {
     expect(body).not.toMatch(/\bassess(es|ing)? (a|the|each) person\b/i);
     expect(body).not.toMatch(/Chronarch is RexMetrix/);
     expect(body).toMatch(/Chronarch is one of its products/);
-    for (const c of CHAPTERS.filter((x) => x.status === "FORTHCOMING")) expect(c.cta === null || c.cta.external === true).toBe(true); // no in-app route for a forthcoming product
+    for (const c of CHAPTERS.filter((x) => x.status === "FORTHCOMING")) expect(c.door).toBeNull(); // a forthcoming product has no door
     expect(body).not.toMatch(/Face mapping|FACE MAP/);
     expect(body).toContain("Laterion");
     expect(body).not.toMatch(/Laterion is (running|shipping|live)/);

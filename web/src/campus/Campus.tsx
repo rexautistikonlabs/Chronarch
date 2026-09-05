@@ -2,8 +2,9 @@
  *  A poured pad in a fence with one gate, three volumes — a lit lab block
  *  (Chronarch, running), a dark shed (Continuum, forthcoming), a windowless
  *  block (Laterion, forthcoming, not a diagnostic). Scroll drives the
- *  camera (see CampusRig); a building lights its edge on hover; clicking
- *  Chronarch is a door, clicking the others scrolls to their chapter. Lit for
+ *  camera (see CampusRig); a building lights its edge on hover; clicking a
+ *  running product is a door (Chronarch: a route; Continuum: another origin),
+ *  clicking Laterion scrolls to its chapter. Lit for
  *  a screenshot: hemisphere plus a dim key, lifted faces, emissive windows —
  *  no bloom composer, no neon. No physics, no idle motion, no shadows, no
  *  texture, no environment map. This file never imports the Chronarch well. */
@@ -54,7 +55,7 @@ function Windows({ b }: { b: Building }) {
 function Volume({ b, hot, onHover, onPick }: { b: Building; hot: boolean; onHover: (k: BuildingKey | null) => void; onPick: (k: BuildingKey) => void }) {
   const [w, h, d] = b.size;
   const center: [number, number, number] = [b.center[0], h / 2, b.center[2]];
-  const edge = b.route ? (hot ? CAMPUS.phosphorEdge : CAMPUS.phosphor) : hot ? CAMPUS.phosphor : CAMPUS.hairlineLit;
+  const edge = b.door ? (hot ? CAMPUS.phosphorEdge : CAMPUS.phosphor) : hot ? CAMPUS.phosphor : CAMPUS.hairlineLit;
   return (
     <group
       onPointerOver={(e) => { e.stopPropagation(); onHover(b.key); document.body.style.cursor = "pointer"; invalidate(); }}
@@ -71,7 +72,7 @@ function Volume({ b, hot, onHover, onPick }: { b: Building; hot: boolean; onHove
           <Edges color={CAMPUS.hairlineLit} />
         </mesh>
       )}
-      {b.route && (
+      {b.door && (
         <mesh position={[b.center[0], 1.05, b.center[2] + d / 2 + 0.02]} material={MAT.door}>
           <planeGeometry args={[1.1, 2.1]} />
         </mesh>
@@ -138,7 +139,7 @@ export function webglAvailable(): boolean {
   }
 }
 
-export function Campus({ progress, onPick }: { progress: RefObject<number>; onPick: (k: BuildingKey) => void }) {
+export function Campus({ progress, door, onPick }: { progress: RefObject<number>; door: RefObject<BuildingKey | null>; onPick: (k: BuildingKey) => void }) {
   const [hovered, setHovered] = useState<BuildingKey | null>(null);
   const initialCamera = useRef({ position: sphericalToPosition(storyGoal(0)), fov: 30, near: 0.1, far: 120 });
   // The loop mode IS the Canvas prop and follows the ledger (see Well.tsx).
@@ -171,7 +172,7 @@ export function Campus({ progress, onPick }: { progress: RefObject<number>; onPi
           {BUILDINGS.map((b) => (
             <Volume key={b.key} b={b} hot={hovered === b.key} onHover={setHovered} onPick={onPick} />
           ))}
-          <CampusRig progress={progress} />
+          <CampusRig progress={progress} door={door} />
         </Canvas>
       </ErrorBoundary>
     </div>

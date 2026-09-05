@@ -100,6 +100,12 @@ describe("animation law", () => {
     const landing = readFileSync(join(ROOT, "src/pages/Landing.tsx"), "utf8");
     expect(landing).not.toMatch(/scene\/Well|Catalogue3D|useFrame|<Canvas|frameloop/); // scroll never sets the loop mode; it touches the ledger
     expect(landing).toContain('touch("scroll")');
+    // the title beat is one-shot and DOM-only; the door is ≤ 800 ms
+    const beat = readFileSync(join(ROOT, "src/components/TitleBeat.tsx"), "utf8");
+    expect(beat).toContain("...ONE_SHOT");
+    expect(beat).not.toMatch(/repeat:\s*[1-9]|setInterval|requestAnimationFrame/);
+    const doorSrc = readFileSync(join(ROOT, "src/components/DoorIris.tsx"), "utf8");
+    expect(Number(doorSrc.match(/DOOR_MS = (\d+)/)![1])).toBeLessThanOrEqual(800);
     const rig = readFileSync(join(ROOT, "src/campus/CampusRig.tsx"), "utf8");
     for (const t of rig.match(/gsap\.timeline\(\{[\s\S]*?\}\);/g) ?? []) expect(t).toMatch(/onUpdate: \(\) => \{[\s\S]*invalidate\(\)/);
     expect(rig).toMatch(/hold\("/);
@@ -108,7 +114,7 @@ describe("animation law", () => {
   });
 
   it("every tween that moves the camera, the iris or the bloom invalidates on every tick and holds the loop", () => {
-    for (const rel of ["src/scene/PointerRig.tsx", "src/hud/Iris.tsx", "src/scene/Energy.tsx", "src/scene/Timechain.tsx", "src/scene/Council.tsx", "src/scene/DummyMind.tsx"]) {
+    for (const rel of ["src/scene/PointerRig.tsx", "src/hud/Iris.tsx", "src/scene/Energy.tsx", "src/scene/Timechain.tsx", "src/scene/Council.tsx", "src/scene/DummyMind.tsx", "src/components/DoorIris.tsx"]) {
       const text = readFileSync(join(ROOT, rel), "utf8");
       const timelines = text.match(/gsap\.timeline\(\{[\s\S]*?\}\);/g) ?? [];
       expect(timelines.length, rel).toBeGreaterThan(0);

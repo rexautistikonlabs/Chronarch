@@ -13,12 +13,12 @@ import { useEffect, useRef, type RefObject } from "react";
 
 import { damp, sphericalToPosition, type Spherical } from "../scene/focus";
 import { hold, touch, type Release } from "../scene/renderPolicy";
-import { storyGoal } from "./campusLayout";
+import { doorGoal, storyGoal, type BuildingKey } from "./campusLayout";
 
 const CONVERGE_EPS = 0.003;
 const SETTLE_CAP_S = 1.6; // summed frame deltas, not a clock
 
-export function CampusRig({ progress }: { progress: RefObject<number> }) {
+export function CampusRig({ progress, door }: { progress: RefObject<number>; door: RefObject<BuildingKey | null> }) {
   const camera = useThree((s) => s.camera);
   const gl = useThree((s) => s.gl);
   const offset = useRef({ az: 0, el: 0 });
@@ -32,8 +32,9 @@ export function CampusRig({ progress }: { progress: RefObject<number> }) {
     camera.lookAt(s.target[0], s.target[1], s.target[2]);
   };
   const goal = (): Spherical => {
-    const b = storyGoal(progress.current ?? 0);
+    const s = storyGoal(progress.current ?? 0);
     const o = offset.current;
+    const b = door.current ? doorGoal(door.current, s) : s; // a door opening: ease at the volume
     return { az: b.az + o.az, el: Math.min(1.1, Math.max(0.14, b.el + o.el)), dist: b.dist, target: b.target };
   };
   const gap = (g: Spherical, c: Spherical) =>

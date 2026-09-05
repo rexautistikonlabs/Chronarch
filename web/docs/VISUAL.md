@@ -310,6 +310,44 @@ driver), so there is no wheel zoom and no idle spin. Under
 prefers-reduced-motion, or without WebGL, the campus is not mounted: the hero
 and the three chapters stand as stacked HTML, 0 canvas.
 
+## 5d. Gate and title beat
+
+The landing opens on law. **First paint is the gate**: a full-screen still
+panel before any 3D — four lines (*RexMetrix is a product house. Chronarch and
+Continuum are research software. / Not a public chain. Not Foundation-endorsed.
+Not a diagnostic. Not a medical device. / Continuum is a simulation; its
+numbers are model outputs, not measurements of any person. / Laterion is not
+shipping here.*), two attributions as new-tab links (rexautistikonlabs.org —
+literature and the Autistikon programme specification; cyberphysics.ai —
+cited architecture / public materials; *credit, not endorsement*), a checkbox
+and an Enter button that stays disabled until the box is ticked. No loop, no
+animation in either motion mode. Accepting writes `rexmetrix.gate.v1`; a
+return visit skips the panel.
+
+**Then one title beat**: *Measurement is King!* — one line, a GSAP one-shot
+that fades in, holds ~1.2 s and fades out over the campus, then unmounts. It
+never repeats and is skipped under reduced motion and on return visits. It
+is DOM only: the canvas beneath draws on demand and after the beat the loop
+is back on demand with byte-identical frames.
+
+**Then the campus**, where two buildings are doors and one is not:
+
+- **CHRONARCH · RUNNING** — the door tween, then `/chronarch`.
+- **CONTINUUM · RUNNING** — the same door tween, then this origin is left for
+  `https://continuum.rexmetrix.com`. Continuum is never mounted inside this
+  app; its chapter says so and carries a secondary source link.
+- **LATERION · FORTHCOMING · NOT A DIAGNOSTIC** — no door: the chapter only,
+  with its three negations.
+
+The **door tween** (`DoorIris.tsx`, ≤ 800 ms): an ivory plane rises from the
+volume while the rig eases the camera at it (`doorGoal`); it holds the render
+ledger and invalidates per tick; on completion the route changes and the
+campus unmounts. Under reduced motion, or without the campus, a door is an
+immediate route change.
+
+Chrome after the gate: one STATUS line, the wordmark, three small text links
+(Chronarch, Continuum, Workbench); the footer carries the two attribution URLs.
+
 ## 6. Rejected (kept rejected)
 
 - **Idle drift / breathing / slow orbit** — no. It reads as life the organism
@@ -343,6 +381,12 @@ and the three chapters stand as stacked HTML, 0 canvas.
   HTML; the campus unmounts before the well mounts.
 - **A face model on the landing** — no. Laterion is a windowless block
   and a sentence; no image is read, no landmark code exists here.
+- **An idle "Measurement is King" loop** — no. The title is one beat after
+  the gate, once; a looping or pulsing title would be a hero animation.
+- **Embedding Continuum** — no iframe, no mounted route, no shared engine.
+  Its door leaves this origin.
+- **Foundation endorsement** — no. The attributions are credit for literature
+  and cited materials; every mention of endorsement on the site is a negation.
 - **A manifesto on the hero** — no. The first screen is three readable
   buildings, one STATUS line, a wordmark and two links; the story is told by
   scrolling, not by a box of rules over the render.
