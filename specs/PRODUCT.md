@@ -26,7 +26,7 @@
   of any person. / Laterion is not shipping here.* — with two attributions
   (rexautistikonlabs.org; cyberphysics.ai — credit, not endorsement), a
   checkbox and a button. `rexmetrix.gate.v1` remembers acceptance in that
-  browser. Then one title beat, *Measurement is King!*, once; then the campus.
+  browser. Then the campus, straight away — no title beat.
 - **Chronarch** is this product: the programme well (`/chronarch`), the
   technician's workbench (`/chronarch/tech`), About (`/chronarch/about`). Its
   name is on the title, the workbench heading, the pack footer, the first-run

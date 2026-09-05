@@ -1,12 +1,12 @@
-/** The landing opens on law: a still gate before any 3D, then one title beat,
- *  then the campus. Return visits skip the gate. Chronarch and Continuum are
+/** The landing opens on law: a still gate before any 3D, then straight to
+ *  the campus — no title beat. Return visits skip the gate. Chronarch and Continuum are
  *  doors; Laterion is not. The Canvas is stubbed (jsdom has no WebGL). */
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { BuildingKey } from "../src/campus/campusLayout";
 import { findVisitorBanned } from "../src/lib/banned";
-import { ATTRIBUTIONS, CONTINUUM_URL, exits, GATE_KEY, GATE_LINES, TITLE_LINE } from "../src/lib/gate";
+import { ATTRIBUTIONS, CONTINUUM_URL, exits, GATE_KEY, GATE_LINES } from "../src/lib/gate";
 import { renderAt } from "./render";
 
 vi.mock("../src/campus/Campus", () => ({
@@ -57,30 +57,31 @@ describe("gate", () => {
     expect(screen.getByTestId("gate")).toBeInTheDocument();
   });
 
-  it("tick + Enter writes the flag, shows the title once, then the campus; the title is gone after its one-shot", async () => {
+  it("tick + Enter writes the flag and goes straight to the campus; no title overlay ever appears", () => {
     renderAt("/");
+    expect(document.body.textContent).not.toContain("Measurement is King!");
     accept();
     expect(window.localStorage.getItem(GATE_KEY)).toBe("1");
     expect(screen.queryByTestId("gate")).not.toBeInTheDocument();
-    expect(screen.getByTestId("title-line")).toHaveTextContent(TITLE_LINE);
-    expect(screen.getByTestId("title-line").textContent).toBe("Measurement is King!");
     expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "campus");
-    expect(document.querySelectorAll("canvas")).toHaveLength(1);
-    await waitFor(() => expect(screen.queryByTestId("title-beat")).not.toBeInTheDocument(), { timeout: 6000 });
     expect(screen.getByTestId("campus-viewport")).toBeInTheDocument();
-    expect(document.body.textContent).not.toContain("Measurement is King!"); // once, and it does not come back
-  }, 10000);
+    expect(document.querySelectorAll("canvas")).toHaveLength(1);
+    expect(screen.queryByTestId("title-beat")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("title-line")).not.toBeInTheDocument();
+    expect(document.body.textContent).not.toContain("Measurement is King!");
+  });
 
-  it("a return visit skips the gate and the title: the campus is there on remount", () => {
+  it("a return visit skips the gate: the campus is there on remount, and no title", () => {
     window.localStorage.setItem(GATE_KEY, "1");
     renderAt("/");
     expect(screen.queryByTestId("gate")).not.toBeInTheDocument();
     expect(screen.queryByTestId("title-beat")).not.toBeInTheDocument();
+    expect(document.body.textContent).not.toContain("Measurement is King!");
     expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "campus");
     expect(screen.getByTestId("landing-honesty")).toHaveTextContent(/Not Foundation-endorsed\./);
   });
 
-  it("reduced motion: the same gate, no title tween, no canvas; the products are still named after entering", () => {
+  it("reduced motion: the same gate, no canvas; the products are still named after entering", () => {
     vi.stubGlobal("matchMedia", reduceStub(true));
     renderAt("/");
     expect(screen.getByTestId("gate")).toBeInTheDocument();

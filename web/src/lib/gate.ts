@@ -18,7 +18,6 @@ export const ATTRIBUTIONS: readonly { href: string; label: string; what: string 
 export const ATTRIBUTION_NOTE = "Credit, not endorsement.";
 
 export const CONTINUUM_URL = "https://continuum.rexmetrix.com";
-export const TITLE_LINE = "Measurement is King!";
 
 function storage(): Storage | null {
   try {

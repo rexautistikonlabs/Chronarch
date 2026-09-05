@@ -4,7 +4,7 @@
  *  clock; the canvas is frameloop="demand" and wakes only while the pointer
  *  moves it. The banned literals are assembled so this file stays clean under
  *  the same grep. */
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -100,10 +100,8 @@ describe("animation law", () => {
     const landing = readFileSync(join(ROOT, "src/pages/Landing.tsx"), "utf8");
     expect(landing).not.toMatch(/scene\/Well|Catalogue3D|useFrame|<Canvas|frameloop/); // scroll never sets the loop mode; it touches the ledger
     expect(landing).toContain('touch("scroll")');
-    // the title beat is one-shot and DOM-only; the door is ≤ 800 ms
-    const beat = readFileSync(join(ROOT, "src/components/TitleBeat.tsx"), "utf8");
-    expect(beat).toContain("...ONE_SHOT");
-    expect(beat).not.toMatch(/repeat:\s*[1-9]|setInterval|requestAnimationFrame/);
+    // no title overlay exists; the door is ≤ 800 ms
+    expect(existsSync(join(ROOT, "src/components/TitleBeat.tsx"))).toBe(false);
     const doorSrc = readFileSync(join(ROOT, "src/components/DoorIris.tsx"), "utf8");
     expect(Number(doorSrc.match(/DOOR_MS = (\d+)/)![1])).toBeLessThanOrEqual(800);
     const rig = readFileSync(join(ROOT, "src/campus/CampusRig.tsx"), "utf8");

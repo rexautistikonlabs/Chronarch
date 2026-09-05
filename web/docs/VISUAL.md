@@ -310,7 +310,7 @@ driver), so there is no wheel zoom and no idle spin. Under
 prefers-reduced-motion, or without WebGL, the campus is not mounted: the hero
 and the three chapters stand as stacked HTML, 0 canvas.
 
-## 5d. Gate and title beat
+## 5d. Gate, then the campus
 
 The landing opens on law. **First paint is the gate**: a full-screen still
 panel before any 3D — four lines (*RexMetrix is a product house. Chronarch and
@@ -324,13 +324,10 @@ and an Enter button that stays disabled until the box is ticked. No loop, no
 animation in either motion mode. Accepting writes `rexmetrix.gate.v1`; a
 return visit skips the panel.
 
-**Then one title beat**: *Measurement is King!* — one line, a GSAP one-shot
-that fades in, holds ~1.2 s and fades out over the campus, then unmounts. It
-never repeats and is skipped under reduced motion and on return visits. It
-is DOM only: the canvas beneath draws on demand and after the beat the loop
-is back on demand with byte-identical frames.
+**Then the campus** — straight away. There is no title beat: nothing plays
+between the gate and the plate, and a return visit lands on the campus.
 
-**Then the campus**, where two buildings are doors and one is not:
+Two buildings are doors and one is not:
 
 - **CHRONARCH · RUNNING** — the door tween, then `/chronarch`.
 - **CONTINUUM · RUNNING** — the same door tween, then this origin is left for
@@ -381,8 +378,9 @@ Chrome after the gate: one STATUS line, the wordmark, three small text links
   HTML; the campus unmounts before the well mounts.
 - **A face model on the landing** — no. Laterion is a windowless block
   and a sentence; no image is read, no landmark code exists here.
-- **An idle "Measurement is King" loop** — no. The title is one beat after
-  the gate, once; a looping or pulsing title would be a hero animation.
+- **A title beat ("Measurement is King!")** — no. It was tried as a one-shot
+  after the gate and removed: a slogan overlay is a hero animation whatever
+  its repeat count, and the campus needs no announcement.
 - **Embedding Continuum** — no iframe, no mounted route, no shared engine.
   Its door leaves this origin.
 - **Foundation endorsement** — no. The attributions are credit for literature

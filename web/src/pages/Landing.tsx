@@ -1,10 +1,9 @@
-/** The RexMetrix landing opens on law, then one title beat, then the campus.
+/** The RexMetrix landing opens on law, then the campus.
  *
  *  1. Gate — a full-screen still panel before any 3D (Gate.tsx). Accepting
- *     writes rexmetrix.gate.v1 so a return visit skips it.
- *  2. Title beat — "Measurement is King!", once, a GSAP one-shot; skipped
- *     under reduced motion and on return visits.
- *  3. Campus — one fixed canvas behind the story; scroll progress 0–1 is the
+ *     writes rexmetrix.gate.v1 so a return visit skips it. There is no title
+ *     beat: after the gate (or a return visit) the campus is there.
+ *  2. Campus — one fixed canvas behind the story; scroll progress 0–1 is the
  *     camera's only driver. Chronarch and Continuum are doors: a ≤ 800 ms door
  *     tween, then the route (/chronarch) or another origin
  *     (continuum.rexmetrix.com). Laterion has no door: its chapter only.
@@ -20,7 +19,6 @@ import { BUILDINGS, type BuildingKey, type Door } from "../campus/campusLayout";
 import { DoorIris } from "../components/DoorIris";
 import { Gate } from "../components/Gate";
 import { HONESTY_LANDING } from "../components/StatusBanner";
-import { TitleBeat } from "../components/TitleBeat";
 import { ATTRIBUTION_NOTE, ATTRIBUTIONS, CONTINUUM_URL, exits, markGate, seenGate } from "../lib/gate";
 import { usePrefersReducedMotion } from "../lib/motion";
 import { touch } from "../scene/renderPolicy";
@@ -141,15 +139,12 @@ export function Landing() {
   const progress = useRef(0);
   const door = useRef<BuildingKey | null>(null);
   const [gated, setGated] = useState<boolean>(() => !seenGate());
-  const [beat, setBeat] = useState(false);
   const [leaving, setLeaving] = useState<BuildingKey | null>(null);
 
   const accept = useCallback(() => {
     markGate();
-    setGated(false);
-    if (!reduced) setBeat(true); // once, after the gate; never on a return visit
-  }, [reduced]);
-  const beatDone = useCallback(() => setBeat(false), []);
+    setGated(false); // straight to the campus
+  }, []);
 
   // Scroll is the camera's driver: each event updates the progress the rig
   // reads and touches the render ledger; the loop sleeps after the last one.
@@ -200,7 +195,6 @@ export function Landing() {
   return (
     <div data-testid="landing-body" data-mode={campus ? "campus" : reduced ? "reduced-motion" : "no-webgl"} data-leaving={leaving ?? ""}>
       {campus && <Campus progress={progress} door={door} onPick={pick} />}
-      {beat && <TitleBeat onDone={beatDone} />}
       {leaving && <DoorIris onDone={doorDone} />}
       <div className={campus ? "pointer-events-none relative z-10" : ""}>
         <Hero />

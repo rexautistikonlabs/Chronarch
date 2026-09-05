@@ -1808,6 +1808,20 @@ Bug: the technician room still exposed a second product — /council,
   - **Skipping the gate by default** — first paint is the law; only the
     visitor's own acceptance, stored in their browser, skips it.
 
+## The title beat is gone
+
+- Every visitor-facing "Measurement is King!" is removed: the TitleBeat
+  component and its GSAP timeline are deleted, the constant is gone, and the
+  gate goes straight to the campus (a return visit lands on the campus). Tests
+  that waited for the string are replaced by tests that the string never
+  appears on a cold accepted load or a remount.
+- Kept: the gate with its checkbox, Chronarch's door to /chronarch,
+  Continuum's door to https://continuum.rexmetrix.com, Laterion forthcoming
+  with its three negations, the attributions in the footer.
+- REJECTED (kept rejected): a slogan overlay between the gate and the plate —
+  one-shot or not, it is a hero animation, and the campus needs no
+  announcement.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
