@@ -1572,6 +1572,35 @@ Bug: the technician room still exposed a second product — /council,
     declared live bridge is an edge.
   - **A fixed banner over the column** — the honesty strip stays in flow.
 
+## RexMetrix — the Project
+
+- A Project (specs/PROJECT.md) is the unit a professional takes home: works
+  used, live bridges, AnalysisNotes, one Markdown pack. `/tech` holds one in
+  memory: uploads, declared bridges and successful notes append to it;
+  the works filter never wipes it; nothing persists across reload (said on
+  the page). `created_at` is a counter in the app; an ISO string only in the
+  fixture. No localStorage this turn.
+- Declare bridge adds `origin: "operator"` live bridges to
+  `project.extra_bridges` only. The bench reads a new Map that overlays them
+  on the shipped catalogue; `programme-classics.json` is unchanged by test.
+  The note over such a bridge carries is_not "bridge was operator-declared"
+  and assumptions_used []. Clear extra bridges disables Darwin + Newton again.
+- The pack is one .md: name, works table with source_url and attribution,
+  extra bridges marked operator-declared, every note in full, closing
+  negations. Built locally; nothing sent.
+- REJECTED:
+  - **Silent merge of extra_bridges into shipped catalogues** — writing an
+    operator's amendment into programme-classics.json (or any programme file),
+    or letting a declared bridge lose its origin mark. A shipped catalogue is
+    a declaration the programme made; a session amendment is not, and the
+    note says which it ran over.
+  - **A declared bridge as evidence** — a Declare without "amendment, not
+    evidence" is refused; the bridge has no ledger and no register to cite.
+  - **A zip pack** — one Markdown file is the deliverable; nothing is gained
+    by an archive.
+  - **Persisting the project to a server** — the pack is the only way a
+    project leaves the browser.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

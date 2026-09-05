@@ -1,0 +1,11 @@
+{
+  "schema": "rexmetrix.project/1",
+  "id": "project-example",
+  "name": "Example project (fixture)",
+  "programme_ids": ["programme-zero", "programme-classics"],
+  "works": [],
+  "extra_bridges": [],
+  "notes": [],
+  "created_at": "2026-09-04T00:00:00Z",
+  "note": "The shape of a Project as the app builds it in memory. A fixture carries an ISO created_at; the app uses a monotonic counter and no wall clock. extra_bridges are session amendments and are never merged into a programme file."
+}

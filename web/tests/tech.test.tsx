@@ -34,10 +34,12 @@ describe("technician room", () => {
     const idx = (re: RegExp) => titles.findIndex((t) => re.test(t));
     expect(idx(/^filters$/)).toBe(0);
     expect(idx(/^filters$/)).toBeLessThan(idx(/field–bridge graph/));
-    expect(idx(/field–bridge graph/)).toBeLessThan(idx(/works/));
+    expect(idx(/field–bridge graph/)).toBeLessThan(idx(/^project/));
+    expect(idx(/^project/)).toBeLessThan(idx(/works/));
     expect(idx(/works/)).toBeLessThan(idx(/actions/));
     expect(idx(/actions/)).toBeLessThan(idx(/^result$/));
-    expect(idx(/^result$/)).toBeLessThan(idx(/^export$/));
+    expect(idx(/^result$/)).toBeLessThan(idx(/^notes library$/));
+    expect(idx(/^notes library$/)).toBeLessThan(idx(/^export$/));
     expect(idx(/^export$/)).toBeLessThan(idx(/refuse glossary/));
     expect(idx(/^programmes/)).toBe(-1); // programmes moved under the substrate details
     const details = screen.getByTestId("substrate-details") as HTMLDetailsElement;

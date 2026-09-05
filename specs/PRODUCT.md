@@ -115,6 +115,23 @@ note."), the column runs in this order:
    code name Chronarch — not the product) with the programmes, fixtures,
    paste box, hashes and instrument readouts.
 
+## Project
+
+A **Project** ([PROJECT.md](PROJECT.md)) is what a group takes home: the works
+used, the live bridges the notes ran over, the AnalysisNotes, and one Markdown
+pack to download. `/tech` holds one in memory ("Untitled project", editable);
+uploads, declared bridges and successful notes append to it; filters never
+touch it; nothing persists across a reload and the page says so.
+
+**Declare bridge** (left field, right field, "amendment, not evidence.") adds
+a live, operator-declared bridge to the project only — never to a programme
+file. A note that runs over it carries `is_not: "bridge was
+operator-declared"` and an empty assumptions ledger. **Clear extra bridges**
+removes them. The **notes library** lists the project's notes in time order
+and re-opens any card. **Download pack** writes the whole project as one
+Markdown file, closing with: not a fitted model; not peer review; not
+Foundation-endorsed; not a public chain.
+
 ## Works
 
 Only legal works enter RexMetrix: a few preloaded starter works with a licence

@@ -22,7 +22,7 @@ describe("operator bench", () => {
   it("sections come in the bench's order; session fixtures, paste and hashes live under the closed substrate details", () => {
     renderAt("/tech");
     const h2 = Array.from(document.querySelectorAll("main > div > section > h2")).map((h) => h.textContent ?? "");
-    expect(h2.map((t) => t.split(" ·")[0])).toEqual(["filters", "field–bridge graph", "works", "actions", "result", "export", "refuse glossary"]);
+    expect(h2.map((t) => t.split(" ·")[0])).toEqual(["filters", "field–bridge graph", "project", "works", "actions", "result", "notes library", "export", "refuse glossary"]);
     expect(screen.getByTestId("substrate-details")).toContainElement(screen.getByTestId("tech-programmes"));
     const details = screen.getByTestId("substrate-details");
     expect(details).not.toHaveAttribute("open");

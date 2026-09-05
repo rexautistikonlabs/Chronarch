@@ -28,7 +28,7 @@ describe("workbench chrome", () => {
   it("main column order: filters → graph → works → actions → result → export → refuse glossary; substrate details closed and last", () => {
     renderAt("/tech");
     const h2 = Array.from(document.querySelectorAll("main > div > section > h2")).map((h) => (h.textContent ?? "").split(" ·")[0]);
-    expect(h2).toEqual(["filters", "field–bridge graph", "works", "actions", "result", "export", "refuse glossary"]);
+    expect(h2).toEqual(["filters", "field–bridge graph", "project", "works", "actions", "result", "notes library", "export", "refuse glossary"]);
     const details = screen.getByTestId("substrate-details") as HTMLDetailsElement;
     expect(details.open).toBe(false);
     expect(details).toContainElement(screen.getByTestId("tech-programmes"));

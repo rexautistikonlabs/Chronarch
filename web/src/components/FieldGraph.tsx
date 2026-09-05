@@ -34,7 +34,8 @@ export function FieldGraph({ cat, highlighted, missing, activeField, onPickField
           const [x1, y1] = p(b.left);
           const [x2, y2] = p(b.right);
           const hot = highlighted.has(b.left) && highlighted.has(b.right);
-          return <line key={b.id} x1={x1} y1={y1} x2={x2} y2={y2} stroke={hot ? "#9ef0b4" : "#4e8f63"} strokeWidth={hot ? 2.2 : 1.2} opacity={hot ? 1 : 0.7} data-testid={`edge-${b.id}`} data-edge={`${b.left}—${b.right}`} />;
+          const op = b.origin === "operator";
+          return <line key={b.id} x1={x1} y1={y1} x2={x2} y2={y2} stroke={op ? (hot ? "#f0d29e" : "#a8925f") : hot ? "#9ef0b4" : "#4e8f63"} strokeWidth={hot ? 2.2 : 1.2} opacity={hot ? 1 : 0.7} strokeDasharray={op ? "2 3" : undefined} data-testid={`edge-${b.id}`} data-edge={`${b.left}—${b.right}`} data-origin={op ? "operator" : "shipped"} />;
         })}
         {missing && (
           <line x1={p(missing[0])[0]} y1={p(missing[0])[1]} x2={p(missing[1])[0]} y2={p(missing[1])[1]} stroke="#8a949e" strokeWidth={1.4} strokeDasharray="4 4" data-testid="missing-edge" />
@@ -52,7 +53,7 @@ export function FieldGraph({ cat, highlighted, missing, activeField, onPickField
         })}
       </svg>
       <figcaption className="readout mt-1 flex flex-wrap gap-x-4 text-[11px] text-dim">
-        <span>{fields.length} fields · {live.length} live bridges · edges are declared bridges only</span>
+        <span>{fields.length} fields · {live.length} live bridges{live.some((b) => b.origin === "operator") ? ` (${live.filter((b) => b.origin === "operator").length} operator-declared, dotted)` : ""} · edges are declared bridges only</span>
         {missing && <span className="text-ivory" data-testid="missing-caption">missing: {missing[0]} — {missing[1]}</span>}
         {activeField && <span>table filtered to {activeField} · click the node again to clear</span>}
       </figcaption>

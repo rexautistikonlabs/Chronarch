@@ -10,7 +10,7 @@ import { worksMap } from "../lib/works";
 import { useProgramme } from "../state/ProgrammeContext";
 
 export function BenchActions({ selected, onRun }: { selected: ReadonlySet<string>; onRun: (r: BenchResult, note: AnalysisNote | null) => void }) {
-  const { works, catalogue, files, addResult } = useProgramme();
+  const { works, catalogue, files, addResult, operatorBridges } = useProgramme();
   const map = worksMap(works);
   const chosen = works.filter((w) => selected.has(w.id));
   const avail = availability(chosen, catalogue, files, map);
@@ -19,7 +19,7 @@ export function BenchActions({ selected, onRun }: { selected: ReadonlySet<string
 
   const run = (action: ActionKind) => {
     const r = runAction(action, chosen, catalogue, files, map);
-    const note = r.ok ? buildNote(r, map, files) : null;
+    const note = r.ok ? buildNote(r, map, files, operatorBridges) : null;
     if (r.ok && note) addResult({ ...r, note });
     onRun(r, note);
   };

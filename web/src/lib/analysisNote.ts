@@ -62,7 +62,12 @@ function roleOf(w: Work | undefined, view: ParentView): ObjectRole {
   return "body";
 }
 
-export function buildNote(result: BenchOk, works: Map<string, Work>, programmes: ProgrammeFile[]): AnalysisNote {
+export const IS_NOT_OPERATOR_BRIDGE = "bridge was operator-declared";
+
+/** `operatorBridges`: ids of session-declared bridges. A note whose path runs
+ *  over one carries the negation and an empty assumptions ledger — an
+ *  amendment is not evidence and has no rated entries to cite. */
+export function buildNote(result: BenchOk, works: Map<string, Work>, programmes: ProgrammeFile[], operatorBridges: ReadonlySet<string> = new Set()): AnalysisNote {
   const objects = result.parents.map((p) => ({ work_id: p.id, title: p.title, field: p.field, license: p.license, role: roleOf(works.get(p.id), p) }));
   const ids = objects.map((o) => o.work_id);
   const [a, b] = objects;
@@ -90,7 +95,8 @@ export function buildNote(result: BenchOk, works: Map<string, Work>, programmes:
     findings.push({ text: `The bodies cannot support a token comparison here (a body is missing or more than two works were selected); no metric is reported.`, cites: ids });
   }
 
-  const assumptions_used = assumptionsFor(objects, programmes);
+  const overOperatorBridge = result.bridges.some((id) => operatorBridges.has(id)) || path.some((id) => operatorBridges.has(id));
+  const assumptions_used = overOperatorBridge ? [] : assumptionsFor(objects, programmes);
 
   const would_falsify =
     kind === "question"
@@ -103,6 +109,7 @@ export function buildNote(result: BenchOk, works: Map<string, Work>, programmes:
     ...IS_NOT_ALWAYS,
     kind === "question" ? "not a claim — a question pin asks" : "not a causal claim",
     "not a statement about any person",
+    ...(overOperatorBridge ? [IS_NOT_OPERATOR_BRIDGE] : []),
   ];
 
   return {

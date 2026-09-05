@@ -7,6 +7,9 @@ import type { BenchResult } from "../lib/bench";
 import { BenchActions } from "../components/BenchActions";
 import { ExportPanel } from "../components/ExportPanel";
 import { FieldGraph } from "../components/FieldGraph";
+import { NotesLibrary } from "../components/NotesLibrary";
+import { PackPanel } from "../components/PackPanel";
+import { ProjectPanel } from "../components/ProjectPanel";
 import { ResultCard } from "../components/ResultCard";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import JsonViewer from "../components/JsonViewer";
@@ -74,7 +77,7 @@ export function Technician() {
 
   return (
     <div>
-      <PageHeader eyebrow="rexmetrix · technician · workbench" title="One room for the operator." lede={<>Filters, the field–bridge graph, the works and their licences, a selection, three actions that enable only when the bench law would pass, the note, and its export. HTML only — no well on this route. The workbench calls no model, fetches nothing, adds no bridge on its own, and refuses anything that is not a well-formed input.</>} />
+      <PageHeader eyebrow="rexmetrix · technician · workbench" title="One room for the operator." lede={<>Filters, the field–bridge graph, the project and its session bridges, the works and their licences, a selection, three actions that enable only when the bench law would pass, the note, the notes library, and the export — a note or the whole project as one pack. HTML only — no well on this route. The workbench calls no model, fetches nothing, adds no bridge on its own, and refuses anything that is not a well-formed input.</>} />
 
       <Section title="filters">
         <div className="flex flex-wrap items-center gap-2" data-testid="filters">
@@ -92,6 +95,10 @@ export function Technician() {
 
       <Section title="field–bridge graph">
         <FieldGraph cat={catalogue} highlighted={new Set(chosen.map((w) => w.field ?? ""))} missing={missing} activeField={fieldFilter} onPickField={setFieldFilter} />
+      </Section>
+
+      <Section title="project · name and session bridges">
+        <ProjectPanel />
       </Section>
 
       <Section title="works · only legal works enter">
@@ -119,8 +126,13 @@ export function Technician() {
         )}
       </Section>
 
+      <Section title="notes library">
+        <NotesLibrary current={outcome?.r.ok ? outcome.r.child.id : null} onOpen={(n) => setOutcome({ r: n.result, n: n.note })} />
+      </Section>
+
       <Section title="export">
-        {outcome?.r.ok && outcome.n ? <ExportPanel result={outcome.r} note={outcome.n} /> : <p className="text-xs text-dim">Run an action; a successful note can be copied or downloaded as Markdown. No network.</p>}
+        {outcome?.r.ok && outcome.n ? <ExportPanel result={outcome.r} note={outcome.n} /> : <p className="text-xs text-dim">Run an action; a successful note can be copied or downloaded as Markdown. The pack below carries the whole project. No network.</p>}
+        <PackPanel />
       </Section>
 
       <Section title="refuse glossary">

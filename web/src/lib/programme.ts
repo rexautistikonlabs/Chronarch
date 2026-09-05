@@ -23,6 +23,9 @@ export interface Bridge {
   status: BridgeStatus;
   ledger: { id: string; rating: Rating }[];
   register: { id: string; consequence: string; anti_rescue: boolean }[];
+  /** Set only on a session amendment declared by the operator on a project;
+   *  never present on a bridge shipped in a programme file. */
+  origin?: "operator";
 }
 
 export interface ProgrammeBody {
