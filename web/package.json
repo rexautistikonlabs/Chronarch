@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "build": "node scripts/check-chrome.mjs && tsc --noEmit -p tsconfig.json && vite build",
+    "check:chrome": "node scripts/check-chrome.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",

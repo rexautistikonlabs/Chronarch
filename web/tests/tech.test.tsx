@@ -12,7 +12,7 @@ describe("technician room", () => {
     expect(screen.getByTestId("apply-json")).toBeInTheDocument();
     expect(screen.getByTestId("load-session-opa.json")).toBeInTheDocument();
     expect(screen.getByTestId("load-session-solo.json")).toBeInTheDocument();
-    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public chain/i);
+    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a medical device/i);
     expect(screen.queryByTestId("tech-nav")).not.toBeInTheDocument(); // one room: no protocol sub-nav
   });
 

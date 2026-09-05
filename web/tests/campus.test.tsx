@@ -4,10 +4,9 @@
  *  their chapter. The Canvas is stubbed here (jsdom has no WebGL); the real
  *  one is checked in the browser. */
 import { fireEvent, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { BuildingKey } from "../src/campus/campusLayout";
-import { GATE_KEY } from "../src/lib/gate";
 import { renderAt } from "./render";
 
 vi.mock("../src/campus/Campus", () => ({
@@ -25,15 +24,14 @@ vi.mock("../src/campus/Campus", () => ({
 const reduceStub = (matches: boolean) => (q: string) => ({ matches: matches && q.includes("reduce"), media: q, onchange: null, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {}, dispatchEvent: () => false });
 
 describe("RexMetrix campus story", () => {
-  beforeEach(() => window.localStorage.setItem(GATE_KEY, "1")); // a return visit: past the gate
   afterEach(() => vi.unstubAllGlobals());
 
-  it("/ mounts one canvas when motion is allowed; the hero is STATUS, the wordmark and three text links — no manifesto box, no plates row", () => {
+  it("/ mounts one canvas when motion is allowed; the hero is the legal strip, the wordmark and three text links — no manifesto box, no plates row, no checkbox", () => {
     renderAt("/");
     expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "campus");
     expect(document.querySelectorAll("canvas")).toHaveLength(1);
     const hero = screen.getByTestId("hero");
-    expect(within(hero).getByTestId("landing-honesty")).toHaveTextContent("RexMetrix is a product house. Chronarch is research software. Not a public chain. Not Foundation-endorsed. Not a diagnostic.");
+    expect(within(hero).getByTestId("strip-llc")).toHaveTextContent("RexMetrix Technologies, LLC");
     expect(within(hero).getByTestId("landing-title")).toHaveTextContent("RexMetrix");
     const links = within(within(hero).getByTestId("landing-nav")).getAllByRole("link");
     expect(links.map((a) => a.textContent)).toEqual(["Chronarch", "Continuum", "Workbench"]);
@@ -43,8 +41,6 @@ describe("RexMetrix campus story", () => {
     expect(screen.queryByTestId("campus-legend")).not.toBeInTheDocument();
     expect(hero.textContent).not.toMatch(/Three buildings on one plate|how RexMetrix talks|builds research instruments/);
     expect(hero.querySelectorAll("button")).toHaveLength(0);
-    // honesty lives in STATUS on the first screen only
-    expect(screen.getAllByText(/Not Foundation-endorsed\./)).toHaveLength(1);
   });
 
   it("three chapters follow the hero with deep-link ids and scroll margins; Chronarch and Continuum have doors, Laterion says forthcoming with no route and no engine link", () => {
@@ -66,7 +62,7 @@ describe("RexMetrix campus story", () => {
     expect(source).toHaveAttribute("href", "https://github.com/rexautistikonlabs/scientificlab");
     expect(source).toHaveAttribute("target", "_blank");
     expect(source).toHaveAttribute("rel", "noopener noreferrer");
-    expect(source).toHaveTextContent(/^Continuum source/);
+    expect(source).toHaveTextContent(/^source repository/); // named once, as a source — never the door
     expect(co).toHaveTextContent(/not inside this app/);
     const fm = screen.getByTestId("chapter-laterion");
     expect(fm).toHaveTextContent(/FORTHCOMING/);

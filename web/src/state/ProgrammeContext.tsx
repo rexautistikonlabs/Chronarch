@@ -11,7 +11,7 @@ import worksFixture from "../../fixtures/works-preload.json";
 import { catalogueOf, programmeCounts, Refusal, validateChild, type Catalogue, type ChildPin, type ProgrammeFile } from "../lib/programme";
 import type { AnalysisNote } from "../lib/analysisNote";
 import type { BenchOk } from "../lib/bench";
-import { declareBridge as declareOn, newProject, operatorBridgeIds, withExtraBridges, withNote, withUpload, type DeclareResult, type Project, type ProjectNote } from "../lib/project";
+import { DEFAULT_PROJECT_NAME, declareBridge as declareOn, newProject, operatorBridgeIds, withExtraBridges, withNote, withUpload, type DeclareResult, type Project, type ProjectNote } from "../lib/project";
 import { clearSavedProject, loadProject, parseProject, saveProject, type ParseResult } from "../lib/projectStore";
 import { acceptUpload, worksMap, type UploadRequest, type UploadResult, type Work, type WorksFile } from "../lib/works";
 
@@ -62,7 +62,14 @@ export function ProgrammeProvider({ children, initial = "programme-zero.json" }:
   // a missing or corrupt key starts Untitled. Every change is written back.
   const [project, setProject] = useState<Project>(() => loadProject(PRELOAD_WORKS) ?? newProject(1));
   const [saved, setSaved] = useState(false);
-  useEffect(() => { setSaved(saveProject(project)); }, [project]);
+  // Nothing is written to this browser until the project differs from a fresh
+  // one: a visitor who only looks stores nothing (the strip says "on the
+  // workbench, a project" — and only once there is one).
+  useEffect(() => {
+    const pristine = project.name === DEFAULT_PROJECT_NAME && project.works.length === 0 && project.extra_bridges.length === 0 && project.notes.length === 0;
+    if (pristine) return;
+    setSaved(saveProject(project));
+  }, [project]);
   const files = useMemo(() => Object.values(PROGRAMMES), []);
   // The works table: the preload plus this project's session uploads.
   const works = useMemo(() => [...PRELOAD_WORKS, ...project.works.filter((w) => w.source === "upload")], [project.works]);

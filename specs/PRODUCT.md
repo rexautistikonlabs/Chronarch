@@ -12,31 +12,37 @@
   | Product | Where | On the landing |
   |---|---|---|
   | **Chronarch** | this repository, `/chronarch` | RUNNING · the lit lab block · the one door |
-  | **Continuum** | `https://continuum.rexmetrix.com` (its own deployment; source at `https://github.com/rexautistikonlabs/scientificlab`) | RUNNING · the shed, lit · a door: the door tween, then this origin is left for its address · never mounted inside this app · "Continuum is a simulation; its numbers are model outputs, not measurements of any person." |
+  | **Continuum** | `https://continuum.rexmetrix.com` — the one product URL (its source repository, `https://github.com/rexautistikonlabs/scientificlab`, is named once as a source, never as the door) | one state everywhere: **CONTINUUM · RUNNING** · the shed, lit · a door: the door tween, then this origin is left for its address · never mounted inside this app · "Continuum is a simulation; its numbers are model outputs, not measurements of any person." |
   | **Laterion** | a separate codebase, not in this repository | FORTHCOMING · NOT A DIAGNOSTIC · a windowless block · "Laterion records facial kinematics including partial trials and laterality. It is not a diagnostic, not a person-score, and not an assessment of anyone." · no route, no camera, no image, no landmark code here |
 
   This repository never claims Laterion is shipping, never claims
   scientificlab is embedded, and never adds scientificlab as a submodule or
   copies face-landmark, action-unit or trial-payload code.
 
-  **The gate.** The landing's first paint is a still panel: *RexMetrix is a
-  product house. Chronarch and Continuum are research software. / Not a public
-  chain. Not Foundation-endorsed. Not a diagnostic. Not a medical device. /
-  Continuum is a simulation; its numbers are model outputs, not measurements
-  of any person. / Laterion is not shipping here.* — with two attributions
-  (rexautistikonlabs.org; cyberphysics.ai — credit, not endorsement), a
-  checkbox and a button. `rexmetrix.gate.v1` remembers acceptance in that
-  browser. Then the campus, straight away — no title beat.
-- **Chronarch** is this product: the programme well (`/chronarch`), the
-  technician's workbench (`/chronarch/tech`), About (`/chronarch/about`). Its
-  name is on the title, the workbench heading, the pack footer, the first-run
-  panel and the honesty sentence on the app. `/tech` and the retired paths
-  redirect to `/chronarch/tech`; `/about` and `/consortium` to
-  `/chronarch/about`.
-- Chronarch is *one product of* RexMetrix. Neither name stands for the other,
-  and no page says the Foundation endorses any product.
-- Each product keeps its own engine and its own refusals. Continuum and
-  Laterion have no code in this repository.
+  **The first screen** is a shop window, not a splash: the catalogue is
+  visible on first paint, in both motion modes, with no checkbox and no
+  storage flag required (an old `rexmetrix.gate.v1`, if a browser holds it,
+  is ignored). A compact strip always shows: **RexMetrix Technologies, LLC**;
+  *Chronarch and Continuum are research software. Not a diagnostic. Not a
+  medical device.*; *Continuum: simulation; model outputs, not measurements of
+  any person.*; the Labs split (*Rex Autistikōn Labs, https://rexautistikonlabs.org,
+  is an independent 501(c)(3). Labs does not sell these products. RexMetrix
+  does not speak for Labs.*); the data sentence (*This browser may store a
+  preference and, on the workbench, a project in this browser only. We do not
+  sell that data. If we later record usage to improve the software or the
+  site, this notice will say so first.*); and credit, not endorsement — two
+  links in a new tab with `rel="noopener noreferrer"`: rexautistikonlabs.org
+  (literature and the Autistikon programme specification) and cyberphysics.ai
+  ("Cited architecture / public materials."). Above the fold, one buyer line:
+  *A local workbench for a group to declare fields, pin sources, and write a
+  synthesis that names its parents. Continuum is a separate simulation on its
+  own host.* The footer repeats the LLC and both links, and **Legal** expands
+  the same text in place. No analytics SDK exists in this repository; the only
+  storage is localStorage, and the strip says so. No substrate word (DACO,
+  Timechain, Chronos, Council, "not a public chain", Chia, PoST) appears on the
+  landing chrome or the Chronarch well chrome; `scripts/check-chrome.mjs` runs
+  before every build and fails on any of them, on "Continuum" near
+  "forthcoming", or on the GitHub URL used as a door.
 
 The sections below describe the product — Chronarch. Where older text says
 "RexMetrix" for the product, read Chronarch; the company name stays on the

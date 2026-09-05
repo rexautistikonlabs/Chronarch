@@ -17,7 +17,7 @@ describe("workbench chrome", () => {
     const banner = screen.getByTestId("status-banner");
     expect(banner).toHaveAttribute("data-fixed", "false");
     expect(screen.getByTestId("hud-top")).toHaveAttribute("data-fixed", "false");
-    expect(banner).toHaveTextContent(/not a public chain/i);
+    expect(banner).toHaveTextContent(/not a medical device/i);
     expect(screen.getByTestId("title-row")).toHaveTextContent("Chronarch · Technician · workbench");
     expect(screen.getByTestId("amateur-strip")).toHaveTextContent("Pick two or more works → choose Converge, Compare, or Analyze → read the note.");
     // the banner precedes the title in document order (it cannot overlap it)
@@ -42,7 +42,7 @@ describe("workbench filters", () => {
     const all = visibleIds();
     expect(all.length).toBe(12);
     for (const id of STAND_INS) expect(all).toContain(id);
-    expect(screen.getByTestId("programme-work-pz-ledger-structure")).toHaveTextContent("Autistikon (example)");
+    expect(screen.getByTestId("programme-work-pz-ledger-structure")).toHaveTextContent("Autistikon (example corpus)");
     expect(screen.getByTestId("programme-work-darwin-1859")).toHaveTextContent("Classics");
 
     fireEvent.click(screen.getByTestId("filter-autistikon"));

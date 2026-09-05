@@ -10,7 +10,7 @@ import { useSession } from "../state/SessionContext";
 import { useWell } from "../state/WellContext";
 
 export const PLAIN_STATUS =
-  "Chronarch is research software for hypothesis-led programmes: an array of fields, the bridges a group declares between them, and syntheses that name their parents. It is not a diagnostic, it is not Foundation-endorsed, and it is not a public chain. Made by RexMetrix, a product house.";
+  "Chronarch is research software for hypothesis-led programmes: an array of fields, the bridges a group declares between them, and syntheses that name their parents. It is not a diagnostic, not a medical device, and not Foundation-endorsed. Made by RexMetrix Technologies, LLC — a product, not the Labs.";
 
 export function HudTop({ fixed = true }: { fixed?: boolean }) {
   const { isTech, setPaletteOpen } = useWell();

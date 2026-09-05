@@ -6,7 +6,7 @@ import { renderAt } from "./render";
 describe("chronarch well (/chronarch)", () => {
   it("says Chronarch and what it is not, above the fold and in the banner", () => {
     renderAt("/chronarch");
-    expect(screen.getByTestId("plain-status")).toHaveTextContent(/Chronarch .* not a public chain/);
+    expect(screen.getByTestId("plain-status")).toHaveTextContent(/Chronarch .* not a medical device/);
     expect(screen.getByTestId("status-banner")).toHaveTextContent(/Chronarch/);
     expect(document.title === "" || true).toBe(true);
   });

@@ -98,7 +98,7 @@ export function Technician() {
           {fieldFilter && (
             <Button onPress={() => setFieldFilter(null)} className="readout border hair px-2.5 py-1 text-xs text-ivory" data-testid="clear-field-filter">field: {fieldFilter} ×</Button>
           )}
-          <span className="readout text-[11px] text-dim">All = every preload + this session's uploads · Autistikon = the Programme Zero stand-ins · Classics = the six public-domain fields</span>
+          <span className="readout text-[11px] text-dim">All = every preload + this session's uploads · Autistikon = the example corpus (Programme Zero stand-ins) — not the product · Classics = the six public-domain fields</span>
         </div>
       </Section>
 

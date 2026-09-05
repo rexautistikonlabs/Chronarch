@@ -27,8 +27,8 @@ describe("programme well", () => {
     expect(plain).toHaveTextContent(/research software for hypothesis-led programmes/);
     expect(plain).toHaveTextContent(/not a diagnostic/);
     expect(plain).toHaveTextContent(/not Foundation-endorsed/);
-    expect(plain).toHaveTextContent(/not a public chain/);
-    expect(screen.getByTestId("status-banner")).toHaveTextContent(/Not a public chain/);
+    expect(plain).toHaveTextContent(/not a medical device/);
+    expect(screen.getByTestId("status-banner")).toHaveTextContent(/Not a medical device/);
   });
 
   it("Programme Zero vs the toy programme changes field_count 2 → 3 and bridge_count 1 → 2", () => {

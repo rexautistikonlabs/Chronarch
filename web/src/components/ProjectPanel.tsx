@@ -53,7 +53,7 @@ export function ProjectPanel() {
       </div>
       <p className="readout mt-1 text-[11px] text-mute" data-testid="saved-line">
         Saved in this browser only.{" "}
-        <span className="text-dim">{saved ? `localStorage key ${PROJECT_STORAGE_KEY} · no cookies, no server, no analytics · hand it around as project.json below` : "this browser refused storage — the project lives in memory until you download it"}</span>
+        <span className="text-dim">{saved ? `localStorage key ${PROJECT_STORAGE_KEY} · no cookies, no server, no analytics · hand it around as project.json below` : project.works.length === 0 && project.extra_bridges.length === 0 && project.notes.length === 0 ? "nothing stored yet — a project is written to this browser once it differs from a fresh one" : "this browser refused storage — the project lives in memory until you download it"}</span>
       </p>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">

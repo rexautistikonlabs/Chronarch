@@ -12,7 +12,7 @@ describe("operator bench", () => {
     expect(screen.queryByTestId("viewport-fallback")).not.toBeInTheDocument();
     expect(document.querySelector(".scanlines")).toBeNull();
     expect(screen.getByTestId("tech-bench")).toBeInTheDocument();
-    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a public chain/i);
+    expect(screen.getByTestId("status-banner")).toHaveTextContent(/not a medical device/i);
     tech.unmount();
     renderAt("/chronarch");
     // jsdom has no WebGL: the well's still fallback stands where the canvas would

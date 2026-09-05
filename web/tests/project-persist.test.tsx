@@ -32,7 +32,7 @@ describe("project persistence", () => {
   it("writes rexmetrix.project.v1 after rename, declare, note, upload and clear-bridges; nothing else is stored; no cookie", () => {
     renderAt("/tech");
     expect(screen.getByTestId("saved-line")).toHaveTextContent("Saved in this browser only.");
-    expect(stored()).toMatchObject({ name: "Untitled project" });
+    expect(stored()).toBeNull(); // nothing is written until the project differs from a fresh one
     fireEvent.change(screen.getByTestId("project-name"), { target: { value: "Kept across reload" } });
     expect(stored().name).toBe("Kept across reload");
     declareNaturalHistoryOptics();
@@ -175,9 +175,8 @@ describe("project persistence", () => {
     fireEvent.click(screen.getByTestId("clear-project"));
     expect(screen.getByTestId("project-name")).toHaveValue("Untitled project");
     expect(screen.getByTestId("extra-bridges")).toHaveTextContent("no extra bridges");
-    // the effect re-saves the fresh Untitled project; the old one is gone
-    expect(stored().name).toBe("Untitled project");
-    expect(stored().extra_bridges).toEqual([]);
+    // the key is gone and a fresh Untitled project is not written back
+    expect(stored()).toBeNull();
     fireEvent.click(screen.getByTestId("filter-autistikon"));
     expect(new Set(visibleIds())).toEqual(new Set(STAND_INS));
     expect(visibleIds()).toHaveLength(2);

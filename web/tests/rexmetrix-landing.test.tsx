@@ -4,9 +4,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fireEvent, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
-
-import { GATE_KEY } from "../src/lib/gate";
+import { describe, expect, it } from "vitest";
 
 import { findVisitorBanned } from "../src/lib/banned";
 import { STAND_INS } from "../src/lib/filters";
@@ -16,7 +14,6 @@ import { renderAt } from "./render";
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
 
 describe("RexMetrix landing", () => {
-  beforeEach(() => window.localStorage.setItem(GATE_KEY, "1"));
   it("/ is the story: hero, then Chronarch, Continuum, Laterion; the honesty sentence; no canvas without WebGL; no well", () => {
     renderAt("/");
     const body = document.body.textContent ?? "";
@@ -26,7 +23,7 @@ describe("RexMetrix landing", () => {
     expect(body).toContain("Continuum");
     expect(body).toContain("Laterion");
     expect(body).toMatch(/not a diagnostic/i);
-    expect(screen.getByTestId("landing-honesty")).toHaveTextContent("RexMetrix is a product house. Chronarch is research software. Not a public chain. Not Foundation-endorsed. Not a diagnostic.");
+    expect(screen.getByTestId("legal-strip")).toHaveTextContent("RexMetrix Technologies, LLC. Chronarch and Continuum are research software. Not a diagnostic. Not a medical device.");
     expect(document.querySelectorAll("canvas")).toHaveLength(0); // jsdom: no WebGL, so the chapters stack
     expect(screen.queryByTestId("viewport")).not.toBeInTheDocument();
     expect(screen.queryByTestId("viewport-fallback")).not.toBeInTheDocument();

@@ -310,29 +310,27 @@ driver), so there is no wheel zoom and no idle spin. Under
 prefers-reduced-motion, or without WebGL, the campus is not mounted: the hero
 and the three chapters stand as stacked HTML, 0 canvas.
 
-## 5d. Gate, then the campus
+## 5d. The first screen is a shop window
 
-The landing opens on law. **First paint is the gate**: a full-screen still
-panel before any 3D — four lines (*RexMetrix is a product house. Chronarch and
-Continuum are research software. / Not a public chain. Not Foundation-endorsed.
-Not a diagnostic. Not a medical device. / Continuum is a simulation; its
-numbers are model outputs, not measurements of any person. / Laterion is not
-shipping here.*), two attributions as new-tab links (rexautistikonlabs.org —
-literature and the Autistikon programme specification; cyberphysics.ai —
-cited architecture / public materials; *credit, not endorsement*), a checkbox
-and an Enter button that stays disabled until the box is ticked. No loop, no
-animation in either motion mode. Accepting writes `rexmetrix.gate.v1`; a
-return visit skips the panel.
-
-**Then the campus** — straight away. There is no title beat: nothing plays
-between the gate and the plate, and a return visit lands on the campus.
+The catalogue is visible on first paint. No checkbox, no splash, no storage
+flag: the campus (or the stacked chapters under reduced motion / without
+WebGL) and, beside it, the law in a compact strip — RexMetrix Technologies,
+LLC; Chronarch and Continuum are research software, not a diagnostic, not a
+medical device; Continuum: simulation, model outputs, not measurements of any
+person; the Labs split; the data sentence; credit, not endorsement, with the
+two attribution links in a new tab. Above the fold, one buyer line: *A local
+workbench for a group to declare fields, pin sources, and write a synthesis
+that names its parents. Continuum is a separate simulation on its own host.*
+The footer repeats the LLC and both links; **Legal** expands the same text in
+place, never a wall.
 
 Two buildings are doors and one is not:
 
 - **CHRONARCH · RUNNING** — the door tween, then `/chronarch`.
-- **CONTINUUM · RUNNING** — the same door tween, then this origin is left for
-  `https://continuum.rexmetrix.com`. Continuum is never mounted inside this
-  app; its chapter says so and carries a secondary source link.
+- **CONTINUUM · RUNNING** — one state everywhere; the same door tween, then
+  this origin is left for `https://continuum.rexmetrix.com`, Continuum's one
+  product URL. Its source repository is named once, as a source, never as
+  the door. Continuum is never mounted inside this app.
 - **LATERION · FORTHCOMING · NOT A DIAGNOSTIC** — no door: the chapter only,
   with its three negations.
 
@@ -342,8 +340,9 @@ ledger and invalidates per tick; on completion the route changes and the
 campus unmounts. Under reduced motion, or without the campus, a door is an
 immediate route change.
 
-Chrome after the gate: one STATUS line, the wordmark, three small text links
-(Chronarch, Continuum, Workbench); the footer carries the two attribution URLs.
+No substrate word — DACO, Timechain, Chronos, Council, "not a public chain",
+Chia, PoST — appears on the landing chrome or the Chronarch well chrome;
+`scripts/check-chrome.mjs` fails the build on any of them.
 
 ## 6. Rejected (kept rejected)
 
@@ -385,6 +384,8 @@ Chrome after the gate: one STATUS line, the wordmark, three small text links
   Its door leaves this origin.
 - **Foundation endorsement** — no. The attributions are credit for literature
   and cited materials; every mention of endorsement on the site is a negation.
+- **A checkbox before the catalogue** — no. The law is visible on the first
+  screen and again in the footer; it does not gate the shop window.
 - **A manifesto on the hero** — no. The first screen is three readable
   buildings, one STATUS line, a wordmark and two links; the story is told by
   scrolling, not by a box of rules over the render.

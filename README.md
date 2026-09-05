@@ -121,7 +121,8 @@ JSON you paste from `chronarch memory` / `pulse` / `net status` — as stacked
 rings, sealed scars, rods in a well, a tensegrity Hearth, Council seats and a
 sealed DummyMind, then holds still: the rest pose is seeded by the head hash and
 events play once. It spawns no node and reads no filesystem, and it says on
-every page what STATUS.md says: not a public blockchain. Doctrine and the
+every page what it is not — a diagnostic, a medical device — while STATUS.md
+keeps the substrate's own sentence. Doctrine and the
 rejected ideas are in [`web/docs/VISUAL.md`](web/docs/VISUAL.md).
 
 ## Reading order

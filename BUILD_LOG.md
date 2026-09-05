@@ -1822,6 +1822,45 @@ Bug: the technician room still exposed a second product — /council,
   one-shot or not, it is a hero animation, and the campus needs no
   announcement.
 
+## The first screen is a shop window
+
+- No blocking checkbox. The catalogue (the campus, or the stacked chapters
+  under reduced motion / without WebGL) is visible on first paint. The law is
+  a compact strip on that first screen — RexMetrix Technologies, LLC;
+  Chronarch and Continuum are research software, not a diagnostic, not a
+  medical device; Continuum: simulation, model outputs, not measurements of
+  any person; the Labs split (an independent 501(c)(3); Labs does not sell
+  these products; RexMetrix does not speak for Labs); the data sentence
+  (preference and workbench project in this browser only; not sold; notice
+  before any usage recording); credit, not endorsement (two new-tab links;
+  cyberphysics.ai as "Cited architecture / public materials."). The footer
+  repeats the LLC and both links; "Legal" expands the same text in place.
+  `rexmetrix.gate.v1` is ignored for rendering; the Gate component is deleted.
+- One buyer line above the fold: "A local workbench for a group to declare
+  fields, pin sources, and write a synthesis that names its parents.
+  Continuum is a separate simulation on its own host."
+- Continuum has one state (RUNNING) and one product URL
+  (https://continuum.rexmetrix.com). GitHub scientificlab appears once, as
+  "source repository", never as the door and never near "forthcoming".
+  `scripts/check-chrome.mjs` runs before every build and fails on "Continuum"
+  within 40 characters of "forthcoming" in any visitor string, on the GitHub
+  URL used as a CTA, and on any substrate word (DACO, Timechain, Chronos,
+  Council, "not a public chain", Chia, PoST) in landing chrome. The web
+  honesty sentences dropped "not a public chain" for "not a medical device";
+  the pack's closing list keeps it (an export, not chrome).
+- Chronarch inner: the Autistikon filter reads "Autistikon · example corpus —
+  not the product"; the Programme column reads "Autistikon (example corpus)".
+- Laterion: forthcoming, no door, no capability list beyond its one sentence.
+- REJECTED:
+  - **Checkbox before catalogue** — a blocking legal panel on first paint. The
+    law is visible; it does not gate the shop window.
+  - **Continuum forthcoming + GitHub as door** — a second state or a code
+    repository as the product CTA. One state, one URL.
+  - **Trade name only** — "RexMetrix" without the LLC on the first screen and
+    the footer. The company is named as it is registered.
+  - **Silent analytics** — stays rejected: no beacon without the strip saying
+    so first.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

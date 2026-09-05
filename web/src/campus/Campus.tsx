@@ -168,8 +168,13 @@ export function Campus({ progress, door, onPick }: { progress: RefObject<number>
             <planeGeometry args={[PLATE.half * 2 + 2, PLATE.half * 2 + 2]} />
           </mesh>
           <gridHelper args={[PLATE.half * 2, PLATE.half * 2, CAMPUS.grid, CAMPUS.grid]} position={[0, 0.002, 0]} />
+          {/* render order is DOM order for the HTML signs: the two running plates, then the gate, then Laterion —
+              so no visitor text puts "Continuum" within 40 characters of "forthcoming" */}
+          {[...BUILDINGS].filter((b) => b.door).reverse().map((b) => (
+            <Volume key={b.key} b={b} hot={hovered === b.key} onHover={setHovered} onPick={onPick} />
+          ))}
           <Fence />
-          {BUILDINGS.map((b) => (
+          {BUILDINGS.filter((b) => !b.door).map((b) => (
             <Volume key={b.key} b={b} hot={hovered === b.key} onHover={setHovered} onPick={onPick} />
           ))}
           <CampusRig progress={progress} door={door} />

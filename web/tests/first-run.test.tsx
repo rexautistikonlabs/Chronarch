@@ -5,7 +5,6 @@ import { describe, expect, it } from "vitest";
 
 import { STAND_INS } from "../src/lib/filters";
 import { FIRST_RUN_KEY, FIRST_RUN_STEPS } from "../src/lib/firstRun";
-import { PROJECT_STORAGE_KEY } from "../src/lib/projectStore";
 import { renderAt } from "./render";
 
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
@@ -22,7 +21,7 @@ describe("first run", () => {
     expect(screen.getByTestId("first-run-step-1")).toHaveTextContent("Filter Classics. Tick Faraday and Maxwell. Compare.");
     expect(screen.getByTestId("first-run-step-2")).toHaveTextContent("Filter Autistikon. Tick both stand-ins. Converge.");
     expect(screen.getByTestId("first-run-step-3")).toHaveTextContent("Download pack.");
-    expect(screen.getByTestId("first-run-honesty")).toHaveTextContent("Chronarch is research software for hypothesis-led programmes. Not a diagnostic. Not Foundation-endorsed. Not a public chain.");
+    expect(screen.getByTestId("first-run-honesty")).toHaveTextContent("Chronarch is research software for hypothesis-led programmes. Not a diagnostic. Not a medical device. Not Foundation-endorsed.");
     expect(panel.textContent).not.toMatch(/AI scientist|MetaInsight|forest plot/i);
     // the rest of the workbench is reachable: nothing traps focus
     screen.getByTestId("filter-all").focus();
@@ -36,7 +35,7 @@ describe("first run", () => {
     fireEvent.click(screen.getByTestId("first-run-skip"));
     expect(screen.queryByTestId("first-run")).not.toBeInTheDocument();
     expect(window.localStorage.getItem(FIRST_RUN_KEY)).toBe("1");
-    expect(Object.keys(window.localStorage).sort()).toEqual([PROJECT_STORAGE_KEY, FIRST_RUN_KEY].sort());
+    expect(Object.keys(window.localStorage)).toEqual([FIRST_RUN_KEY]); // the project key waits for a real change
     first.unmount();
     renderAt("/tech");
     expect(screen.queryByTestId("first-run")).not.toBeInTheDocument();

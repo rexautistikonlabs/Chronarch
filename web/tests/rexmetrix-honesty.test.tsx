@@ -4,10 +4,9 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { findVisitorBanned, VISITOR_BANNED } from "../src/lib/banned";
-import { GATE_KEY } from "../src/lib/gate";
 import { renderAt } from "./render";
 
 const ROOT = join(__dirname, "..");
@@ -22,20 +21,19 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 describe("RexMetrix honesty", () => {
-  beforeEach(() => window.localStorage.setItem(GATE_KEY, "1")); // past the gate; the gate itself is screened in gate.test
   it("the floor names Chronarch and says what it is not; the landing names RexMetrix and Chronarch and says the same", () => {
     const floor = renderAt("/chronarch");
     let text = document.body.textContent ?? "";
     expect(text).toMatch(/Chronarch/);
     expect(text).toMatch(/not Foundation-endorsed/i);
     expect(text).toMatch(/not a diagnostic/i);
-    expect(text).toMatch(/not a public chain/i);
+    expect(text).toMatch(/not a medical device/i);
     floor.unmount();
     renderAt("/");
     text = document.body.textContent ?? "";
-    expect(text).toMatch(/RexMetrix is a product house/);
-    expect(text).toMatch(/Chronarch is research software/);
-    expect(text).toMatch(/Not a public chain\. Not Foundation-endorsed\. Not a diagnostic\./);
+    expect(text).toMatch(/RexMetrix Technologies, LLC/);
+    expect(text).toMatch(/Chronarch and Continuum are research software/);
+    expect(text).toMatch(/Not a diagnostic\. Not a medical device\./);
   });
 
   it("the rendered landing, floor and about page carry no banned visitor phrase", () => {
@@ -53,8 +51,8 @@ describe("RexMetrix honesty", () => {
       join(ROOT, "src/pages/Floor.tsx"),
       join(ROOT, "src/pages/About.tsx"),
       join(ROOT, "src/pages/Landing.tsx"),
-      join(ROOT, "src/lib/gate.ts"),
-      join(ROOT, "src/components/Gate.tsx"),
+      join(ROOT, "src/lib/legal.ts"),
+      join(ROOT, "src/components/LegalStrip.tsx"),
       ...walk(join(ROOT, "src/campus")),
       join(ROOT, "src/lib/human.ts"),
       join(ROOT, "src/lib/programme.ts"),

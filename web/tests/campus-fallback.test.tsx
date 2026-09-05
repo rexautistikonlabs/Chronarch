@@ -3,14 +3,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
-
-import { GATE_KEY } from "../src/lib/gate";
+import { describe, expect, it } from "vitest";
 
 import { renderAt } from "./render";
 
 describe("landing without WebGL", () => {
-  beforeEach(() => window.localStorage.setItem(GATE_KEY, "1"));
   it("stacks the chapters with mode no-webgl; 0 canvas; the well is absent; the three names and the negations are present", () => {
     renderAt("/");
     expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "no-webgl");
