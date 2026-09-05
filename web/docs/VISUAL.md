@@ -230,6 +230,44 @@ display): the name of Chia's production network; a CHIP-48 compatibility claim;
 a wallet-connect call to action; a token price; a TVL figure; the phrase "live
 network". **Law:** `tests/honesty.test.ts`.
 
+## 5b. RexMetrix campus (the landing at `/`)
+
+`/` is the company's landing and, with motion allowed and WebGL present, a
+**campus**: one canvas, one world, load once, clickable places — the Bruno
+Simon idea in a contractor's register. A poured pad on a grid, one fence with
+one gate plated REXMETRIX, three volumes:
+
+- **CHRONARCH · RUNNING** — the lab block: lit windows (one instanced mesh of
+  phosphor planes), a door plate, edges that light on hover. Its door is a
+  route: `/chronarch`.
+- **CONTINUUM · FORTHCOMING** — a darker shed. A card, not a door.
+- **FACE MAP · FORTHCOMING · NOT A DIAGNOSTIC** — a windowless block. A card,
+  not a door; its copy stays *not a diagnostic; not a person-score; not an
+  assessment of anyone*.
+
+Clicking a building (or its plate in the docked legend, which is the keyboard
+path) opens a **docked HTML panel** in the app's own chrome — name, status, one
+sentence, the negations, and *Enter Chronarch* only on the running building.
+The honesty sentence is the top strip; the footer keeps the domain
+reservation and claims nothing about DNS.
+
+**Same law as the well.** `src/campus/Campus.tsx` subscribes to the render
+policy: `frameloop` is the ledger's word ("demand" at rest), `dpr [1, 1.5]`,
+`shadows={false}`, no EffectComposer, no environment map, no texture, a
+handful of shared materials. `src/campus/CampusRig.tsx` is the well's rig on a
+simpler goal: a slow damped orbit while dragging on the ground plane, a zoom
+on wheel, a one-shot GSAP tween (held, invalidating per tick) when the
+selection changes, `useFrame` reading `delta` only. No hover parallax, no
+vehicle, no physics. When nothing holds the ledger, no frame is drawn: the
+campus is still. Tone: `#0b0d0c` background, `#1a1e1c` metal, `#e8e4d8`
+ivory, `#8faf88` phosphor, `#2a302c` hairline.
+
+**Not mounted** under `prefers-reduced-motion` or without WebGL: the same
+catalogue stands as three cards. **Unmounted** on the way into `/chronarch`
+so the well has the GPU to itself — one WebGL context at a time, and never a
+second one on `/chronarch/tech`, which stays HTML. The landing never imports
+the well scene.
+
 ## 6. Rejected (kept rejected)
 
 - **Idle drift / breathing / slow orbit** — no. It reads as life the organism
@@ -255,6 +293,14 @@ network". **Law:** `tests/honesty.test.ts`.
 - **Smearing Programme Zero onto every field** — no. Its method travels (bridge
   statement, locked array, rated ledger, register, stop clock); its content —
   eight sensorimotor interfaces, a corpus's array — does not become a template.
+- **A Bruno Simon car clone** — no. A drivable vehicle, physics, honks,
+  collectibles, balloons, a mascot: lag and a toy feel on a page whose job is
+  to say what three instruments are not. The campus is approached by a slow
+  orbit and a click.
+- **A second WebGL context on `/chronarch/tech`** — no. The workbench is
+  HTML; the campus unmounts before the well mounts.
+- **A face model on the landing** — no. Face mapping is a windowless block
+  and a sentence; no image is read, no landmark code exists here.
 - **A theme-park loop** — no. A "fun" idle — particles, drift, a looping
   hero — would make the floor feel alive between records. Nothing happened, so
   nothing moves. The floor is still until a bench or a record is chosen, then

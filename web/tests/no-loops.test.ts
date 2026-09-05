@@ -34,6 +34,7 @@ const BANNED = [
 ];
 
 const RIG = "src/scene/PointerRig.tsx";
+const RIGS = new Set([RIG, "src/campus/CampusRig.tsx"]); // the well's rig and the campus rig: both read delta, never a clock
 
 describe("animation law", () => {
   it("web/ spells no repeating animation", () => {
@@ -55,19 +56,18 @@ describe("animation law", () => {
 
   const stripComments = (text: string) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 
-  it("the pointer rig is the only per-frame hook, and it never reads a clock", () => {
+  it("the two pointer rigs are the only per-frame hooks, and neither reads a clock", () => {
     const files = walk(join(ROOT, "src")).filter((f) => /\.tsx?$/.test(f));
     for (const file of files) {
       const rel = relative(ROOT, file);
       const text = stripComments(readFileSync(file, "utf8")); // code, not prose
-      if (rel !== RIG) expect(text, rel).not.toMatch(/useFrame\(/);
+      if (!RIGS.has(rel)) expect(text, rel).not.toMatch(/useFrame\(/);
       // no clock anywhere in the scene or the hud: no elapsed time, no wall clock, no rAF loop of our own
-      if (rel.startsWith("src/scene") || rel.startsWith("src/hud")) {
+      if (rel.startsWith("src/scene") || rel.startsWith("src/hud") || rel.startsWith("src/campus")) {
         expect(text, rel).not.toMatch(/\bclock\b|elapsedTime|getElapsedTime|performance\.now|Date\.now|requestAnimationFrame|setInterval/);
       }
     }
-    const rig = readFileSync(join(ROOT, RIG), "utf8");
-    expect(rig).toMatch(/useFrame\(\(_state, delta\)/); // delta in, clock never
+    for (const r of RIGS) expect(readFileSync(join(ROOT, r), "utf8"), r).toMatch(/useFrame\(\(_state, delta\)/); // delta in, clock never
     const well = readFileSync(join(ROOT, "src/scene/Well.tsx"), "utf8");
     expect(well).toMatch(/subscribe\(\(awake\) => \{\s*setLoop\(awake \? "always" : "demand"\)/); // the loop mode follows the ledger …
     expect(well).toMatch(/if \(!awake\) invalidate\(\)/); // … and sleeping paints one last frame
@@ -85,6 +85,24 @@ describe("animation law", () => {
     const energy = readFileSync(join(ROOT, "src/scene/Energy.tsx"), "utf8");
     expect(energy).toContain("if (!spiking) return null;"); // no EffectComposer at rest
     expect(energy).toMatch(/multisampling=\{0\}/);
+  });
+
+  it("the campus on / obeys the same law: demand at rest, ledger-driven loop, no shadows, no post-processing, no environment map, no well import", () => {
+    const campus = readFileSync(join(ROOT, "src/campus/Campus.tsx"), "utf8");
+    expect(campus).toContain("frameloop={loop}");
+    expect(campus).toMatch(/useState<"always" \| "demand">\("demand"\)/);
+    expect(campus).toMatch(/subscribe\(\(awake\) => \{\s*setLoop\(awake \? "always" : "demand"\)/);
+    expect(campus).toMatch(/if \(!awake\) invalidate\(\)/);
+    expect(campus).toContain("dpr={[1, 1.5]}");
+    expect(campus).toContain("shadows={false}");
+    expect(campus).not.toMatch(/castShadow|receiveShadow|EffectComposer|Environment|useTexture|TextureLoader|RGBELoader|Physics|useRapier|cannon/);
+    expect(campus).not.toMatch(/scene\/Well|Catalogue3D|scene\/Timechain|scene\/Council/);
+    const landing = readFileSync(join(ROOT, "src/pages/Landing.tsx"), "utf8");
+    expect(landing).not.toMatch(/scene\/Well|Catalogue3D|useFrame|Canvas/);
+    const rig = readFileSync(join(ROOT, "src/campus/CampusRig.tsx"), "utf8");
+    for (const t of rig.match(/gsap\.timeline\(\{[\s\S]*?\}\);/g) ?? []) expect(t).toMatch(/onUpdate: \(\) => \{[\s\S]*invalidate\(\)/);
+    expect(rig).toMatch(/hold\("/);
+    expect(stripComments(rig)).not.toMatch(/parallax|hover|Physics|velocity|wheelbase|honk/i); // drag orbit and wheel only
   });
 
   it("every tween that moves the camera, the iris or the bloom invalidates on every tick and holds the loop", () => {

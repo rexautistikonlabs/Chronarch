@@ -1687,6 +1687,38 @@ Bug: the technician room still exposed a second product — /council,
   - **Claiming DNS** — the CNAME file reserves; it does not report.
   - **A backend, accounts or Stripe on the landing** — static HTML only.
 
+## RexMetrix campus — the landing in three.js
+
+- `/` is now a campus when motion is allowed and WebGL is present: one canvas
+  (R3F, already in the repo), a poured pad in a fence with a REXMETRIX gate,
+  three volumes — CHRONARCH · RUNNING (lit lab block, a door to /chronarch),
+  CONTINUUM · FORTHCOMING (dark shed, card only), FACE MAP · FORTHCOMING ·
+  NOT A DIAGNOSTIC (windowless block, card only). Click or plate opens a
+  docked HTML panel in the app's chrome; Enter Chronarch only on the running
+  building. Under prefers-reduced-motion, or without WebGL, the campus is
+  not mounted and the three cards stand.
+- Same render law as the well: frameloop from the ledger, demand at rest,
+  dpr [1, 1.5], no shadows, no post-processing, no environment map, no
+  texture, shared materials, instanced windows and fence posts. The rig is
+  drag-orbit and wheel-zoom with delta-only damping; one-shot tween on
+  selection. The landing never imports the well; the campus unmounts on the
+  way into /chronarch; /chronarch/tech stays HTML with 0 canvas.
+- Tests: campus mode with a stubbed canvas (one canvas; plates; cards not
+  doors; Enter Chronarch unmounts the campus and mounts the well), reduced
+  motion (0 canvas, cards), no-WebGL fallback, layout data, contractor copy,
+  the animation law extended to a second rig and to src/campus.
+- REJECTED:
+  - **A Bruno Simon car clone** — drivable vehicle, physics, honk, balloons,
+    collectibles, joke NPCs, rainbow. Physics is lag and a toy feel; the tone
+    is a contractor's lab. Slow orbit and a click approach a building.
+  - **A second WebGL context on /chronarch/tech** — the workbench is HTML.
+  - **A face model** — Face mapping is a block and two negations; no image is
+    read, no landmark code exists.
+  - **A drei Text sign** — troika would fetch a font from a CDN; signs are
+    HTML plates in the app's own type instead.
+  - **Idle motion on the campus** — nothing breathes, drifts or orbits on
+    its own; at rest no frame is drawn.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).
