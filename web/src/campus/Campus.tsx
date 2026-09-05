@@ -1,7 +1,7 @@
 /** The RexMetrix campus: one fixed canvas behind the story, drawn on demand.
  *  A poured pad in a fence with one gate, three volumes — a lit lab block
  *  (Chronarch, running), a dark shed (Continuum, forthcoming), a windowless
- *  block (Face mapping, forthcoming, not a diagnostic). Scroll drives the
+ *  block (Laterion, forthcoming, not a diagnostic). Scroll drives the
  *  camera (see CampusRig); a building lights its edge on hover; clicking
  *  Chronarch is a door, clicking the others scrolls to their chapter. Lit for
  *  a screenshot: hemisphere plus a dim key, lifted faces, emissive windows —

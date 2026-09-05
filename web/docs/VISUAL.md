@@ -241,9 +241,9 @@ one gate plated REXMETRIX, three volumes:
   phosphor planes), a door plate, edges that light on hover. Its door is a
   route: `/chronarch`.
 - **CONTINUUM · FORTHCOMING** — a darker shed. A card, not a door.
-- **FACE MAP · FORTHCOMING · NOT A DIAGNOSTIC** — a windowless block. A card,
+- **LATERION · FORTHCOMING · NOT A DIAGNOSTIC** — a windowless block. A card,
   not a door; its copy stays *not a diagnostic; not a person-score; not an
-  assessment of anyone*.
+  assessment of anyone*. (It was signed FACE MAP before the product was named.)
 
 Clicking a building (or its plate in the docked legend, which is the keyboard
 path) opens a **docked HTML panel** in the app's own chrome — name, status, one
@@ -281,13 +281,19 @@ the well scene.
 - **Chapter 1 (⅓) — Chronarch** fills the frame. "Research software that is
   running." Two more sentences at most, the negations, and the one CTA on the
   page: *Open Chronarch* → `/chronarch`.
-- **Chapter 2 (⅔) — Continuum.** One sentence and FORTHCOMING. No engine link.
-- **Chapter 3 (1) — Face mapping.** Forthcoming; *not a diagnostic; not a
-  person-score; not an assessment of anyone*. No engine link.
+- **Chapter 2 (⅔) — Continuum.** Two sentences and FORTHCOMING. Its one link
+  is an external text link, *Continuum source*, to
+  `https://github.com/rexautistikonlabs/scientificlab` (`target="_blank"`,
+  `rel="noopener noreferrer"`). No in-app Continuum route; nothing of it is
+  embedded here.
+- **Chapter 3 (1) — Laterion.** "Laterion records facial kinematics including
+  partial trials and laterality. It is not a diagnostic, not a person-score,
+  and not an assessment of anyone." Not shipping in this repository: no
+  camera, no image, no landmark code here. No engine link.
 
 Chapters are `<section id=…>` with a scroll margin, so `#chronarch`,
-`#continuum` and `#face-mapping` deep-link. Clicking the Chronarch building
-or its sign is the door (`/chronarch`); clicking Continuum or Face mapping
+`#continuum` and `#laterion` deep-link. Clicking the Chronarch building
+or its sign is the door (`/chronarch`); clicking Continuum or Laterion
 scrolls to its chapter and nothing else.
 
 **Light.** Hemisphere plus a dim ivory key and a faint phosphor fill; faces
@@ -335,7 +341,7 @@ and the three chapters stand as stacked HTML, 0 canvas.
   orbit and a click.
 - **A second WebGL context on `/chronarch/tech`** — no. The workbench is
   HTML; the campus unmounts before the well mounts.
-- **A face model on the landing** — no. Face mapping is a windowless block
+- **A face model on the landing** — no. Laterion is a windowless block
   and a sentence; no image is read, no landmark code exists here.
 - **A manifesto on the hero** — no. The first screen is three readable
   buildings, one STATUS line, a wordmark and two links; the story is told by

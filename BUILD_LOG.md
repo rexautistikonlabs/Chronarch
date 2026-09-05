@@ -1750,6 +1750,33 @@ Bug: the technician room still exposed a second product — /council,
   - **Bloom to make windows read** — a composer at rest; the material emits
     instead.
 
+## Laterion named; Continuum linked — name and link only
+
+- The windowless block is signed LATERION · FORTHCOMING · NOT A DIAGNOSTIC and
+  its chapter reads: "Laterion records facial kinematics including partial
+  trials and laterality. It is not a diagnostic, not a person-score, and not
+  an assessment of anyone." plus a line that it is not shipping in this
+  repository. Every visitor-facing "Face mapping" / "FACE MAP" is gone (this
+  log keeps the history). The building key and the deep link are `laterion`.
+- Continuum's one link is an external text link, *Continuum source*, to
+  https://github.com/rexautistikonlabs/scientificlab (target _blank, rel
+  noopener noreferrer). No in-app Continuum route; the chapter says nothing
+  of it is embedded here. Clicking the shed still scrolls to its chapter.
+- Chronarch's door is unchanged. The landing honesty line is unchanged.
+- Tests: rendered / contains Laterion and no visible "Face mapping"/"FACE
+  MAP"; the scientificlab URL is an <a href> with the exact URL and rel;
+  /laterion is the 404 with no canvas and no video; the three negations
+  stay; Autistikon two stand-ins on /chronarch/tech.
+- REJECTED:
+  - **A git submodule of scientificlab** — the codebases stay separate; a
+    name and a link are the whole integration.
+  - **Face payload in Chronarch** — copying face-landmark, action-unit or
+    trial-payload code into this repository, or mounting a camera anywhere.
+    Laterion is a block, a sign and three negations here.
+  - **A /laterion or /continuum route** — an in-app page would imply an engine
+    that does not exist here.
+  - **Fetching GitHub** — the link is a link; nothing is fetched.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

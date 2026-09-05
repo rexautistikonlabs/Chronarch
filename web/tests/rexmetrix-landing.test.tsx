@@ -14,14 +14,14 @@ import { renderAt } from "./render";
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
 
 describe("RexMetrix landing", () => {
-  it("/ is the story: hero, then Chronarch, Continuum, Face mapping; the honesty sentence; no canvas without WebGL; no well", () => {
+  it("/ is the story: hero, then Chronarch, Continuum, Laterion; the honesty sentence; no canvas without WebGL; no well", () => {
     renderAt("/");
     const body = document.body.textContent ?? "";
     expect(screen.getByTestId("landing-page")).toBeInTheDocument();
     expect(screen.getByTestId("landing-title")).toHaveTextContent("RexMetrix");
     expect(body).toContain("Chronarch");
     expect(body).toContain("Continuum");
-    expect(body).toContain("Face mapping");
+    expect(body).toContain("Laterion");
     expect(body).toMatch(/not a diagnostic/i);
     expect(screen.getByTestId("landing-honesty")).toHaveTextContent("RexMetrix is a product house. Chronarch is research software. Not a public chain. Not Foundation-endorsed. Not a diagnostic.");
     expect(document.querySelectorAll("canvas")).toHaveLength(0); // jsdom: no WebGL, so the chapters stack
@@ -31,9 +31,9 @@ describe("RexMetrix landing", () => {
     expect(screen.getByTestId("chapters").querySelectorAll("section")).toHaveLength(3);
     expect(screen.getByTestId("chapter-chronarch")).toHaveAttribute("data-status", "RUNNING");
     expect(screen.getByTestId("chapter-continuum")).toHaveAttribute("data-status", "FORTHCOMING");
-    expect(screen.getByTestId("chapter-face-mapping")).toHaveAttribute("data-status", "FORTHCOMING");
-    expect(screen.getByTestId("chapter-face-mapping")).toHaveTextContent(/not a diagnostic/);
-    expect(screen.getByTestId("chapter-face-mapping")).toHaveTextContent(/not a person-score/);
+    expect(screen.getByTestId("chapter-laterion")).toHaveAttribute("data-status", "FORTHCOMING");
+    expect(screen.getByTestId("chapter-laterion")).toHaveTextContent(/not a diagnostic/);
+    expect(screen.getByTestId("chapter-laterion")).toHaveTextContent(/not a person-score/);
     expect(screen.getByTestId("landing-footer")).toHaveTextContent(/Domain reserved for the RexMetrix landing/);
     expect(screen.getByTestId("landing-footer")).not.toHaveTextContent(/DNS is live/);
   });
@@ -49,7 +49,11 @@ describe("RexMetrix landing", () => {
     expect(body).not.toMatch(/\bassess(es|ing)? (a|the|each) person\b/i);
     expect(body).not.toMatch(/Chronarch is RexMetrix/);
     expect(body).toMatch(/Chronarch is one of its products/);
-    for (const c of CHAPTERS.filter((x) => x.status === "FORTHCOMING")) expect(c.cta).toBeNull();
+    for (const c of CHAPTERS.filter((x) => x.status === "FORTHCOMING")) expect(c.cta === null || c.cta.external === true).toBe(true); // no in-app route for a forthcoming product
+    expect(body).not.toMatch(/Face mapping|FACE MAP/);
+    expect(body).toContain("Laterion");
+    expect(body).not.toMatch(/Laterion is (running|shipping|live)/);
+    expect(document.querySelector('a[href="https://github.com/rexautistikonlabs/scientificlab"]')).not.toBeNull();
   });
 
   it("Chronarch still runs the bench: /chronarch/tech is the workbench, /tech redirects there, Autistikon shows exactly two stand-ins; /chronarch is the well; /about redirects to About Chronarch", () => {

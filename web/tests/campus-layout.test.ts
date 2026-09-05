@@ -9,15 +9,15 @@ const TOY = /\b(car|kart|vehicle|honk|balloon|collectible|rainbow|bounc\w*|kids?
 
 describe("campus layout", () => {
   it("three buildings; only Chronarch runs, has windows and a door; the others are forthcoming with no route", () => {
-    expect(BUILDINGS.map((b) => b.key)).toEqual(["chronarch", "continuum", "face-mapping"]);
+    expect(BUILDINGS.map((b) => b.key)).toEqual(["chronarch", "continuum", "laterion"]);
     expect(buildingByKey("chronarch")).toMatchObject({ status: "RUNNING", windows: true, route: "/chronarch", shade: "lab", at: 1 / 3 });
     expect(buildingByKey("continuum")).toMatchObject({ status: "FORTHCOMING", windows: false, route: null, shade: "shed", at: 2 / 3 });
-    expect(buildingByKey("face-mapping")).toMatchObject({ status: "FORTHCOMING", windows: false, route: null, shade: "blank", at: 1 });
-    expect(SIGN_LINES["face-mapping"]).toBe("FACE MAP · FORTHCOMING · NOT A DIAGNOSTIC");
+    expect(buildingByKey("laterion")).toMatchObject({ status: "FORTHCOMING", windows: false, route: null, shade: "blank", at: 1 });
+    expect(SIGN_LINES.laterion).toBe("LATERION · FORTHCOMING · NOT A DIAGNOSTIC");
     expect(GATE.label).toBe("REXMETRIX");
   });
 
-  it("the story: 0 is the hero (farthest, all in frame), 1/3 Chronarch, 2/3 Continuum, 1 Face mapping; between keyframes the goal interpolates; out of range clamps", () => {
+  it("the story: 0 is the hero (farthest, all in frame), 1/3 Chronarch, 2/3 Continuum, 1 Laterion; between keyframes the goal interpolates; out of range clamps", () => {
     expect(KEYFRAMES.map((k) => k.at)).toEqual([0, 1 / 3, 2 / 3, 1]);
     const hero = storyGoal(0);
     for (const b of BUILDINGS) {
@@ -36,15 +36,17 @@ describe("campus layout", () => {
   });
 
   it("chapters: at most three sentences each; Chronarch alone has a CTA; the copy is a contractor's, not a playground's", () => {
-    expect(CHAPTERS.map((c) => c.key)).toEqual(["chronarch", "continuum", "face-mapping"]);
+    expect(CHAPTERS.map((c) => c.key)).toEqual(["chronarch", "continuum", "laterion"]);
     for (const c of CHAPTERS) expect(c.sentences.length).toBeLessThanOrEqual(3);
     expect(CHAPTERS[0]!.cta).toEqual({ to: "/chronarch", label: "Open Chronarch" });
     expect(CHAPTERS[0]!.sentences[0]).toBe("Research software that is running.");
-    expect(CHAPTERS[1]!.cta).toBeNull();
+    expect(CHAPTERS[1]!.cta).toEqual({ to: "https://github.com/rexautistikonlabs/scientificlab", label: "Continuum source", external: true });
     expect(CHAPTERS[2]!.cta).toBeNull();
     expect(CHAPTERS[2]!.isNot).toEqual(["not a diagnostic", "not a person-score", "not an assessment of anyone"]);
     const copy = [...Object.values(SIGN_LINES), GATE.label, ...FOOTER_RULES, ...CHAPTERS.flatMap((c) => [c.name, ...c.sentences, ...c.isNot])].join("\n");
     expect(copy).not.toMatch(TOY);
     expect(copy).not.toMatch(/Three buildings on one plate/); // the manifesto is gone
+    expect(copy).not.toMatch(/Face mapping|FACE MAP/);
+    expect(copy).toMatch(/Laterion records facial kinematics including partial trials and laterality\./);
   });
 });

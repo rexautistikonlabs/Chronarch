@@ -19,6 +19,9 @@ export function Shell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const landing = pathname === "/";
   const about = pathname === "/chronarch/about";
+  // Only Chronarch's rooms mount the well. Anything else that is not the
+  // landing — the 404, a redirect in flight — is a flat page with no canvas.
+  const chronarch = pathname === "/chronarch" || pathname.startsWith("/chronarch/");
   if (landing) {
     return (
       <div className="min-h-screen bg-void text-ivory" data-testid="landing-page">
@@ -26,6 +29,13 @@ export function Shell({ children }: { children: ReactNode }) {
           <Palette />
         </ErrorBoundary>
         <main>{children}</main>
+      </div>
+    );
+  }
+  if (!chronarch && !isTech) {
+    return (
+      <div className="min-h-screen bg-void text-ivory" data-testid="flat-page">
+        <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
       </div>
     );
   }

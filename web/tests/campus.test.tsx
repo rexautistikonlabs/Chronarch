@@ -16,7 +16,7 @@ vi.mock("../src/campus/Campus", () => ({
       <canvas data-testid="campus-canvas" />
       <button type="button" data-testid="sign-chronarch" onClick={() => onPick("chronarch")}>CHRONARCH · RUNNING</button>
       <button type="button" data-testid="sign-continuum" onClick={() => onPick("continuum")}>CONTINUUM · FORTHCOMING</button>
-      <button type="button" data-testid="sign-face-mapping" onClick={() => onPick("face-mapping")}>FACE MAP · FORTHCOMING · NOT A DIAGNOSTIC</button>
+      <button type="button" data-testid="sign-laterion" onClick={() => onPick("laterion")}>LATERION · FORTHCOMING · NOT A DIAGNOSTIC</button>
     </div>
   ),
 }));
@@ -49,7 +49,7 @@ describe("RexMetrix campus story", () => {
     renderAt("/");
     const chapters = screen.getByTestId("chapters");
     const ids = Array.from(chapters.querySelectorAll("section")).map((s) => s.id);
-    expect(ids).toEqual(["chronarch", "continuum", "face-mapping"]);
+    expect(ids).toEqual(["chronarch", "continuum", "laterion"]);
     for (const s of Array.from(chapters.querySelectorAll("section"))) expect((s as HTMLElement).style.scrollMarginTop).toBe("3rem");
     const ch = screen.getByTestId("chapter-chronarch");
     expect(ch).toHaveTextContent("Research software that is running.");
@@ -58,25 +58,37 @@ describe("RexMetrix campus story", () => {
     expect(ch.querySelectorAll("p").length).toBeLessThanOrEqual(6); // label, ≤3 sentences, is-not
     const co = screen.getByTestId("chapter-continuum");
     expect(co).toHaveTextContent(/FORTHCOMING/);
-    expect(co.querySelectorAll("a")).toHaveLength(0);
+    // Continuum's one link is its source on GitHub: an external text link, not an in-app route
+    const anchors = co.querySelectorAll("a");
+    expect(anchors).toHaveLength(1);
+    expect(anchors[0]).toHaveAttribute("href", "https://github.com/rexautistikonlabs/scientificlab");
+    expect(anchors[0]).toHaveAttribute("target", "_blank");
+    expect(anchors[0]).toHaveAttribute("rel", "noopener noreferrer");
+    expect(anchors[0]).toHaveTextContent(/^Continuum source/);
     expect(within(co).getByTestId("forthcoming-continuum")).toBeInTheDocument();
-    const fm = screen.getByTestId("chapter-face-mapping");
+    expect(co).toHaveTextContent(/nothing of it is embedded here/);
+    const fm = screen.getByTestId("chapter-laterion");
     expect(fm).toHaveTextContent(/FORTHCOMING/);
-    expect(within(fm).getByTestId("is-not-face-mapping")).toHaveTextContent("not a diagnostic · not a person-score · not an assessment of anyone");
+    expect(within(fm).getByTestId("is-not-laterion")).toHaveTextContent("not a diagnostic · not a person-score · not an assessment of anyone");
     expect(fm.querySelectorAll("a")).toHaveLength(0);
-    for (const a of Array.from(document.querySelectorAll("a"))) expect(a.getAttribute("href") ?? "").not.toMatch(/\/(continuum|face)/);
+    for (const a of Array.from(document.querySelectorAll("a"))) expect(a.getAttribute("href") ?? "").not.toMatch(/^\/(continuum|laterion|face)/);
+    expect(screen.getByTestId("chapter-laterion")).toHaveTextContent("Laterion records facial kinematics including partial trials and laterality.");
+    expect(screen.getByTestId("chapter-laterion")).toHaveTextContent(/not shipping in this repository/);
+    const body = document.body.textContent ?? "";
+    expect(body).toContain("Laterion");
+    expect(body).not.toMatch(/Face mapping|FACE MAP/);
     expect(screen.getByTestId("landing-footer")).toHaveTextContent(/Domain reserved for the RexMetrix landing/);
     expect(screen.getByTestId("landing-footer")).not.toHaveTextContent(/DNS is live|is live/);
   });
 
-  it("clicking the Chronarch building navigates to /chronarch and unmounts the campus; clicking Continuum or Face mapping only scrolls to the chapter", () => {
+  it("clicking the Chronarch building navigates to /chronarch and unmounts the campus; clicking Continuum or Laterion only scrolls to the chapter", () => {
     const spy = vi.spyOn(Element.prototype, "scrollIntoView").mockImplementation(function (this: Element) { (this as HTMLElement).dataset.scrolledTo = "1"; });
     renderAt("/");
     fireEvent.click(screen.getByTestId("sign-continuum"));
     expect(screen.getByTestId("landing-body")).toBeInTheDocument(); // still on /
     expect(screen.getByTestId("chapter-continuum")).toHaveAttribute("data-scrolled-to", "1");
-    fireEvent.click(screen.getByTestId("sign-face-mapping"));
-    expect(screen.getByTestId("chapter-face-mapping")).toHaveAttribute("data-scrolled-to", "1");
+    fireEvent.click(screen.getByTestId("sign-laterion"));
+    expect(screen.getByTestId("chapter-laterion")).toHaveAttribute("data-scrolled-to", "1");
     expect(screen.getByTestId("landing-body")).toBeInTheDocument();
     expect(spy).toHaveBeenCalledTimes(2);
     fireEvent.click(screen.getByTestId("sign-chronarch"));
@@ -95,7 +107,19 @@ describe("RexMetrix campus story", () => {
     expect(screen.queryByTestId("campus-viewport")).not.toBeInTheDocument();
     expect(screen.getByTestId("chapters").querySelectorAll("section")).toHaveLength(3);
     const body = document.body.textContent ?? "";
-    for (const s of ["Chronarch", "Continuum", "Face mapping", "not a diagnostic", "not a person-score", "not an assessment of anyone"]) expect(body).toContain(s);
+    for (const s of ["Chronarch", "Continuum", "Laterion", "not a diagnostic", "not a person-score", "not an assessment of anyone"]) expect(body).toContain(s);
+    expect(body).not.toMatch(/Face mapping|FACE MAP/);
+  });
+
+  it("there is no /laterion route: it lands on the 404 with no canvas and no camera", () => {
+    renderAt("/laterion");
+    expect(document.querySelectorAll("canvas")).toHaveLength(0);
+    expect(document.querySelectorAll("video")).toHaveLength(0);
+    expect(document.body.textContent).toMatch(/No such page/);
+    // a flat page: the well is not mounted behind an unknown route (jsdom would show its still fallback)
+    expect(screen.queryByTestId("viewport")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("viewport-fallback")).not.toBeInTheDocument();
+    expect(screen.getByTestId("flat-page")).toBeInTheDocument();
   });
 
   it("/chronarch/tech is still HTML with 0 canvas and the Autistikon filter shows exactly two stand-ins", () => {

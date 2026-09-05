@@ -15,9 +15,9 @@ describe("landing without WebGL", () => {
     expect(screen.queryByTestId("campus-viewport")).not.toBeInTheDocument();
     expect(screen.queryByTestId("viewport")).not.toBeInTheDocument();
     expect(screen.queryByTestId("viewport-fallback")).not.toBeInTheDocument();
-    for (const k of ["chronarch", "continuum", "face-mapping"]) expect(screen.getByTestId(`chapter-${k}`)).toHaveAttribute("id", k);
+    for (const k of ["chronarch", "continuum", "laterion"]) expect(screen.getByTestId(`chapter-${k}`)).toHaveAttribute("id", k);
     const body = document.body.textContent ?? "";
-    for (const s of ["Chronarch", "Continuum", "Face mapping", "not a diagnostic", "not Foundation-endorsed", "not a person-score", "not an assessment of anyone"]) expect(body).toContain(s);
+    for (const s of ["Chronarch", "Continuum", "Laterion", "not a diagnostic", "not Foundation-endorsed", "not a person-score", "not an assessment of anyone"]) expect(body).toContain(s);
   });
 
   it("the landing and the campus never import the Chronarch well scene", () => {

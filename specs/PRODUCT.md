@@ -3,11 +3,21 @@
 ## Brand
 
 - **RexMetrix** is the company: a product house, and the landing site at `/`
-  for all of its products. The landing is a short catalogue — Chronarch (this
-  lab), Continuum (a one-sentence placeholder), Face mapping (a one-sentence
-  placeholder that says: not a diagnostic; not a person-score). Its honesty
-  line: *RexMetrix is a product house. Chronarch is research software. Not a
-  public chain. Not Foundation-endorsed. Not a diagnostic.*
+  for all of its products. Its honesty line: *RexMetrix is a product house.
+  Chronarch is research software. Not a public chain. Not Foundation-endorsed.
+  Not a diagnostic.*
+
+  **Product map** (name and link only — the codebases are not merged):
+
+  | Product | Where | On the landing |
+  |---|---|---|
+  | **Chronarch** | this repository, `/chronarch` | RUNNING · the lit lab block · the one door |
+  | **Continuum** | `https://github.com/rexautistikonlabs/scientificlab` | FORTHCOMING · a dark shed · one external text link, *Continuum source* · no in-app route; nothing of it is embedded here |
+  | **Laterion** | a separate codebase, not in this repository | FORTHCOMING · NOT A DIAGNOSTIC · a windowless block · "Laterion records facial kinematics including partial trials and laterality. It is not a diagnostic, not a person-score, and not an assessment of anyone." · no route, no camera, no image, no landmark code here |
+
+  This repository never claims Laterion is shipping, never claims
+  scientificlab is embedded, and never adds scientificlab as a submodule or
+  copies face-landmark, action-unit or trial-payload code.
 - **Chronarch** is this product: the programme well (`/chronarch`), the
   technician's workbench (`/chronarch/tech`), About (`/chronarch/about`). Its
   name is on the title, the workbench heading, the pack footer, the first-run
@@ -16,8 +26,8 @@
   `/chronarch/about`.
 - Chronarch is *one product of* RexMetrix. Neither name stands for the other,
   and no page says the Foundation endorses any product.
-- Each product keeps its own engine and its own refusals. Continuum and Face
-  mapping have no code in this repository; their entries are placeholders.
+- Each product keeps its own engine and its own refusals. Continuum and
+  Laterion have no code in this repository.
 
 The sections below describe the product — Chronarch. Where older text says
 "RexMetrix" for the product, read Chronarch; the company name stays on the

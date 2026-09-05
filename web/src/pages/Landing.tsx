@@ -2,9 +2,11 @@
  *  The canvas is fixed behind the page; scroll progress 0–1 is the only
  *  driver of the camera (no idle spin). A hero — STATUS, the wordmark, two
  *  text links — then three chapters, each at most three sentences, with a
- *  scroll margin so #chronarch, #continuum and #face-mapping deep-link.
- *  Chronarch is the one product that runs here and the only door; the other
- *  two are cards with no engine and no route. Under prefers-reduced-motion,
+ *  scroll margin so #chronarch, #continuum and #laterion deep-link.
+ *  Chronarch is the one product that runs here and the only door. Continuum
+ *  is a chapter whose one link is its source repository on GitHub (an
+ *  external text link; nothing of it is embedded here). Laterion is a chapter
+ *  with no route and no engine; it is not shipping in this repository. Under prefers-reduced-motion,
  *  or without WebGL, the campus is not mounted and the same hero and chapters
  *  stand as stacked HTML. This page never imports the Chronarch well. */
 import { useCallback, useEffect, useRef } from "react";
@@ -22,8 +24,10 @@ export interface Chapter {
   status: "RUNNING" | "FORTHCOMING";
   sentences: string[]; // at most three
   isNot: string[];
-  cta: { to: string; label: string } | null; // only the running product has a door
+  cta: { to: string; label: string; external?: true } | null; // Chronarch's door, or Continuum's source link
 }
+
+export const SCIENTIFICLAB_URL = "https://github.com/rexautistikonlabs/scientificlab";
 
 export const CHAPTERS: readonly Chapter[] = [
   {
@@ -38,15 +42,15 @@ export const CHAPTERS: readonly Chapter[] = [
     key: "continuum",
     name: "Continuum",
     status: "FORTHCOMING",
-    sentences: ["A planned instrument for reading a programme's ledger and register over time; nothing is built and nothing more is claimed here."],
-    isNot: ["not built", "not an engine shared with Chronarch"],
-    cta: null,
+    sentences: ["A planned instrument for reading a programme's ledger and register over time.", "Its source lives in the scientificlab repository on GitHub; nothing of it is embedded here, and there is no Continuum route in this app."],
+    isNot: ["not embedded here", "not an engine shared with Chronarch"],
+    cta: { to: SCIENTIFICLAB_URL, label: "Continuum source", external: true },
   },
   {
-    key: "face-mapping",
-    name: "Face mapping",
+    key: "laterion",
+    name: "Laterion",
     status: "FORTHCOMING",
-    sentences: ["A planned instrument for describing landmark geometry in consented images as measurements a study can cite.", "Nothing is built here and no image is read."],
+    sentences: ["Laterion records facial kinematics including partial trials and laterality.", "It is not a diagnostic, not a person-score, and not an assessment of anyone.", "It is not shipping in this repository: no camera, no image, no landmark code here."],
     isNot: ["not a diagnostic", "not a person-score", "not an assessment of anyone"],
     cta: null,
   },
@@ -81,14 +85,17 @@ function ChapterBlock({ c, stacked }: { c: Chapter; stacked: boolean }) {
   return (
     <section id={c.key} className={`flex ${stacked ? "py-16" : "min-h-screen items-center justify-end"} px-6`} style={{ scrollMarginTop: "3rem" }} data-testid={`chapter-${c.key}`} data-status={c.status} aria-labelledby={`${c.key}-title`}>
       <div className={`hud-card pointer-events-auto ${stacked ? "w-full max-w-2xl" : "w-full max-w-md"}`}>
-        <p className="hud-label">{c.name.toUpperCase().replace("FACE MAPPING", "FACE MAP")} · {c.status}{c.key === "face-mapping" ? " · NOT A DIAGNOSTIC" : ""}</p>
+        <p className="hud-label">{c.name.toUpperCase()} · {c.status}{c.key === "laterion" ? " · NOT A DIAGNOSTIC" : ""}</p>
         <h2 id={`${c.key}-title`} className="mt-2 text-xl font-semibold text-ivory">{c.name}</h2>
         {c.sentences.map((s) => <p key={s} className="mt-2 text-[14px] leading-relaxed text-mute">{s}</p>)}
         <p className="readout mt-3 text-[11px] text-dim" data-testid={`is-not-${c.key}`}>{c.isNot.join(" · ")}</p>
-        {c.cta ? (
+        {c.cta?.external ? (
+          <a href={c.cta.to} target="_blank" rel="noopener noreferrer" className="hud-button mt-4 inline-block" data-testid={`cta-${c.key}`}>{c.cta.label} ↗</a>
+        ) : c.cta ? (
           <Link to={c.cta.to} className="hud-button mt-4 inline-block" data-testid={`cta-${c.key}`}>{c.cta.label}</Link>
-        ) : (
-          <p className="readout mt-4 text-[11px] uppercase tracking-wider text-dim" data-testid={`forthcoming-${c.key}`}>forthcoming · no route, no engine</p>
+        ) : null}
+        {c.status === "FORTHCOMING" && (
+          <p className="readout mt-3 text-[11px] uppercase tracking-wider text-dim" data-testid={`forthcoming-${c.key}`}>forthcoming · no route in this app, no engine here</p>
         )}
       </div>
     </section>
