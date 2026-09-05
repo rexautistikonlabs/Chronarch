@@ -12,12 +12,28 @@
   | Product | Where | On the landing |
   |---|---|---|
   | **Chronarch** | this repository, `/chronarch` | RUNNING · the lit lab block · the one door |
-  | **Continuum** | `https://continuum.rexmetrix.com` — the one product URL (its source repository, `https://github.com/rexautistikonlabs/scientificlab`, is named once as a source, never as the door) | one state everywhere: **CONTINUUM · RUNNING** · the shed, lit · a door: the door tween, then this origin is left for its address · never mounted inside this app · "Continuum is a simulation; its numbers are model outputs, not measurements of any person." |
+  | **Continuum** | `https://continuum.rexmetrix.com` — the one product URL (its source repository, `https://github.com/rexautistikonlabs/scientificlab`, is named once as a source, never as the door) | one state everywhere: **CONTINUUM · RUNNING** · the shed, lit · a door that opens its host in a new tab · never mounted inside this app · "a literature-informed biotensegrity and afferent-flow teaching simulation — model outputs, not measurements of a person; not a diagnostic; not a programme ledger" |
   | **Laterion** | a separate codebase, not in this repository | FORTHCOMING · NOT A DIAGNOSTIC · a windowless block · "Laterion records facial kinematics including partial trials and laterality. It is not a diagnostic, not a person-score, and not an assessment of anyone." · no route, no camera, no image, no landmark code here |
 
   This repository never claims Laterion is shipping, never claims
   scientificlab is embedded, and never adds scientificlab as a submodule or
   copies face-landmark, action-unit or trial-payload code.
+
+  **Continuum, one product.** Continuum is a literature-informed biotensegrity
+  and afferent-flow *teaching simulation* on https://continuum.rexmetrix.com.
+  Its numbers are model outputs, not measurements of a person. It is not a
+  diagnostic and not a programme ledger; it does not read any record over
+  time. It is RUNNING; its door and its only product URL are that host; the
+  GitHub repository appears once, as "source repository". Everything
+  visitor-facing — the landing strip, the campus chapter, the READMEs, this
+  file — says the same, and `scripts/check-chrome.mjs` fails a build in which
+  the simulation's name sits within sixty characters of a ledger word, a chain
+  word or a "forthcoming" state.
+
+  **Default programme.** A cold `/chronarch/tech` (and the well) opens on the
+  **Classics** programme. The Autistikon corpus stays a chip labelled "example
+  corpus — not the product"; it is never the default selected filter or the
+  default loaded programme.
 
   **The first screen** is a shop window, not a splash: the catalogue is
   visible on first paint, in both motion modes, with no checkbox and no
@@ -41,8 +57,8 @@
   storage is localStorage, and the strip says so. No substrate word (DACO,
   Timechain, Chronos, Council, "not a public chain", Chia, PoST) appears on the
   landing chrome or the Chronarch well chrome; `scripts/check-chrome.mjs` runs
-  before every build and fails on any of them, on "Continuum" near
-  "forthcoming", or on the GitHub URL used as a door.
+  before every build and fails on any of them, on the simulation's name near a
+  "forthcoming" state, or on the GitHub URL used as a door.
 
 The sections below describe the product — Chronarch. Where older text says
 "RexMetrix" for the product, read Chronarch; the company name stays on the

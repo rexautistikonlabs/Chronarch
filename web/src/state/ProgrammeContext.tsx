@@ -56,7 +56,8 @@ interface ProgrammeCtx {
 
 const Ctx = createContext<ProgrammeCtx | null>(null);
 
-export function ProgrammeProvider({ children, initial = "programme-zero.json" }: { children: ReactNode; initial?: ProgrammeName }) {
+// A cold load opens on the Classics programme: the Autistikon example corpus is a chip, never the default.
+export function ProgrammeProvider({ children, initial = "programme-classics.json" }: { children: ReactNode; initial?: ProgrammeName }) {
   const [programmeName, setName] = useState<ProgrammeName>(initial);
   // Hydrate once from this browser's storage through the fail-closed guard;
   // a missing or corrupt key starts Untitled. Every change is written back.

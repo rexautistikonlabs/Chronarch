@@ -37,7 +37,7 @@ describe("first screen", () => {
     for (const l of LEGAL_LINES) expect(strip).toHaveTextContent(l);
     expect(within(strip).getByTestId("strip-llc")).toHaveTextContent(LLC);
     expect(strip).toHaveTextContent("Chronarch and Continuum are research software. Not a diagnostic. Not a medical device.");
-    expect(strip).toHaveTextContent("Continuum: simulation; model outputs, not measurements of any person.");
+    expect(strip).toHaveTextContent("Continuum: a literature-informed biotensegrity and afferent-flow teaching simulation on https://continuum.rexmetrix.com. Model outputs, not measurements of a person. Not a programme ledger.");
     expect(within(strip).getByTestId("strip-split")).toHaveTextContent("Rex Autistikōn Labs (https://rexautistikonlabs.org) is an independent 501(c)(3). Labs does not sell these products. RexMetrix does not speak for Labs.");
     expect(within(strip).getByTestId("strip-data")).toHaveTextContent(LEGAL.data);
     expect(within(strip).getByTestId("strip-data")).toHaveTextContent(/We do not sell that data\./);

@@ -1,7 +1,7 @@
 /** The RexMetrix campus: one fixed canvas behind the story, drawn on demand.
  *  A poured pad in a fence with one gate, three volumes — a lit lab block
- *  (Chronarch, running), a dark shed (Continuum, forthcoming), a windowless
- *  block (Laterion, forthcoming, not a diagnostic). Scroll drives the
+ *  (Chronarch, running), a lit shed (Continuum, running, a door to its own
+ *  host), a windowless block (Laterion, forthcoming, not a diagnostic). Scroll drives the
  *  camera (see CampusRig); a building lights its edge on hover; clicking a
  *  running product is a door (Chronarch: a route; Continuum: another origin),
  *  clicking Laterion scrolls to its chapter. Lit for

@@ -1,14 +1,19 @@
-# web/ — RexMetrix landing + Chronarch (programme well, technician room)
+# web/ — RexMetrix landing + Chronarch (programme well, workbench)
 
-A static Vite app: the visitor's **programme well** for RexMetrix, and the
-**technician room** for whoever runs the substrate. It draws static JSON
-fixtures — two programmes and one synthesis child; two technical session
-records — and holds still.
+**RexMetrix Technologies, LLC.** A static Vite app: the landing at `/` and
+**Chronarch** — a local workbench for declared fields, pinned sources, and
+syntheses that name their parents (`/chronarch`, `/chronarch/tech`).
+**Continuum** is a separate, literature-informed biotensegrity and afferent-flow
+teaching simulation at https://continuum.rexmetrix.com — model outputs, not
+measurements of a person; not a programme ledger; not built or served here.
+Laterion is not shipping here.
 
-> RexMetrix is research software for hypothesis-led programmes: fields, the
-> bridges a group declares between them, programmes as subgraphs, and syntheses
-> that name their parents. It is not a diagnostic, not Foundation-endorsed, and
-> not a diagnostic and not a medical device. This site spawns no node and reads no filesystem.
+> Not a diagnostic. Not a medical device. Not Foundation-endorsed. Rex
+> Autistikōn Labs (https://rexautistikonlabs.org) is a separate 501(c)(3);
+> Labs does not sell these products and RexMetrix does not speak for Labs.
+> This site spawns no process, opens no socket, reads no filesystem, calls no
+> model. The Autistikon programme is the example corpus, not the product, and
+> not what a cold workbench opens on.
 
 ## Dev
 
@@ -41,7 +46,7 @@ awake only while something holds the render policy and for 200 ms after. See
 | Route | Who | What |
 |---|---|---|
 | `/` | anyone | the **RexMetrix landing**: a shop window — the law in a compact strip (RexMetrix Technologies, LLC; not a diagnostic; not a medical device; the Labs split; the data sentence; credit, not endorsement) beside the company's catalogue — Chronarch (this lab, running), Continuum (running at continuum.rexmetrix.com — a door that leaves this origin; not mounted here; source on GitHub) and Laterion (forthcoming; not a diagnostic, not a person-score, not an assessment of anyone; not shipping here); the landing honesty line; a scroll-driven campus when motion is allowed, stacked HTML otherwise |
-| `/chronarch` | a visitor | **Chronarch** — the programme well: honesty sentence, two programme chips (*Programme Zero*, *Toy programme*), four benches (**Fields, Bridges, Programmes, Synthesis**), readouts in programme words (fields, bridges, assumptions rated, falsifiers registered, items locked, stops on). No protocol names, no hex, no credits. |
+| `/chronarch` | a visitor | **Chronarch** — the programme well: honesty sentence, three programme chips (*Classics* selected on a cold load, *Toy programme*, *Programme Zero* — the example corpus), four benches (**Fields, Bridges, Programmes, Synthesis**), readouts in programme words (fields, bridges, assumptions rated, falsifiers registered, items locked, stops on). No protocol names, no hex, no credits. |
 | `/chronarch/about` | a visitor | what Chronarch is, Programme Zero as the example programme, what Chronarch will not ship; `/about` and `/consortium` redirect here |
 | `/chronarch/tech` | a technician | **one workbench**, one column: filters (All \| Autistikon \| Classics), a field–bridge graph of live bridges only, the project (name, Declare bridge as a session amendment, Clear extra bridges), the works table with a Programme column and the upload model, Converge / Compare / Analyze that disable with a reason, the AnalysisNote, the notes library, Copy Markdown / Download .md, Download pack (the whole project as one .md) and Download project.json / import (saved in this browser only under `rexmetrix.project.v1`; no server); then the refuse glossary and a closed "substrate instrument" details block (programmes, fixtures, paste JSON, hashes; the research substrate under Chronarch, not offered as a feature). `/tech`, `/lab`, `/council`, `/timechain`, `/hearth`, `/farm`, `/gym`, `/operator` redirect here. |
 

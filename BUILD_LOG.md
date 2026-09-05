@@ -1887,6 +1887,40 @@ Bug: the technician room still exposed a second product — /council,
     every door must be able to close without navigating.
   - **An iframe for Continuum** — stays rejected; the door is a new tab.
 
+## Public words match the products; the example corpus leaves first paint
+
+- README.md (root) now leads with the product: RexMetrix Technologies, LLC;
+  Chronarch as a local workbench for declared fields, pinned sources and
+  syntheses that name their parents; Continuum as a separate teaching
+  simulation at https://continuum.rexmetrix.com; not a diagnostic; Labs as a
+  separate 501(c)(3). DACO / Timechain / "Chronos is blood" / Council / PoST
+  moved under "Implementation note (lab-v0 substrate)" so a GitHub quote
+  cannot start there. web/README.md leads the same way (its mangled honesty
+  quote is fixed) with no chain words above the fold.
+- Continuum is one product everywhere: a literature-informed biotensegrity
+  and afferent-flow teaching simulation on its own host — model outputs, not
+  measurements of a person; not a diagnostic; not a programme ledger; never
+  "read a Timechain over time". RUNNING; door and primary URL only that host;
+  GitHub scientificlab once as "source repository". `check-chrome.mjs` now
+  fails a build on "Continuum" near "ledger", "Timechain" or "forthcoming" in
+  visitor files or either README (the negation "not a programme ledger" is
+  stripped first). VISUAL.md's two historical lines that still said
+  FORTHCOMING now read as the present.
+- Default programme: the provider opens on programme-classics.json. A cold
+  `/chronarch/tech` and the well are not Programme Zero; the Autistikon chip
+  stays, labelled "example corpus — not the product". Well tests follow the
+  Classics counts (6 fields, 3 bridges, 3 items locked, stop 2027-01-31).
+- The campus at / is unchanged this turn; the Continuum Back fix is on the
+  branch (door reset on pagehide/pageshow; Continuum target=_blank).
+- REJECTED:
+  - **A README led by the organism** — "decentralized autonomous cognitive
+    organism" as the first thing GitHub shows. The first paragraph is the
+    product; the substrate is an implementation note.
+  - **Autistikon as the default** — the example corpus as the first filter or
+    the first loaded programme. It is a chip, never first paint.
+  - **A second Continuum** — a "forthcoming" state, a ledger-reader
+    description, or the GitHub URL as the door. One product, one host.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

@@ -240,7 +240,7 @@ one gate plated REXMETRIX, three volumes:
 - **CHRONARCH · RUNNING** — the lab block: lit windows (one instanced mesh of
   phosphor planes), a door plate, edges that light on hover. Its door is a
   route: `/chronarch`.
-- **CONTINUUM · FORTHCOMING** — a darker shed. A card, not a door.
+- **CONTINUUM · RUNNING** — a darker shed with lit windows; a door to its own host (see 5d).
 - **LATERION · FORTHCOMING · NOT A DIAGNOSTIC** — a windowless block. A card,
   not a door; its copy stays *not a diagnostic; not a person-score; not an
   assessment of anyone*. (It was signed FACE MAP before the product was named.)
@@ -281,10 +281,11 @@ the well scene.
 - **Chapter 1 (⅓) — Chronarch** fills the frame. "Research software that is
   running." Two more sentences at most, the negations, and the one CTA on the
   page: *Open Chronarch* → `/chronarch`.
-- **Chapter 2 (⅔) — Continuum.** Two sentences and FORTHCOMING. Its one link
-  is an external text link, *Continuum source*, to
-  `https://github.com/rexautistikonlabs/scientificlab` (`target="_blank"`,
-  `rel="noopener noreferrer"`). No in-app Continuum route; nothing of it is
+- **Chapter 2 (⅔) — Continuum.** RUNNING: a literature-informed biotensegrity
+  and afferent-flow teaching simulation on `https://continuum.rexmetrix.com` —
+  model outputs, not measurements of a person; not a diagnostic; not a
+  programme ledger. Its door is that host (see 5d); its source repository is
+  named once, as a source. No in-app Continuum route; nothing of it is
   embedded here.
 - **Chapter 3 (1) — Laterion.** "Laterion records facial kinematics including
   partial trials and laterality. It is not a diagnostic, not a person-score,

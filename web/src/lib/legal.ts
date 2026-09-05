@@ -8,7 +8,7 @@ export const LLC = "RexMetrix Technologies, LLC";
 export const LEGAL = {
   llc: LLC,
   products: "Chronarch and Continuum are research software. Not a diagnostic. Not a medical device.",
-  continuum: "Continuum: simulation; model outputs, not measurements of any person.",
+  continuum: "Continuum: a literature-informed biotensegrity and afferent-flow teaching simulation on https://continuum.rexmetrix.com. Model outputs, not measurements of a person. Not a programme ledger.",
   split: "Rex Autistikōn Labs (https://rexautistikonlabs.org) is an independent 501(c)(3). Labs does not sell these products. RexMetrix does not speak for Labs.",
   data: "This browser may store a preference and, on the workbench, a project in this browser only. We do not sell that data. If we later record usage to improve the software or the site, this notice will say so first.",
   laterion: "Laterion is not shipping here.",

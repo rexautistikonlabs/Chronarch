@@ -33,8 +33,8 @@ describe("programme well", () => {
 
   it("Programme Zero vs the toy programme changes field_count 2 → 3 and bridge_count 1 → 2", () => {
     renderAt("/chronarch");
-    expect(screen.getByTestId("field-count")).toHaveTextContent("2");
-    expect(screen.getByTestId("bridge-count")).toHaveTextContent("1");
+    expect(screen.getByTestId("field-count")).toHaveTextContent("6"); // a cold load opens on Classics, never the example corpus
+    expect(screen.getByTestId("bridge-count")).toHaveTextContent("3");
     fireEvent.click(screen.getByTestId("chip-programme-toy.json"));
     expect(screen.getByTestId("field-count")).toHaveTextContent("3");
     expect(screen.getByTestId("bridge-count")).toHaveTextContent("2");
@@ -65,7 +65,7 @@ describe("programme well", () => {
     fireEvent.click(screen.getByTestId("bench-fields"));
     expect(viewport()).toHaveAttribute("data-focus", "fields");
     expect(screen.getByTestId("bench-card")).toHaveAttribute("data-bench", "fields");
-    expect(screen.getByTestId("bench-card")).toHaveTextContent(/2 fields, each with its own units/);
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/6 fields, each with its own units/);
     fireEvent.click(screen.getByTestId("bench-bridges"));
     expect(screen.getAllByTestId("bench-card")).toHaveLength(1);
     expect(screen.getByTestId("bench-card")).toHaveTextContent(/NO_BRIDGE/);
@@ -79,6 +79,7 @@ describe("programme well", () => {
   it("the programmes card tells the truth about each programme", () => {
     renderAt("/chronarch");
     fireEvent.click(screen.getByTestId("bench-programmes"));
+    fireEvent.click(screen.getByTestId("chip-programme-zero.json")); // the example corpus, on request — a cold load is Classics
     expect(screen.getByTestId("bench-card")).toHaveTextContent(/Programme Zero/);
     expect(screen.getByTestId("bench-card")).toHaveTextContent(/example programme and first corpus/);
     fireEvent.click(screen.getByTestId("chip-programme-toy.json"));

@@ -1,11 +1,56 @@
-# Chronarch
+# RexMetrix — Chronarch and Continuum
 
-Chronarch is a **decentralized autonomous cognitive organism (DACO)**: an
-append-only Timechain of rings for memory, a challenge-attested cognition
-layer, a biotensegrity-inspired nervous system that measures its own health,
-a Chia-family Proof-of-Space-and-Time body (research fork path), and a
-stewarding Council of bonded stakers. It is **not** a claim of consciousness
-or qualia; PoQ does not prove subjective experience.
+**RexMetrix Technologies, LLC** builds research software and says on every
+page what each product is not.
+
+- **Chronarch** is a local workbench for declared fields, pinned sources, and
+  syntheses that name their parents: a group declares the fields it works in,
+  declares the bridges between them, pins the works it has rights to, and
+  writes a synthesis whose child names its parents and the bridges it crossed.
+  It runs as a static site (`web/`, the workbench at `/chronarch/tech`); a
+  project lives in the browser and leaves only as a file you download.
+- **Continuum** is a separate, literature-informed biotensegrity and
+  afferent-flow teaching simulation at https://continuum.rexmetrix.com. Model
+  outputs, not measurements of a person. Not a programme ledger. It is not
+  built or served from this repository; its source repository is public at
+  https://github.com/rexautistikonlabs/scientificlab.
+- **Laterion** is not shipping here.
+
+Not a diagnostic. Not a medical device. Not Foundation-endorsed.
+
+**Rex Autistikōn Labs** (https://rexautistikonlabs.org) is a separate,
+independent 501(c)(3). Labs does not sell these products, and RexMetrix does
+not speak for Labs. The Autistikon programme is Chronarch's *example corpus*,
+not the product, and not the default programme a cold workbench opens on.
+
+Product law and the words the site may and may not use:
+[specs/PRODUCT.md](specs/PRODUCT.md), [specs/LEGAL.md](specs/LEGAL.md).
+Deploying the static site: [docs/DEPLOY.md](docs/DEPLOY.md). The web app's
+own doctrine: [web/README.md](web/README.md), [web/docs/VISUAL.md](web/docs/VISUAL.md).
+
+Credit, not endorsement: https://rexautistikonlabs.org (literature and the
+Autistikon programme specification); https://cyberphysics.ai (cited
+architecture / public materials).
+
+---
+
+## Implementation note (lab-v0 substrate)
+
+Under Chronarch sits a research substrate, code name *Chronarch* as well,
+frozen at **lab-v0**. Nothing below is a product feature; it is how pins are
+stored durably, how history is proved append-only, and how forbidden keys are
+screened. It is **not a public blockchain**: an in-process or loopback net
+only. See [specs/STATUS.md](specs/STATUS.md) for what is frozen vs. live,
+[docs/LAB.md](docs/LAB.md) for what a lab session is, and
+[specs/OPERATOR.md](specs/OPERATOR.md) for the operator path (which is itself a
+test).
+
+The substrate describes itself as a **decentralized autonomous cognitive
+organism (DACO)**: an append-only Timechain of rings for memory, a
+challenge-attested cognition layer, a biotensegrity-inspired nervous system
+that measures its own health, a Chia-family Proof-of-Space-and-Time body
+(research fork path), and a stewarding Council of bonded stakers. It is **not**
+a claim of consciousness or qualia; PoQ does not prove subjective experience.
 
 > Chronarch proposes. The Timechain remembers. The tensegrity feels.
 > The Council stewards. Chronos is blood, not conscience.
@@ -15,13 +60,6 @@ vote, not an AI rewrite and not an admin key.*
 
 **Security slogan:** *Tampering is detectable, expensive, incomplete, and
 metabolized into a scar.*
-
-**Status:** Chronarch is frozen at **lab-v0** — a research organism on an
-in-process or loopback net, **not a public blockchain**. See
-[specs/STATUS.md](specs/STATUS.md) for what is frozen vs. live,
-[docs/LAB.md](docs/LAB.md) for what a lab session is (`pulse`, `memory`, the
-operator path) and is not, and [specs/OPERATOR.md](specs/OPERATOR.md) for the
-operator path (which is itself a test).
 
 ## Layout
 
@@ -100,17 +138,11 @@ What the suite proves today (the Phase-0/Phase-1 testing bar):
 
 ## Chronarch, a RexMetrix product
 
-**RexMetrix** is the company — a product house whose landing (`/`) is a short
-catalogue of its products. **Chronarch** is this product: institutional
-research software for hypothesis-led groups — an array of fields, first-class
-bridges between chosen fields, programmes as subgraphs, and synthesis jobs that
-write child pins with explicit parents. It runs under `/chronarch` (the
-programme well, the workbench at `/chronarch/tech`, About). Programme Zero (Rex
-Autistikon / Kim 2026) is the example programme and first corpus, not the
-product. Chronarch exposes no Council, no chain, no coin; the research
-substrate in `packages/` sits under it and is not offered as a feature. See
-[specs/PRODUCT.md](specs/PRODUCT.md), [specs/LEGAL.md](specs/LEGAL.md) and
-[docs/DEPLOY.md](docs/DEPLOY.md).
+The product is described at the top of this file. Chronarch exposes no
+Council, no chain, no coin; the substrate in `packages/` sits under it and is
+not offered as a feature. Programme Zero (Rex Autistikon / Kim 2026) is the
+example corpus, not the product; a cold workbench opens on the Classics
+programme. See [specs/PRODUCT.md](specs/PRODUCT.md) and [specs/LEGAL.md](specs/LEGAL.md).
 
 ## Web lab UI
 
