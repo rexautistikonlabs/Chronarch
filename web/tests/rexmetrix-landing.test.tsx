@@ -93,6 +93,7 @@ describe("RexMetrix landing", () => {
 
   it("public/CNAME is exactly rexmetrix.com and the SPA fallback file exists", () => {
     expect(readFileSync(join(__dirname, "..", "public", "CNAME"), "utf8").trim()).toBe("rexmetrix.com");
-    expect(readFileSync(join(__dirname, "..", "public", "_redirects"), "utf8")).toMatch(/^\/\*\s+\/index\.html\s+200\s*$/);
+    const lines = readFileSync(join(__dirname, "..", "public", "_redirects"), "utf8").trim().split("\n");
+    expect(lines[lines.length - 1]).toMatch(/^\/\*\s+\/index\.html\s+200\s*$/); // the SPA fallback is the last rule; explicit redirects come first
   });
 });

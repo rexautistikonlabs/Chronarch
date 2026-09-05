@@ -1943,6 +1943,34 @@ Bug: the technician room still exposed a second product — /council,
     blocked popup from the null that "noopener" always returns.
   - **An iframe for Continuum** — stays rejected.
 
+## Live-site holes (5 Sept 2026 pass)
+
+- Routes: `/workbench` and `/tech` redirect to `/chronarch/tech` in the
+  router and as 301 lines in `web/public/_redirects` before the SPA fallback;
+  the header's Workbench link is unchanged.
+- First run is Classics only: Faraday + Maxwell Compare, then Darwin + Mendel
+  Compare across the natural-history — heredity bridge, then the pack. The
+  Autistikon step is deleted; the module no longer imports the stand-in ids.
+  The chip stays, unselected, "example corpus — not the product".
+- About leads with the tool (fields, bridges, pinned sources, named-parent
+  synthesis), then the starter corpora (public-domain / CC / US-government
+  excerpts), then Programme Zero as one short "example corpus" paragraph.
+  Well chips run Classics, Toy, Programme Zero; "the first filled template"
+  is now "an example template" in the chip, the card and the fixture label.
+- Laterion: clicking the mesh opens a one-line drawer — "Not shipping. Not a
+  diagnostic. Not a person-score." — with no door and no href.
+- `web/public/robots.txt` and `web/public/sitemap.xml` are real files (Vite
+  copies public/ to dist/); the sitemap lists /, /chronarch, /chronarch/tech
+  and /chronarch/about only.
+- Continuum: one URL, same tab, BFCache reset — unchanged.
+- REJECTED:
+  - **An Autistikon-mandatory tutorial** — a first-run step that cannot be
+    finished without the example corpus. The tutorial teaches the tool on the
+    public-domain corpus; the example corpus is optional.
+  - **Sitemap-as-SPA** — letting the fallback answer /robots.txt and
+    /sitemap.xml with index.html. Crawlers read real files.
+  - **Listing /workbench as a page** — it is a redirect, not a URL of record.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

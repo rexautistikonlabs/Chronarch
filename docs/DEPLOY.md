@@ -27,7 +27,8 @@ The app is a single-page application. Every path must fall back to
 | `/chronarch` | Chronarch — the programme well |
 | `/chronarch/tech` | Chronarch — the technician's workbench |
 | `/chronarch/about` | About Chronarch |
-| `/tech`, `/lab`, `/about`, `/consortium`, retired protocol paths | client-side redirects into the above (bookmarks keep working) |
+| `/workbench`, `/tech`, `/lab`, `/about`, `/consortium`, retired protocol paths | redirects into the above (client-side in the app; `/workbench` and `/tech` also as 301 lines in `_redirects` before the fallback) |
+| `/robots.txt`, `/sitemap.xml` | real files from `web/public/` (text/plain and application/xml, not the SPA); the sitemap lists the four pages above |
 
 **SPA fallback: `/*` → `/index.html`.** How to say that depends on the host:
 

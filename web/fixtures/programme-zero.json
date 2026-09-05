@@ -1,7 +1,7 @@
 {
   "schema": "rexmetrix.programme/1",
   "id": "programme-zero",
-  "label": "Programme Zero — Rex Autistikon (Kim 2026), the first filled template",
+  "label": "Programme Zero — Rex Autistikon (Kim 2026), an example template",
   "tenant": "example group",
   "note": "Metadata only: bridge names, ledger and register counts, a locked-array size, a stop rule. No chapters, no measured array, no scores. The grant object is illustrative of the shape, not a real license.",
   "fields": [

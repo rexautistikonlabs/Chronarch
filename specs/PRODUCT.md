@@ -33,7 +33,20 @@
   **Default programme.** A cold `/chronarch/tech` (and the well) opens on the
   **Classics** programme. The Autistikon corpus stays a chip labelled "example
   corpus — not the product"; it is never the default selected filter or the
-  default loaded programme.
+  default loaded programme. The well's chips run Classics, Toy, Programme
+  Zero; Zero's label is "an example template".
+
+  **Routes.** The workbench is `/chronarch/tech`; `/workbench` and `/tech`
+  redirect to it (React Router, and `web/public/_redirects` lines before the
+  SPA fallback), as do the retired protocol paths; `/about` and `/consortium`
+  redirect to `/chronarch/about`. `robots.txt` and `sitemap.xml` are real
+  files in `web/public/` (copied to `dist/`); the sitemap lists `/`,
+  `/chronarch`, `/chronarch/tech` and `/chronarch/about` only.
+
+  **First run.** The optional three-step panel on the workbench is Classics
+  only: Faraday + Maxwell Compare, Darwin + Mendel Compare across the
+  natural-history — heredity bridge, then the pack. No step names or requires
+  the Autistikon corpus; loading it is optional.
 
   **The first screen** is a shop window, not a splash: the catalogue is
   visible on first paint, in both motion modes, with no checkbox and no

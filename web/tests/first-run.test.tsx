@@ -3,7 +3,6 @@
 import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { STAND_INS } from "../src/lib/filters";
 import { FIRST_RUN_KEY, FIRST_RUN_STEPS } from "../src/lib/firstRun";
 import { renderAt } from "./render";
 
@@ -19,7 +18,8 @@ describe("first run", () => {
     const filters = screen.getByTestId("filters");
     expect(panel.compareDocumentPosition(filters) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("first-run-step-1")).toHaveTextContent("Filter Classics. Tick Faraday and Maxwell. Compare.");
-    expect(screen.getByTestId("first-run-step-2")).toHaveTextContent("Filter Autistikon. Tick both stand-ins. Converge.");
+    expect(screen.getByTestId("first-run-step-2")).toHaveTextContent("Still in Classics: tick Darwin and Mendel. Compare across the natural-history — heredity bridge.");
+    expect(screen.getByTestId("first-run")).not.toHaveTextContent(/Autistikon|Programme Zero|stand-in/);
     expect(screen.getByTestId("first-run-step-3")).toHaveTextContent("Download pack.");
     expect(screen.getByTestId("first-run-honesty")).toHaveTextContent("Chronarch is research software for hypothesis-led programmes. Not a diagnostic. Not a medical device. Not Foundation-endorsed.");
     expect(panel.textContent).not.toMatch(/AI scientist|MetaInsight|forest plot/i);
@@ -49,7 +49,7 @@ describe("first run", () => {
     expect(window.localStorage.getItem(FIRST_RUN_KEY)).toBe("1");
   });
 
-  it("steps tick when the matching notes exist: Faraday + Maxwell Compare at 8%, both stand-ins Converge at 16%, then the pack", () => {
+  it("steps tick when the matching notes exist: Faraday + Maxwell Compare at 8%, Darwin + Mendel Compare at 0%, then the pack — Classics only", () => {
     renderAt("/tech");
     for (const n of [1, 2, 3]) expect(screen.getByTestId(`first-run-step-${n}`)).toHaveAttribute("data-done", "false");
 
@@ -67,14 +67,15 @@ describe("first run", () => {
     fireEvent.click(screen.getByTestId("select-work-faraday-ere-v1"));
     fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
 
-    // step 2 — Autistikon shows exactly the two stand-ins; Converge
+    // step 2 — still Classics: Darwin + Mendel across natural-history — heredity; Compare
     fireEvent.click(screen.getByTestId("first-run-go-2"));
-    expect(new Set(visibleIds())).toEqual(new Set(STAND_INS));
-    expect(visibleIds()).toHaveLength(2);
-    for (const id of STAND_INS) fireEvent.click(screen.getByTestId(`select-${id}`));
-    fireEvent.click(screen.getByTestId("action-converge"));
-    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · converge · kind overlap · ok/);
-    expect(screen.getByTestId("jaccard")).toHaveTextContent("16%");
+    expect(screen.getByTestId("filter-classics")).toHaveAttribute("aria-pressed", "true");
+    expect(visibleIds()).toHaveLength(6);
+    fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
+    fireEvent.click(screen.getByTestId("select-work-mendel-1866-de"));
+    fireEvent.click(screen.getByTestId("action-compare"));
+    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · compare · kind match · ok/);
+    expect(screen.getByTestId("jaccard")).toHaveTextContent("0%"); // the pinned Darwin/Mendel figure, not retuned
     expect(screen.getByTestId("first-run-step-2")).toHaveAttribute("data-done", "true");
     expect(screen.getByTestId("first-run-step-3")).toHaveAttribute("data-done", "false");
     expect(screen.queryByTestId("first-run-finish")).not.toBeInTheDocument();

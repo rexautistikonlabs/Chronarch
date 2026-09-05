@@ -2,27 +2,30 @@ import { Link } from "react-router-dom";
 
 import { NotList, PageHeader, Section } from "../components/Page";
 
-/** About Chronarch — what it is, what Programme Zero is, what will not ship.
+/** About Chronarch — the tool first, then the starter corpora, then the example corpus, then what will not ship.
  *  Chronarch is one product of RexMetrix, the product house; this page is
  *  about the product. Visitor-facing: the floor's bans govern it. */
 export function About() {
   return (
     <div>
-      <PageHeader eyebrow="about · a RexMetrix product" title="Chronarch" lede="Institutional research software for hypothesis-led groups and institutions. A group maintains an array of fields — the literatures it works in — declares bridges between chosen fields, and runs programmes that are subgraphs of that catalogue. Synthesis jobs write child pins with explicit parents and a declared path of bridges." />
+      <PageHeader eyebrow="about · a RexMetrix product" title="Chronarch" lede="A local workbench for a group: declare the fields you work in, declare the bridges between them, pin the sources you have rights to, and write a synthesis whose child names its parents and the bridges it crossed. Refusals are law: a missing bridge, a missing licence or a person-level score is refused, not warned about." />
 
-      <Section title="what a tenant gets">
+      <Section title="what you get">
         <ul className="space-y-1">
           <li><span className="text-ivory">Fields</span> — each with units, a sector and an anti-overreach pack: claims its data may never be made to carry, enforced as refusals.</li>
-          <li><span className="text-ivory">Bridges</span> — first-class edges between exactly two fields that share no units: a bridge statement, a rated assumption ledger, a falsification register with costs and no rescue.</li>
-          <li><span className="text-ivory">Programmes</span> — a chosen subgraph with a locked array, a ledger, a register, and a stop rule with a clock. Changes are amendments; the old claim stays beside the new.</li>
-          <li><span className="text-ivory">Synthesis</span> — overlap, match, couple, question: a child pin with named parents and a declared path or clique of live bridges. A missing edge is refused.</li>
-          <li><span className="text-ivory">Quota, not coin</span> — what a tenant may hold is a plan's quota of programmes, jobs and pins. There is no currency here.</li>
+          <li><span className="text-ivory">Bridges</span> — first-class edges between exactly two fields that share no units: a bridge statement, a rated assumption ledger, a falsification register with costs and no rescue. A session may declare its own, marked as an operator's amendment.</li>
+          <li><span className="text-ivory">Pinned sources</span> — works enter only with a licence; full text only under a licence that allows it and a rights declaration; a URL is a citation, never fetched. Bodies are excerpts, capped.</li>
+          <li><span className="text-ivory">Named-parent synthesis</span> — overlap, match, couple, question: a child pin with named parents and a declared path or clique of live bridges, written as an eight-section note you can export. A missing edge is refused.</li>
+          <li><span className="text-ivory">One project, in your browser</span> — works used, bridges, notes, one Markdown pack; saved in this browser only and portable as a file. No accounts, no server.</li>
         </ul>
       </Section>
 
-      <Section title="programme zero — the example programme">
-        <p>The first filled template is Rex Autistikon / Kim 2026, <em>Tissue Mechanics…</em>: a two-field programme with its method and control documents. It is the <span className="text-ivory">example programme and first corpus</span>, not the product and not the only science. What travels from it is the method — bridge statement, locked array, rated ledger, falsification register, stop clock, deviations and amendments, the scale rule, anti-overreach as errors. Its content does not: no other field inherits its measured array or its vocabulary.</p>
-        <p className="mt-2">The volume's prose is the author's copyright. This site carries the structure of its control documents in its own words and short cited phrases only. Its corpus field is at arm's length: a written grant must exist before its pins parent a Chronarch child.</p>
+      <Section title="starter corpora">
+        <p>A cold workbench opens on <span className="text-ivory">Classics</span>: six fields and three bridges over public-domain and US-government excerpts — Darwin, Newton, Faraday, Maxwell, Mendel, a NIST technical note — each row with its licence, its source URL and its attribution. A <span className="text-ivory">Toy programme</span> of invented fields shows the mechanics with nothing real. Every starter row is public-domain, Creative Commons or US-government; nothing is scraped and no publisher PDF is stored.</p>
+      </Section>
+
+      <Section title="example corpus — programme zero">
+        <p>Programme Zero (Rex Autistikon / Kim 2026, <em>Tissue Mechanics…</em>) is an <span className="text-ivory">example template, an example programme and first corpus</span>: two fields, one bridge, and the structure of its control documents in this site's own words. It is a chip labelled "example corpus — not the product"; it is never the default. The volume's prose is the author's copyright; its corpus field is at arm's length, so a written grant must exist before its pins parent a Chronarch child.</p>
       </Section>
 
       <Section title="what chronarch will not ship">

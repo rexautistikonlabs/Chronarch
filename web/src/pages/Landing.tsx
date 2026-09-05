@@ -141,6 +141,7 @@ export function Landing() {
   const door = useRef<BuildingKey | null>(null);
   const doorState = useMemo(() => createDoorState(), []);
   const [leaving, setLeaving] = useState<BuildingKey | null>(null);
+  const [laterionDrawer, setLaterionDrawer] = useState(false);
 
   // The door's lifecycle: React state follows the helper; the document's
   // hide/show events reset it (a BFCache restore included). On reset the
@@ -187,6 +188,8 @@ export function Landing() {
   const pick = useCallback((k: BuildingKey) => {
     const b = BUILDINGS.find((x) => x.key === k)!;
     if (!b.door) {
+      // Laterion: a one-line drawer, and the chapter — no door, no href
+      if (k === "laterion") setLaterionDrawer(true);
       document.getElementById(k)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
       return;
     }
@@ -203,6 +206,12 @@ export function Landing() {
     <div data-testid="landing-body" data-mode={campus ? "campus" : reduced ? "reduced-motion" : "no-webgl"} data-leaving={leaving ?? ""}>
       {campus && <Campus progress={progress} door={door} onPick={pick} />}
       {leaving && <DoorIris onDone={doorDone} />}
+      {laterionDrawer && (
+        <div className="hud-card pointer-events-auto fixed inset-x-6 bottom-6 z-30 flex items-baseline justify-between gap-4 sm:left-auto sm:w-[28rem]" role="status" data-testid="laterion-drawer">
+          <p className="text-[13px] text-ivory"><span className="hud-label mr-2">LATERION</span>Not shipping. Not a diagnostic. Not a person-score.</p>
+          <button type="button" onClick={() => setLaterionDrawer(false)} className="readout text-[11px] text-dim hover:text-ivory" aria-label="Close" data-testid="laterion-drawer-close">close</button>
+        </div>
+      )}
       <div className={campus ? "pointer-events-none relative z-10" : ""}>
         <Hero />
         <div data-testid="chapters">

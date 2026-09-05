@@ -17,7 +17,7 @@ import { Landing } from "./pages/Landing";
  *  /chronarch/about. Old paths still resolve so bookmarks live: /tech and the
  *  retired protocol pages land in the workbench; /about and /consortium in
  *  About Chronarch. */
-const RETIRED_TO_TECH = ["/tech", "/lab", "/council", "/timechain", "/hearth", "/farm", "/gym", "/operator"];
+const RETIRED_TO_TECH = ["/workbench", "/tech", "/lab", "/council", "/timechain", "/hearth", "/farm", "/gym", "/operator"];
 export const CHRONARCH = "/chronarch";
 export const CHRONARCH_TECH = "/chronarch/tech";
 export const CHRONARCH_ABOUT = "/chronarch/about";
