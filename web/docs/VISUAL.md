@@ -72,7 +72,7 @@ zoom on wheel. That damping is the only per-frame code in `web/`, and it reads
 `delta`, never the clock.
 
 - `frameloop="demand"` at rest. The rig switches to `"always"` while the
-  pointer is moving it (or a focus tween runs) and back to `"demand"` **300 ms
+  pointer is moving it (or a focus tween runs) and back to `"demand"` **200 ms
   after the pointer stops** — held a little longer only until the damping has
   converged, capped at six checks, then it lands exactly and draws one last
   frame. With no pointer and no event, no frame is drawn.
@@ -381,7 +381,7 @@ the slogan "Measurement is King" appears in the landing's strings;
 - **Matrix rain / any clock-driven loop** — no. A shader or overlay that
   scrolls with time would make the well look busy while nothing happens. The
   scanlines are a static gradient; grain and bloom spike on an event and decay
-  to rest; the only per-frame code follows the pointer and sleeps 300 ms after
+  to rest; the only per-frame code follows the pointer and sleeps 200 ms after
   it stops.
 - **Selling the substrate** — no. Rings are not coins, seats are not a
   governance product, the Hearth is not a stake. The visitor never meets those
@@ -434,9 +434,10 @@ the slogan "Measurement is King" appears in the landing's strings;
   hero — would make the floor feel alive between records. Nothing happened, so
   nothing moves. The floor is still until a bench or a record is chosen, then
   it moves once.
-- **Hiding the disclaimer for visitors** — no. The floor says "not a public
-  blockchain" in plain English above the scene, and the banner and footer say
-  it again. Friendliness changes the words, never the claim.
+- **Hiding the disclaimer for visitors** — no. The strip on every first
+  screen says *Not a diagnostic. Not a medical device.* in plain English, and
+  the banner and footer say it again. Friendliness changes the words, never
+  the claim. (Chain words, negated or not, left the visitor's chrome; see 5d.)
 - **A live dashboard** — no. Nothing fetches a home, spawns a node or opens a
   socket. Two saved records and a paste box; the floor is a reading of what
   was, not a feed of what is.

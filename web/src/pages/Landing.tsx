@@ -131,7 +131,7 @@ function ChapterBlock({ c, onDoor }: { c: Chapter; onDoor: (k: StationKey) => vo
         {c.sentences.map((s) => <p key={s} className="mt-2 text-[14px] leading-relaxed text-mute">{s}</p>)}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {c.door?.kind === "route" && (
-            <a href={c.door.to} onClick={(e) => { e.preventDefault(); onDoor(c.key); }} className="hud-button inline-block" data-testid={`cta-${c.key}`} data-door="route">Open {c.name}</a>
+            <a href={c.door.to} onClick={(e) => { if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; e.preventDefault(); onDoor(c.key); }} className="hud-button inline-block" data-testid={`cta-${c.key}`} data-door="route">Open {c.name}</a>
           )}
           {c.door?.kind === "external" && (
             <a href={c.door.href} className="hud-button inline-block" data-testid={`cta-${c.key}`} data-door="external">Open {c.name} ↗</a>
@@ -192,6 +192,7 @@ export function Landing() {
       departing.current = false;
       walking.current = false;
       door.current = null;
+      setWalk(null); // a walk in flight is cancelled too: nothing arrives, so no door opens without a click
       setLeaving(null);
       invalidate();
     };
@@ -224,6 +225,7 @@ export function Landing() {
   // or the legal text (the spec board). Without the lab, a door is immediate.
   const act = useCallback((k: PropKey) => {
     walking.current = false;
+    setWalk(null); // served: a remount never replays it
     if (k === "laterion") { setDrawer("laterion"); return; }
     if (k === "specboard") { setDrawer("spec"); return; }
     if (!propByKey(k).door || doorState.isOpen()) return;
@@ -235,7 +237,7 @@ export function Landing() {
   // A click on a piece — its meshes or its HTML hotspot: the operator walks
   // there first when the lab is mounted; one walk at a time.
   const pick = useCallback((k: PropKey) => {
-    if (doorState.isOpen()) return;
+    if (doorState.isOpen() || departing.current) return;
     if (!lab) { act(k); return; }
     if (walking.current) return;
     walking.current = true;
@@ -244,7 +246,7 @@ export function Landing() {
   // The chapter CTA below the fold: the door without the walk (the room may
   // be scrolled out of view; the operator has nothing to show there).
   const enter = useCallback((k: PropKey) => {
-    if (doorState.isOpen() || walking.current) return;
+    if (doorState.isOpen() || departing.current || walking.current) return;
     act(k);
   }, [act, doorState]);
   const doorDone = useCallback(() => {
@@ -261,7 +263,7 @@ export function Landing() {
         <Hero lab={lab} hovered={hovered} />
       </section>
       {!lab && <StationList onPick={pick} />}
-      {leaving && <DoorIris onDone={doorDone} />}
+      {leaving && <DoorIris key={leaving} onDone={doorDone} />}
       {drawer === "laterion" && (
         <div className="hud-card fixed inset-x-6 bottom-6 z-30 flex items-baseline justify-between gap-4 sm:left-auto sm:w-[28rem]" role="status" data-testid="laterion-drawer">
           <p className="text-[13px] text-ivory"><span className="hud-label mr-2">LATERION</span>Not shipping. Not a diagnostic. Not a person-score.</p>

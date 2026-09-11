@@ -9,7 +9,7 @@
  *  scroll, no wheel zoom, no follow, no idle turn. `useFrame` reads `delta`
  *  only. */
 import { invalidate, useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 
 import { damp, sphericalToPosition, type Spherical } from "../scene/focus";
 import { hold, touch, type Release } from "../scene/renderPolicy";
@@ -32,15 +32,15 @@ export function LabRig({ door }: { door: RefObject<PropKey | null> }) {
     camera.lookAt(s.target[0], s.target[1], s.target[2]);
   };
   const goal = (): Spherical => {
-    const o = offset.current;
+    const o = door.current ? { az: 0, el: 0 } : offset.current; // a door frames the piece; the hand's turn does not move it behind a wall
     const b = door.current ? doorView(door.current, HERO_VIEW) : HERO_VIEW;
     return { az: b.az + o.az, el: Math.min(1.0, Math.max(0.16, b.el + o.el)), dist: b.dist, target: b.target };
   };
   const gap = (g: Spherical, c: Spherical) =>
     Math.max(Math.abs(g.az - c.az), Math.abs(g.el - c.el), Math.abs(g.dist - c.dist) / 10, Math.abs(g.target[0] - c.target[0]), Math.abs(g.target[1] - c.target[1]), Math.abs(g.target[2] - c.target[2]));
 
-  // Land exactly on the first frame.
-  useEffect(() => {
+  // Land exactly on the first frame: applied in the commit that asks for it.
+  useLayoutEffect(() => {
     cur.current = goal();
     apply(cur.current);
     invalidate();

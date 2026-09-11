@@ -1,6 +1,7 @@
 /** Brand split: RexMetrix is the company and lands at /; Chronarch is this
- *  product and runs under /chronarch. Old paths keep working. The landing is a
- *  flat catalogue with the honesty sentence and no canvas. */
+ *  product and runs under /chronarch. Old paths keep working. The landing is
+ *  the instrument lab when WebGL is present and the HTML station list plus
+ *  the chapters otherwise; in jsdom (no WebGL) that means 0 canvas. */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fireEvent, screen } from "@testing-library/react";
@@ -14,7 +15,7 @@ import { renderAt } from "./render";
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
 
 describe("RexMetrix landing", () => {
-  it("/ is the story: hero, then Chronarch, Continuum, Laterion; the honesty sentence; no canvas without WebGL; no well", () => {
+  it("/ without WebGL: hero, the station list, then Chronarch, Continuum, Laterion; the honesty sentence; 0 canvas; no well", () => {
     renderAt("/");
     const body = document.body.textContent ?? "";
     expect(screen.getByTestId("landing-page")).toBeInTheDocument();

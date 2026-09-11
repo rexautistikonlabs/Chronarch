@@ -111,6 +111,11 @@ export const PROPS: readonly Prop[] = [
 /** The three products, in catalogue order. */
 export const STATIONS: readonly Prop[] = PROPS.filter((p) => p.status !== null);
 
+/** DOM order of the hotspots: the two running products, the board, the book,
+ *  then the covered bench — so no visitor text puts "Continuum" near a dead
+ *  state. The scene and its jsdom stub both draw in this order. */
+export const HOTSPOT_ORDER: readonly PropKey[] = ["continuum", "chronarch", "specboard", "labbook", "laterion"];
+
 export const SIGN_LINES: Record<PropKey, string> = Object.fromEntries(PROPS.map((p) => [p.key, p.sign])) as Record<PropKey, string>;
 
 export function propByKey(key: PropKey): Prop {
@@ -122,6 +127,26 @@ export function footprint(p: Prop): { x0: number; x1: number; z0: number; z1: nu
   const turned = Math.abs(Math.sin(p.yaw)) > 0.5;
   const [w, d] = turned ? [p.size[1], p.size[0]] : p.size;
   return { x0: p.at[0] - w / 2, x1: p.at[0] + w / 2, z0: p.at[1] - d / 2, z1: p.at[1] + d / 2 };
+}
+
+const WALL_HALF = 0.06; // the walls are 0.12 thick, centred on the room's edges
+
+/** Distance from a piece's footprint centre to the inner face of the wall
+ *  behind it (behind = its local −z); Infinity for a free-standing piece. */
+export function wallGap(p: Prop): number {
+  const s = Math.sin(p.yaw);
+  const c = Math.cos(p.yaw);
+  if (c > 0.5) return p.at[1] - (-ROOM.d / 2 + WALL_HALF); // faces +z: the back wall is behind
+  if (s > 0.5) return p.at[0] - (-ROOM.w / 2 + WALL_HALF); // faces +x: the left wall is behind
+  if (s < -0.5) return ROOM.w / 2 - WALL_HALF - p.at[0]; // faces −x: the right wall is behind
+  return Number.POSITIVE_INFINITY;
+}
+
+/** The floor tape around a piece, in its local metres: a bar across the
+ *  front and one down each side, the sides stopping at the wall behind. */
+export function tapeExtent(p: Prop): { w: number; front: number; back: number } {
+  const front = p.size[1] / 2 + 0.35;
+  return { w: p.size[0] + 0.5, front, back: Math.min(front, wallGap(p) - 0.03) };
 }
 
 /** The operator: an adult, 1.72 m, who starts mid-room facing the benches. A
@@ -188,6 +213,14 @@ export function turnTo(from: number, to: number): number {
   return from + d;
 }
 
+/** The two turns of a walk — to the heading, then to the piece — each the
+ *  short way round, the second anchored on the yaw the first actually leaves
+ *  (which may sit a full turn away from the normalised heading). */
+export function turnPlan(fromYaw: number, heading: number, face: number): { h1: number; h2: number } {
+  const h1 = turnTo(fromYaw, heading);
+  return { h1, h2: turnTo(h1, face) };
+}
+
 /** A walk is clear when its straight leg passes no footprint closer than `margin`. */
 export function pathClear(path: Path, margin = 0.25): boolean {
   const boxes = PROPS.map(footprint);
@@ -210,10 +243,14 @@ export const HERO_FOV = 28;
 export const HERO_VIEW: Spherical = { az: -0.3, el: 0.36, dist: 19, target: [0, 1.5, -1.0] };
 export const ORBIT = { az: 0.45, elUp: 0.22, elDown: 0.1 } as const;
 
-/** Where the camera eases while a door opens: at the piece, closer, lower. */
+/** Where the camera eases while a door opens: at the piece, closer, lower,
+ *  from whichever side keeps the camera inside the side walls — a piece on
+ *  the left wall is looked at from the right, and vice versa. */
 export function doorView(key: PropKey, from: Spherical): Spherical {
   const p = propByKey(key);
-  return { az: from.az, el: 0.24, dist: 9, target: [p.at[0], 1.2, p.at[1]] };
+  const side = Math.abs(from.az);
+  const az = p.at[0] < -ROOM.w / 4 ? side : p.at[0] > ROOM.w / 4 ? -side : from.az;
+  return { az, el: 0.24, dist: 9, target: [p.at[0], 1.2, p.at[1]] };
 }
 
 /** One click on a piece: the operator walks there. `n` makes each click new. */

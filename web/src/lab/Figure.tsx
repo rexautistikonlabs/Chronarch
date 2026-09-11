@@ -8,16 +8,18 @@
  *  capsule with no face; the shoes are closed. */
 import { invalidate } from "@react-three/fiber";
 import gsap from "gsap";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
 
 import { ONE_SHOT } from "../lib/motion";
 import { hold } from "../scene/renderPolicy";
-import { FIGURE, headingOf, pathLength, propByKey, samplePath, turnTo, walkDuration, walkPath, type PropKey, type WalkRequest } from "./labLayout";
+import { FIGURE, headingOf, pathLength, propByKey, samplePath, turnPlan, walkDuration, walkPath, type PropKey, type WalkRequest } from "./labLayout";
 import { MAT } from "./materials";
 
 const HIP = 0.92;
 const SHOULDER = 1.42;
+const LEG = 0.88; // hip to the shoe's centre
+const SHOE_FWD = 0.04; // the shoe sits a little forward of the leg
 
 export function Figure({ walk, onArrive }: { walk: WalkRequest | null; onArrive: (k: PropKey) => void }) {
   const root = useRef<THREE.Group>(null);
@@ -31,7 +33,10 @@ export function Figure({ walk, onArrive }: { walk: WalkRequest | null; onArrive:
     const g = root.current;
     if (!g) return;
     const p = pose.current;
-    g.position.set(p.x, 0, p.z);
+    // a hip-hinged leg lifts its foot as it swings; the body sinks by the
+    // planted foot's rise so that foot stays on the floor
+    const sink = LEG * (1 - Math.cos(p.stride)) + SHOE_FWD * Math.sin(Math.abs(p.stride));
+    g.position.set(p.x, -sink, p.z);
     g.rotation.y = p.yaw;
     if (legL.current) legL.current.rotation.x = p.stride;
     if (legR.current) legR.current.rotation.x = -p.stride;
@@ -39,8 +44,8 @@ export function Figure({ walk, onArrive }: { walk: WalkRequest | null; onArrive:
     if (armR.current) armR.current.rotation.x = p.stride * 0.6;
   };
 
-  // Stand exactly on the first frame.
-  useEffect(() => {
+  // Stand exactly on the first frame: placed in the commit that asks for it.
+  useLayoutEffect(() => {
     place();
     invalidate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,9 +77,10 @@ export function Figure({ walk, onArrive }: { walk: WalkRequest | null; onArrive:
         onArrive(walk.key);
       },
     });
-    tl.to(s, { yaw: turnTo(s.yaw, heading), duration: FIGURE.turnS, ease: "power1.inOut" });
+    const turns = turnPlan(s.yaw, heading, target.face); // both the short way round
+    tl.to(s, { yaw: turns.h1, duration: FIGURE.turnS, ease: "power1.inOut" });
     if (len > 1e-3) tl.to(s, { d: len, duration: walkDuration(len), ease: "none" });
-    tl.to(s, { yaw: turnTo(heading, target.face), duration: FIGURE.turnS, ease: "power1.inOut" });
+    tl.to(s, { yaw: turns.h2, duration: FIGURE.turnS, ease: "power1.inOut" });
     return () => {
       tl.kill();
       release();
@@ -83,7 +89,7 @@ export function Figure({ walk, onArrive }: { walk: WalkRequest | null; onArrive:
   }, [walk]);
 
   return (
-    <group ref={root}>
+    <group ref={root} position={[FIGURE.home[0], 0, FIGURE.home[1]]} rotation={[0, FIGURE.homeFace, 0]}>
       {/* legs pivot at the hip; closed shoes */}
       <group ref={legL} position={[-0.1, HIP, 0]}>
         <mesh position={[0, -0.41, 0]} material={MAT.trousers}><boxGeometry args={[0.14, 0.82, 0.16]} /></mesh>

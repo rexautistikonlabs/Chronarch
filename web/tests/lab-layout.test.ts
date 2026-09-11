@@ -2,9 +2,12 @@
  *  and a job; three of them are the products with their statuses and doors;
  *  every walk is a clear straight leg between stand points; the camera is a
  *  fixed shop-window view that only a drag or a door may move. */
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { CONTINUUM_HOST, doorView, FIGURE, footprint, headingOf, HERO_VIEW, ORBIT, pathClear, pathLength, PROPS, propByKey, ROOM, samplePath, SIGN_LINES, STATIONS, turnTo, walkDuration, walkPath, type PropKey } from "../src/lab/labLayout";
+import { CONTINUUM_HOST, doorView, FIGURE, footprint, headingOf, HERO_VIEW, HOTSPOT_ORDER, ORBIT, pathClear, pathLength, PROPS, propByKey, ROOM, samplePath, SIGN_LINES, STATIONS, tapeExtent, turnPlan, turnTo, walkDuration, walkPath, wallGap, type PropKey } from "../src/lab/labLayout";
+import { sphericalToPosition } from "../src/scene/focus";
 import { findVisitorBanned } from "../src/lib/banned";
 import { CHAPTERS, FOOTER_RULES } from "../src/pages/Landing";
 
@@ -107,6 +110,41 @@ describe("lab layout", () => {
     expect(walkDuration(1.9)).toBeCloseTo(1);
   });
 
+  it("the hotspot order puts the two running products first and the covered bench last, and the scene maps that export", () => {
+    expect(HOTSPOT_ORDER).toEqual(["continuum", "chronarch", "specboard", "labbook", "laterion"]);
+    expect([...HOTSPOT_ORDER].sort()).toEqual(PROPS.map((p) => p.key).sort());
+    const lab = readFileSync(join(__dirname, "..", "src/lab/Lab.tsx"), "utf8");
+    expect(lab).toContain("HOTSPOT_ORDER.map(");
+  });
+
+  it("every walk turns the short way round at both ends: from home and from every stand point to every piece, no turn exceeds a half revolution", () => {
+    const starts: [number, number, number][] = [[...FIGURE.home, FIGURE.homeFace] as [number, number, number], ...PROPS.map((p) => [...p.standAt, p.face] as [number, number, number])];
+    for (const [x, z, yaw] of starts) for (const p of PROPS) {
+      const path = walkPath([x, z], p.key);
+      const len = pathLength(path);
+      const heading = len > 1e-3 ? headingOf(path[0]!, path[path.length - 1]!) : p.face;
+      const { h1, h2 } = turnPlan(yaw, heading, p.face);
+      expect(Math.abs(h1 - yaw), `${p.key} first turn`).toBeLessThanOrEqual(Math.PI + 1e-9);
+      expect(Math.abs(h2 - h1), `${p.key} second turn`).toBeLessThanOrEqual(Math.PI + 1e-9);
+      expect(Math.cos(h2 - p.face)).toBeCloseTo(1); // and it ends facing the piece
+    }
+    // the case that used to spin: home (facing π) to the Chronarch stand, heading about −2.23
+    const spin = turnPlan(Math.PI, -2.233, Math.PI);
+    expect(Math.abs(spin.h2 - spin.h1)).toBeLessThan(1.0);
+  });
+
+  it("floor tape never runs into a wall: a piece against a wall has its side bars cut at the wall's inner face", () => {
+    for (const p of PROPS) {
+      const e = tapeExtent(p);
+      expect(e.back).toBeLessThanOrEqual(wallGap(p) - 0.02);
+      expect(e.back).toBeGreaterThan(0);
+      expect(e.front).toBeGreaterThan(p.size[1] / 2);
+    }
+    expect(wallGap(propByKey("labbook"))).toBeCloseTo(-5.6 + 5.94);
+    expect(wallGap(propByKey("laterion"))).toBeCloseTo(5.94 - 5.4);
+    expect(wallGap(propByKey("chronarch"))).toBeCloseTo(-3.15 + 3.94);
+  });
+
   it("headings and turns: yaw 0 faces the window (+z); a turn takes the short way round", () => {
     expect(headingOf([0, 0], [0, 1])).toBeCloseTo(0);
     expect(headingOf([0, 0], [1, 0])).toBeCloseTo(Math.PI / 2);
@@ -133,6 +171,10 @@ describe("lab layout", () => {
       expect(d.el).toBeLessThan(HERO_VIEW.el);
       expect(d.target[0]).toBe(p.at[0]);
       expect(d.target[2]).toBe(p.at[1]);
+      // the door camera stands between the side walls, in front of the piece — never behind a wall
+      const cam = sphericalToPosition(d);
+      expect(Math.abs(cam[0]), `${p.key} door camera x`).toBeLessThan(ROOM.w / 2 - 0.2);
+      expect(cam[2], `${p.key} door camera z`).toBeGreaterThan(p.at[1]);
     }
   });
 

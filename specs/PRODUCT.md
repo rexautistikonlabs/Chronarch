@@ -78,7 +78,8 @@
   sell that data. If we later record usage to improve the software or the
   site, this notice will say so first.*); and credit, not endorsement — two
   links in a new tab with `rel="noopener noreferrer"`: rexautistikonlabs.org
-  (literature and the Autistikon programme specification) and cyberphysics.ai
+  (literature and the Autistikon programme specification — the example
+  corpus, not the product) and cyberphysics.ai
   ("Cited architecture / public materials."). Above the fold, one buyer line:
   *A local workbench for a group to declare fields, pin sources, and write a
   synthesis that names its parents. Continuum is a separate simulation on its

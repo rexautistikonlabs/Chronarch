@@ -19,7 +19,7 @@ export const LEGAL_LINES: readonly string[] = [LEGAL.llc, LEGAL.products, LEGAL.
 export const BUYER_LINE = "A local workbench for a group to declare fields, pin sources, and write a synthesis that names its parents. Continuum is a separate simulation on its own host.";
 
 export const ATTRIBUTIONS: readonly { href: string; label: string; what: string }[] = [
-  { href: "https://rexautistikonlabs.org", label: "rexautistikonlabs.org", what: "Literature and the Autistikon programme specification." },
+  { href: "https://rexautistikonlabs.org", label: "rexautistikonlabs.org", what: "Literature and the Autistikon programme specification — the example corpus, not the product." },
   { href: "https://cyberphysics.ai", label: "cyberphysics.ai", what: "Cited architecture / public materials." },
 ];
 export const ATTRIBUTION_NOTE = "Credit, not endorsement.";

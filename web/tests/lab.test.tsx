@@ -4,10 +4,11 @@
  *  hotspots with a job each; Laterion is a drawer, the spec board is the
  *  legal text, the lab book is a door to the workbench. The Canvas is
  *  stubbed here (jsdom has no WebGL); the real one is checked in the browser. */
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { PROPS, SIGN_LINES, STATIONS } from "../src/lab/labLayout";
+import { HOTSPOT_ORDER, PROPS, SIGN_LINES, STATIONS } from "../src/lab/labLayout";
+import { mockControl } from "./labMock";
 import { LEGAL, LLC } from "../src/lib/legal";
 import { renderAt } from "./render";
 
@@ -16,7 +17,7 @@ vi.mock("../src/lab/Lab", () => import("./labMock"));
 const reduceStub = (matches: boolean) => (q: string) => ({ matches: matches && q.includes("reduce"), media: q, onchange: null, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {}, dispatchEvent: () => false });
 
 describe("RexMetrix instrument lab", () => {
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => { vi.unstubAllGlobals(); mockControl.manual = false; });
 
   it("/ mounts one canvas when motion is allowed; the hero is the legal strip, the wordmark, three text links, the buyer line and the hint — no manifesto, no buttons, no checkbox", () => {
     renderAt("/");
@@ -42,6 +43,7 @@ describe("RexMetrix instrument lab", () => {
     renderAt("/");
     const signs = Array.from(document.querySelectorAll('[data-testid^="sign-"]')).map((el) => el.getAttribute("data-testid"));
     expect(signs).toEqual(["sign-continuum", "sign-chronarch", "sign-specboard", "sign-labbook", "sign-laterion"]);
+    expect(HOTSPOT_ORDER).toEqual(["continuum", "chronarch", "specboard", "labbook", "laterion"]); // the scene draws in this exported order (Lab.tsx maps HOTSPOT_ORDER)
     expect(STATIONS.map((s) => s.status)).toEqual(["RUNNING", "RUNNING", "NOT SHIPPING"]);
     expect(screen.getByTestId("sign-chronarch")).toHaveTextContent("CHRONARCH · RUNNING");
     expect(screen.getByTestId("sign-continuum")).toHaveTextContent("CONTINUUM · RUNNING");
@@ -123,14 +125,52 @@ describe("RexMetrix instrument lab", () => {
     expect(screen.queryByTestId("lab-viewport")).not.toBeInTheDocument();
   }, 8000);
 
-  it("one walk at a time: a second click while the operator is walking is ignored", () => {
-    // the stub arrives at once, so a second click after arrival is a new walk; here the drawer proves each arrival
+  it("one walk at a time: while the operator is walking, a second station click and the chapter CTA are ignored; the walk that started is the one that arrives", () => {
+    mockControl.manual = true;
     renderAt("/");
     fireEvent.click(screen.getByTestId("sign-laterion"));
+    expect(screen.getByTestId("lab-viewport")).toHaveAttribute("data-walk", "laterion:1");
+    fireEvent.click(screen.getByTestId("sign-specboard")); // ignored: one walk at a time
+    fireEvent.click(screen.getByTestId("cta-chronarch")); // ignored too: no door opens behind a walk
+    expect(screen.getByTestId("lab-viewport")).toHaveAttribute("data-walk", "laterion:1");
+    expect(screen.queryByTestId("door-iris")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("spec-drawer")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("mock-arrive"));
     expect(screen.getByTestId("laterion-drawer")).toBeInTheDocument();
+    expect(screen.getByTestId("lab-viewport")).toHaveAttribute("data-walk", ""); // served, never replayed
+    // and the next click is a new walk
     fireEvent.click(screen.getByTestId("sign-specboard"));
+    expect(screen.getByTestId("lab-viewport")).toHaveAttribute("data-walk", "specboard:1");
+    fireEvent.click(screen.getByTestId("mock-arrive"));
     expect(screen.getByTestId("spec-drawer")).toBeInTheDocument();
     expect(screen.queryByTestId("laterion-drawer")).not.toBeInTheDocument(); // one drawer at a time
+  });
+
+  it("a walk in flight is cancelled when the document hides and shows again: nothing arrives, no door opens without a click", () => {
+    mockControl.manual = true;
+    renderAt("/");
+    fireEvent.click(screen.getByTestId("sign-chronarch"));
+    expect(screen.getByTestId("lab-viewport")).toHaveAttribute("data-walk", "chronarch:1");
+    act(() => {
+      window.dispatchEvent(new Event("pagehide"));
+      const show = new Event("pageshow");
+      Object.defineProperty(show, "persisted", { value: true });
+      window.dispatchEvent(show);
+    });
+    expect(screen.getByTestId("lab-viewport")).toHaveAttribute("data-walk", "");
+    expect(screen.queryByTestId("mock-arrive")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("door-iris")).not.toBeInTheDocument();
+    // clickable again
+    fireEvent.click(screen.getByTestId("sign-laterion"));
+    expect(screen.getByTestId("lab-viewport")).toHaveAttribute("data-walk", "laterion:1");
+  });
+
+  it("a modified click on the chapter CTA is left to the browser (a new tab), not turned into a door", () => {
+    renderAt("/");
+    fireEvent.click(screen.getByTestId("cta-chronarch"), { ctrlKey: true });
+    expect(screen.queryByTestId("door-iris")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("cta-chronarch"), { metaKey: true });
+    expect(screen.queryByTestId("door-iris")).not.toBeInTheDocument();
   });
 
   it("0 canvas under prefers-reduced-motion: the station list stands in for the room — the same five pieces, the same statuses and doors; the covered bench is a button that opens the drawer", () => {

@@ -2009,11 +2009,14 @@ Bug: the technician room still exposed a second product — /council,
   tests pin five pieces with jobs, the statuses RUNNING / RUNNING / NOT
   SHIPPING, clear straight walks, the camera clamps and the copy bans;
   materials tests pin on-emits / off-does-not; the animation law names the
-  lab rig and the figure's one timeline; a headless probe checks one canvas
-  on `/`, still frames at rest, the walk waking and sleeping the loop, the
-  drawer, the spec drawer, the mid-door reset, one same-tab Continuum
-  navigation and Back, the Chronarch door, 0 canvas on the workbench, and
-  the reduced-motion list.
+  lab rig and the figure's one timeline; `web/scripts/probe-lab.mjs` (a
+  headless Chromium probe, run by hand against `vite preview`; needs
+  `playwright-core`, present through vitest's browser package, and a
+  Chromium at `$CHROMIUM`) checks one canvas on `/`, still frames at rest,
+  the walk waking and sleeping the loop, the drawer, the spec drawer, the
+  mid-door reset, one same-tab Continuum navigation and Back, the Chronarch
+  door, 0 canvas on the workbench, the reduced-motion list, no console
+  errors and no external request.
 - REJECTED:
   - **A university quad / research park** — lawns, a fence, a gate and three
     volumes read as an institution selling a place. The company sells

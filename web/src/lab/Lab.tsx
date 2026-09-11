@@ -19,7 +19,7 @@ import { sphericalToPosition } from "../scene/focus";
 import { subscribe } from "../scene/renderPolicy";
 import { bake, drawChronarchDisplay, drawContinuumGlass, drawSpecBoard, drawTag, type Draw } from "./baked";
 import { Figure } from "./Figure";
-import { HERO_FOV, HERO_VIEW, PROPS, propByKey, ROOM, type Prop, type PropKey, type WalkRequest } from "./labLayout";
+import { HERO_FOV, HERO_VIEW, HOTSPOT_ORDER, PROPS, propByKey, ROOM, tapeExtent, type Prop, type PropKey, type WalkRequest } from "./labLayout";
 import { LabRig } from "./LabRig";
 import { LAB, MAT } from "./materials";
 
@@ -54,14 +54,17 @@ function Tag({ id, line, position }: { id: string; line: string; position: V3 })
   return <Baked draw={draw} px={[256, 88]} size={[0.32, 0.11]} position={position} glow={0.08} />;
 }
 
-/** Floor tape on three sides of a footprint: the working zone in front of a piece. */
-function Tape({ w, d }: { w: number; d: number }) {
+/** Floor tape on three sides of a footprint: the working zone in front of a
+ *  piece; the side bars run from the front line back to the wall behind. */
+function Tape({ w, front, back }: { w: number; front: number; back: number }) {
   const t = 0.05;
+  const len = front + back;
+  const mid = (front - back) / 2;
   return (
     <group position={[0, 0.003, 0]}>
-      <mesh position={[0, 0, d / 2]} material={MAT.tape}><boxGeometry args={[w, 0.004, t]} /></mesh>
-      <mesh position={[-w / 2, 0, 0]} material={MAT.tape}><boxGeometry args={[t, 0.004, d]} /></mesh>
-      <mesh position={[w / 2, 0, 0]} material={MAT.tape}><boxGeometry args={[t, 0.004, d]} /></mesh>
+      <mesh position={[0, 0, front]} material={MAT.tape}><boxGeometry args={[w, 0.004, t]} /></mesh>
+      <mesh position={[-w / 2, 0, mid]} material={MAT.tape}><boxGeometry args={[t, 0.004, len]} /></mesh>
+      <mesh position={[w / 2, 0, mid]} material={MAT.tape}><boxGeometry args={[t, 0.004, len]} /></mesh>
     </group>
   );
 }
@@ -133,7 +136,7 @@ function ChronarchBench({ edge }: { edge: string }) {
       <mesh position={[0.2, 0.945, 0.12]} material={MAT.bezel}><boxGeometry args={[0.5, 0.02, 0.17]} /></mesh>
       <mesh position={[-1.1, 1.06, -0.12]} material={MAT.frame}><boxGeometry args={[0.5, 0.26, 0.38]} /></mesh>
       <mesh position={[-1.1, 1.1, 0.075]} material={MAT.screen}><planeGeometry args={[0.28, 0.1]} /></mesh>
-      <Tag id="RX-01" line="CHRONARCH BENCH" position={[1.25, 0.72, 0.36]} />
+      <Tag id="RX-01" line="CHRONARCH BENCH" position={[1.25, 0.7, 0.335]} />
     </>
   );
 }
@@ -185,7 +188,7 @@ function SpecBoard({ edge }: { edge: string }) {
     <>
       <mesh position={[0, 1.65, 0]} material={MAT.frame}><boxGeometry args={[1.66, 1.16, 0.04]} /><Edges color={edge} scale={1.002} /></mesh>
       <Baked draw={drawSpecBoard} px={[1024, 700]} size={[1.56, 1.06]} position={[0, 1.65, 0.025]} glow={0.1} />
-      <Tag id="RX-04" line="SPEC BOARD" position={[0.6, 0.98, 0.03]} />
+      <Tag id="RX-04" line="SPEC BOARD" position={[0.6, 0.98, -0.03]} />
     </>
   );
 }
@@ -205,7 +208,7 @@ function LabBook({ edge }: { edge: string }) {
       </group>
       <mesh position={[0.3, 1.0, -0.05]} material={MAT.frame}><boxGeometry args={[0.36, 0.28, 0.3]} /></mesh>
       <mesh position={[0.3, 1.02, 0.101]} material={MAT.paper}><planeGeometry args={[0.2, 0.12]} /></mesh>
-      <Tag id="RX-05" line="LAB BOOK · PACK" position={[0.45, 0.76, 0.31]} />
+      <Tag id="RX-05" line="LAB BOOK · PACK" position={[0.58, 0.55, 0.28]} />
     </>
   );
 }
@@ -232,7 +235,7 @@ function Piece({ p, hot, onHover, onPick }: { p: Prop; hot: boolean; onHover: (k
       onClick={(e) => { e.stopPropagation(); onPick(p.key); }}
     >
       {PIECES[p.key](edge)}
-      {p.kind !== "board" && <Tape w={p.size[0] + 0.5} d={p.size[1] + 0.7} />}
+      {p.kind !== "board" && <Tape {...tapeExtent(p)} />}
       <Html position={[0, SIGN_Y[p.key], 0]} center zIndexRange={[15, 5]}>
         <button type="button" onClick={() => onPick(p.key)} className={`hud-label whitespace-nowrap ${hot ? "" : "opacity-80"}`} style={{ cursor: "pointer" }} data-testid={`sign-${p.key}`}>{p.sign}</button>
       </Html>
@@ -258,10 +261,6 @@ export function webglAvailable(): boolean {
   }
   return webgl;
 }
-
-// DOM order of the hotspots: the two running products, the board, the book,
-// then the covered bench — so no visitor text puts "Continuum" near a dead state.
-const ORDER: readonly PropKey[] = ["continuum", "chronarch", "specboard", "labbook", "laterion"];
 
 export function Lab({ walk, door, onPick, onHover, onArrive }: { walk: WalkRequest | null; door: RefObject<PropKey | null>; onPick: (k: PropKey) => void; onHover: (k: PropKey | null) => void; onArrive: (k: PropKey) => void }) {
   const [hovered, setHovered] = useState<PropKey | null>(null);
@@ -297,7 +296,7 @@ export function Lab({ walk, door, onPick, onHover, onArrive }: { walk: WalkReque
             <pointLight key={x} position={[x, 2.5, -2.75]} intensity={9} distance={7} decay={2} color="#e8e4d8" />
           ))}
           <Room />
-          {ORDER.map((k) => {
+          {HOTSPOT_ORDER.map((k) => {
             const p = PROPS.find((x) => x.key === k)!;
             return <Piece key={k} p={p} hot={hovered === k} onHover={hover} onPick={onPick} />;
           })}
