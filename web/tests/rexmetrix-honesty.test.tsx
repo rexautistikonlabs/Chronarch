@@ -53,7 +53,7 @@ describe("RexMetrix honesty", () => {
       join(ROOT, "src/pages/Landing.tsx"),
       join(ROOT, "src/lib/legal.ts"),
       join(ROOT, "src/components/LegalStrip.tsx"),
-      ...walk(join(ROOT, "src/campus")),
+      ...walk(join(ROOT, "src/lab")),
       join(ROOT, "src/lib/human.ts"),
       join(ROOT, "src/lib/programme.ts"),
       join(ROOT, "src/components/StatusBanner.tsx"),

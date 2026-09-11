@@ -47,7 +47,7 @@ and nothing here claims either host is live, resolves, or has certificates:
 
 | Host | Serves |
 |---|---|
-| `rexmetrix.com` | the landing (`/`, the campus story) |
+| `rexmetrix.com` | the landing (`/`, the instrument lab) |
 | `chronarch.rexmetrix.com` | this same app opened at `/chronarch` (the product) |
 | `continuum.rexmetrix.com` | Continuum — a separate deployment from its own repository (github.com/rexautistikonlabs/scientificlab); the landing's Continuum door leaves this origin for it. Not built or served from this repository. |
 

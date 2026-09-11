@@ -47,7 +47,7 @@ describe("README", () => {
     const negate = (t: string) => t.replace(/not a programme ledger/gi, "");
     const stripComments = (t: string) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'])\/\/.*$/gm, "$1");
     for (const rel of ["README.md", "web/README.md", "specs/PRODUCT.md"]) expect(negate(readFileSync(join(ROOT, rel), "utf8")), rel).not.toMatch(NEAR); // prose: whole text
-    for (const rel of ["web/src/pages/Landing.tsx", "web/src/lib/legal.ts", "web/src/campus/campusLayout.ts"]) {
+    for (const rel of ["web/src/pages/Landing.tsx", "web/src/lib/legal.ts", "web/src/lab/labLayout.ts"]) {
       // source: each string literal and JSX text node on its own, as the build's chrome law does
       const text = stripComments(readFileSync(join(ROOT, rel), "utf8"));
       for (const lit of text.match(/"[^"\n]*"|'[^'\n]*'|`[^`]*`|>[^<{}]+</g) ?? []) expect(negate(lit), `${rel}: ${lit.slice(0, 80)}`).not.toMatch(NEAR);

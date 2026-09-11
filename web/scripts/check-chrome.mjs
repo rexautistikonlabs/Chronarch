@@ -5,14 +5,18 @@
 //  3. The landing chrome carries no substrate word.
 //  4. "Continuum" never near "ledger", "Timechain" or "forthcoming" in visitor files or the READMEs (the one
 //     allowed negation, "not a programme ledger", is stripped first).
+//  5. The landing (/) is a lab, not a school and not a chain: no university, campus, institute, token,
+//     wallet, or "Measurement is King" in its strings.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const CHROME = ["src/pages/Landing.tsx", "src/components/LegalStrip.tsx", "src/lib/legal.ts", "src/campus", "src/hud/Hud.tsx", "src/hud/FloorHud.tsx", "src/components/StatusBanner.tsx", "src/lib/human.ts", "src/pages/About.tsx", "index.html"];
+const CHROME = ["src/pages/Landing.tsx", "src/components/LegalStrip.tsx", "src/lib/legal.ts", "src/lab", "src/hud/Hud.tsx", "src/hud/FloorHud.tsx", "src/components/StatusBanner.tsx", "src/lib/human.ts", "src/pages/About.tsx", "index.html"];
 const READMES = ["README.md", "../README.md"];
 const SUBSTRATE = [/\bDACO\b/, /\bTimechain\b/, /\bChronos\b/, /\bCouncil\b/, /not a public chain/i, /\bChia\b/, /\bPoST\b/];
+const LANDING = ["src/pages/Landing.tsx", "src/components/LegalStrip.tsx", "src/lib/legal.ts", "src/lab", "index.html"];
+const LANDING_BANNED = [/\buniversit(y|ies)\b/i, /\bcampus(es)?\b/i, /\binstitutes?\b/i, /\btokens?\b/i, /\bwallets?\b/i, /Measurement is King/i];
 
 function files(p) {
   const abs = join(ROOT, p);
@@ -42,6 +46,13 @@ for (const rel of CHROME.flatMap(files)) {
     for (const m of negate(lit).match(NEAR) ?? []) hits.push(`${rel}: Continuum near ledger/Timechain/forthcoming — ${m.replace(/\s+/g, " ").slice(0, 100)}`);
   }
 }
+// the landing's strings and JSX text: no school word, no chain word, no slogan
+for (const rel of LANDING.flatMap(files)) {
+  const text = strip(readFileSync(join(ROOT, rel), "utf8"));
+  for (const lit of text.match(/"[^"\n]*"|'[^'\n]*'|`[^`]*`|>[^<{}]+</g) ?? []) {
+    for (const re of LANDING_BANNED) if (re.test(lit)) hits.push(`${rel}: landing word ${re} — ${lit.slice(0, 80)}`);
+  }
+}
 // the READMEs: prose, whole text
 for (const rel of READMES) {
   for (const m of negate(readFileSync(join(ROOT, rel), "utf8")).match(NEAR) ?? []) hits.push(`${rel}: Continuum near ledger/Timechain/forthcoming — ${m.replace(/\s+/g, " ").slice(0, 100)}`);
@@ -50,4 +61,4 @@ if (hits.length) {
   console.error("visitor chrome law broken:\n  " + hits.join("\n  "));
   process.exit(1);
 }
-console.log("check:chrome ok — Continuum has one state and one door; no substrate word on the landing chrome");
+console.log("check:chrome ok — Continuum has one state and one door; no substrate, school or chain word on the landing chrome");

@@ -34,7 +34,7 @@ export const SCIENTIFICLAB_URL = "https://github.com/rexautistikonlabs/scientifi
  *  "noopener" the browser returns null from the open call, so a same-tab
  *  fallback fired too and one click navigated twice. See BUILD_LOG.) The
  *  door plane and the ledger are reset by the document's hide/show events, so
- *  Back from the other origin shows the campus, not a plane. */
+ *  Back from the other origin shows the lab, not a plane. */
 export const exits = {
   leave(href: string): void {
     window.location.assign(href);

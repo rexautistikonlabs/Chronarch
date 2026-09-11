@@ -3,17 +3,18 @@
 ## Brand
 
 - **RexMetrix** is the company: a product house, and the landing site at `/`
-  for all of its products. Its honesty line: *RexMetrix is a product house.
-  Chronarch is research software. Not a public chain. Not Foundation-endorsed.
-  Not a diagnostic.*
+  for all of its products. Its honesty line, in the strip on every first
+  screen: *RexMetrix Technologies, LLC. Chronarch and Continuum are research
+  software. Not a diagnostic. Not a medical device.* (Chain words, negated or
+  not, are not landing words; see the chrome law below.)
 
   **Product map** (name and link only — the codebases are not merged):
 
   | Product | Where | On the landing |
   |---|---|---|
-  | **Chronarch** | this repository, `/chronarch` | RUNNING · the lit lab block · the one door |
-  | **Continuum** | `https://continuum.rexmetrix.com` — the one product URL (its source repository, `https://github.com/rexautistikonlabs/scientificlab`, is named once as a source, never as the door) | one state everywhere: **CONTINUUM · RUNNING** · the shed, lit · a door that opens its host in a new tab · never mounted inside this app · "a literature-informed biotensegrity and afferent-flow teaching simulation — model outputs, not measurements of a person; not a diagnostic; not a programme ledger" |
-  | **Laterion** | a separate codebase, not in this repository | FORTHCOMING · NOT A DIAGNOSTIC · a windowless block · "Laterion records facial kinematics including partial trials and laterality. It is not a diagnostic, not a person-score, and not an assessment of anyone." · no route, no camera, no image, no landmark code here |
+  | **Chronarch** | this repository, `/chronarch` | RUNNING · the programme bench with its large display (`RX-01`, a baked still) · a door: the operator walks there, then `/chronarch` |
+  | **Continuum** | `https://continuum.rexmetrix.com` — the one product URL (its source repository, `https://github.com/rexautistikonlabs/scientificlab`, is named once as a source, never as the door) | one state everywhere: **CONTINUUM · RUNNING** · the teaching-simulation console with a baked sectional schematic on glass (`RX-02`) · a door that opens its host in this same tab · never mounted inside this app · "a literature-informed biotensegrity and afferent-flow teaching simulation — model outputs, not measurements of a person; not a diagnostic; not a programme ledger" |
+  | **Laterion** | a separate codebase, not in this repository | NOT SHIPPING · NOT A DIAGNOSTIC · a kinematics bench under its cover, isolator off (`RX-03`) · a one-line drawer, no door, no href · "Laterion records facial kinematics including partial trials and laterality. It is not a diagnostic, not a person-score, and not an assessment of anyone." · no route, no camera, no image, no landmark code here |
 
   This repository never claims Laterion is shipping, never claims
   scientificlab is embedded, and never adds scientificlab as a submodule or
@@ -25,10 +26,26 @@
   diagnostic and not a programme ledger; it does not read any record over
   time. It is RUNNING; its door and its only product URL are that host; the
   GitHub repository appears once, as "source repository". Everything
-  visitor-facing — the landing strip, the campus chapter, the READMEs, this
-  file — says the same, and `scripts/check-chrome.mjs` fails a build in which
+  visitor-facing — the landing strip, the lab's console and chapter, the
+  READMEs, this file — says the same, and `scripts/check-chrome.mjs` fails a build in which
   the simulation's name sits within sixty characters of a ledger word, a chain
   word or a "forthcoming" state.
+
+  **The landing is the lab.** `/` is one indoor working lab, not a university
+  or a research park: a small adult operator in a white coat, five pieces on
+  the floor, and every piece has a job. The stations are the products — the
+  Chronarch bench (a door to `/chronarch`), the Continuum console (a door to
+  its host, same tab), the Laterion bench under its cover (a one-line
+  refusal, no door). The spec board on the wall opens the same legal text as
+  the footer; the lab book on the side bench is a door to the workbench.
+  Clicking a piece walks the operator there, once; idle is still, and a rest
+  frame is byte-identical a second later. Under reduced motion or without
+  WebGL the same pieces stand as an HTML station list with the same doors.
+  Banned on `/`: DACO, Timechain, Chronos, Council, Chia, PoST, "not a
+  public chain", token, wallet, university, campus, institute-as-school,
+  "Measurement is King!", any Foundation-endorsed phrasing that is not a
+  negation; the example corpus appears only as "example corpus — not the
+  product", never on the floor. See `web/docs/VISUAL.md` 5b–5d.
 
   **Default programme.** A cold `/chronarch/tech` (and the well) opens on the
   **Classics** programme. The Autistikon corpus stays a chip labelled "example
@@ -69,9 +86,11 @@
   the same text in place. No analytics SDK exists in this repository; the only
   storage is localStorage, and the strip says so. No substrate word (DACO,
   Timechain, Chronos, Council, "not a public chain", Chia, PoST) appears on the
-  landing chrome or the Chronarch well chrome; `scripts/check-chrome.mjs` runs
-  before every build and fails on any of them, on the simulation's name near a
-  "forthcoming" state, or on the GitHub URL used as a door.
+  landing chrome or the Chronarch well chrome, and no school or chain word
+  (university, campus, institute, token, wallet) or slogan appears in the
+  landing's strings; `scripts/check-chrome.mjs` runs before every build and
+  fails on any of them, on the simulation's name near a "forthcoming" state,
+  or on the GitHub URL used as a door.
 
 The sections below describe the product — Chronarch. Where older text says
 "RexMetrix" for the product, read Chronarch; the company name stays on the

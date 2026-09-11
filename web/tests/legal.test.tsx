@@ -7,30 +7,20 @@ import { join } from "node:path";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { BuildingKey } from "../src/campus/campusLayout";
 import { findVisitorBanned } from "../src/lib/banned";
 import { ATTRIBUTIONS, BUYER_LINE, CONTINUUM_URL, exits, LEGAL, LEGAL_LINES, LLC, SCIENTIFICLAB_URL } from "../src/lib/legal";
 import { renderAt } from "./render";
 
-vi.mock("../src/campus/Campus", () => ({
-  webglAvailable: () => true,
-  Campus: ({ onPick }: { onPick: (k: BuildingKey) => void }) => (
-    <div data-testid="campus-viewport">
-      <canvas data-testid="campus-canvas" />
-      <button type="button" data-testid="sign-continuum" onClick={() => onPick("continuum")}>CONTINUUM · RUNNING</button>
-      <button type="button" data-testid="sign-chronarch" onClick={() => onPick("chronarch")}>CHRONARCH · RUNNING</button>
-    </div>
-  ),
-}));
+vi.mock("../src/lab/Lab", () => import("./labMock"));
 
-const SUBSTRATE = /\bDACO\b|\bTimechain\b|\bChronos\b|\bCouncil\b|not a public chain|\bChia\b|\bPoST\b/;
+const SUBSTRATE = /\bDACO\b|\bTimechain\b|\bChronos\b|\bCouncil\b|not a public chain|\bChia\b|\bPoST\b|\btokens?\b|\bwallets?\b|\buniversit(y|ies)\b|\bcampus(es)?\b|\binstitute\b|Measurement is King/i;
 const NEAR = /Continuum[\s\S]{0,40}forthcoming|forthcoming[\s\S]{0,40}Continuum/i;
 
 describe("first screen", () => {
-  it("empty storage: the campus is visible on first paint with the legal strip — LLC, products, Continuum, the Labs split, data, both attributions; no checkbox, no Enter", () => {
+  it("empty storage: the lab is visible on first paint with the legal strip — LLC, products, Continuum, the Labs split, data, both attributions; no checkbox, no Enter", () => {
     expect(window.localStorage.length).toBe(0);
     renderAt("/");
-    expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "campus");
+    expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "lab");
     expect(document.querySelectorAll("canvas")).toHaveLength(1);
     expect(screen.queryByTestId("gate")).not.toBeInTheDocument();
     expect(screen.queryByTestId("gate-enter")).not.toBeInTheDocument();
@@ -59,7 +49,7 @@ describe("first screen", () => {
     expect(screen.getByTestId("hero").compareDocumentPosition(screen.getByTestId("chapters")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("an old rexmetrix.gate.v1 flag changes nothing: the campus and the strip are there either way", () => {
+  it("an old rexmetrix.gate.v1 flag changes nothing: the lab and the strip are there either way", () => {
     window.localStorage.setItem("rexmetrix.gate.v1", "1");
     renderAt("/");
     expect(screen.getByTestId("landing-body")).toBeInTheDocument();
@@ -107,13 +97,15 @@ describe("Continuum has one state and one URL", () => {
     expect(github[0]).toHaveAttribute("rel", "noopener noreferrer");
     const body = document.body.textContent ?? "";
     expect(body).not.toMatch(NEAR);
-    // Laterion: forthcoming, no door, no href
-    expect(screen.getByTestId("chapter-laterion")).toHaveAttribute("data-status", "FORTHCOMING");
+    // Laterion: not shipping — one status word, the station's — no door, no href
+    expect(screen.getByTestId("chapter-laterion")).toHaveAttribute("data-status", "NOT SHIPPING");
+    expect(screen.getByTestId("chapter-laterion")).toHaveTextContent(/LATERION · NOT SHIPPING · NOT A DIAGNOSTIC/);
+    expect(document.body.textContent ?? "").not.toMatch(/forthcoming/i); // the landing has one word for it
     expect(screen.getByTestId("chapter-laterion").querySelectorAll("a")).toHaveLength(0);
     expect(screen.getByTestId("is-not-laterion")).toHaveTextContent("not a diagnostic · not a person-score · not an assessment of anyone");
   });
 
-  it("the landing and the Chronarch well chrome carry no substrate word and no banned phrase", () => {
+  it("the landing carries no substrate, school or chain word and no banned phrase; the Chronarch well chrome carries no substrate word", () => {
     const landing = renderAt("/");
     const body = document.body.textContent ?? "";
     expect(body).not.toMatch(SUBSTRATE);
@@ -121,7 +113,7 @@ describe("Continuum has one state and one URL", () => {
     landing.unmount();
     renderAt("/chronarch");
     const chrome = document.body.textContent ?? "";
-    expect(chrome).not.toMatch(SUBSTRATE);
+    expect(chrome).not.toMatch(/\bDACO\b|\bTimechain\b|\bChronos\b|\bCouncil\b|not a public chain|\bChia\b|\bPoST\b/);
     expect(findVisitorBanned(chrome)).toBeNull();
   });
 
@@ -140,7 +132,7 @@ describe("Continuum has one state and one URL", () => {
 describe("doors never stay half-open", () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it("the Continuum sign: the door tween, then exactly one same-tab navigation to continuum.rexmetrix.com — never window.open", async () => {
+  it("the Continuum console: the walk, the door tween, then exactly one same-tab navigation to continuum.rexmetrix.com — never window.open", async () => {
     const leave = vi.spyOn(exits, "leave").mockImplementation(() => {});
     const open = vi.spyOn(window, "open").mockImplementation(() => null);
     renderAt("/");

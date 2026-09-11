@@ -1,7 +1,7 @@
 /** The door: one GSAP one-shot (≤ 800 ms) that reads as a door — an ivory
  *  plane rises from the volume while the camera eases at it — then the route
  *  changes. It holds the render ledger and invalidates on every tick so the
- *  campus keeps painting while the camera moves; onDone fires once. */
+ *  lab keeps painting while the camera moves; onDone fires once. */
 import { invalidate } from "@react-three/fiber";
 import gsap from "gsap";
 import { useEffect, useRef } from "react";

@@ -1,9 +1,9 @@
 /** Animation law, enforced: pointer live, clock dead.
  *  Nothing under web/ (outside node_modules) may spell a repeating animation;
- *  the only per-frame hook is the pointer rig, and it reads delta, never the
- *  clock; the canvas is frameloop="demand" and wakes only while the pointer
- *  moves it. The banned literals are assembled so this file stays clean under
- *  the same grep. */
+ *  the only per-frame hooks are the two rigs (the well's, the lab's), and
+ *  they read delta, never the clock; every canvas is frameloop="demand" and
+ *  wakes only while a hand, a walk or a door moves it. The banned literals
+ *  are assembled so this file stays clean under the same grep. */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -34,7 +34,7 @@ const BANNED = [
 ];
 
 const RIG = "src/scene/PointerRig.tsx";
-const RIGS = new Set([RIG, "src/campus/CampusRig.tsx"]); // the well's rig and the campus rig: both read delta, never a clock
+const RIGS = new Set([RIG, "src/lab/LabRig.tsx"]); // the well's rig and the lab's rig: both read delta, never a clock
 
 describe("animation law", () => {
   it("web/ spells no repeating animation", () => {
@@ -63,7 +63,7 @@ describe("animation law", () => {
       const text = stripComments(readFileSync(file, "utf8")); // code, not prose
       if (!RIGS.has(rel)) expect(text, rel).not.toMatch(/useFrame\(/);
       // no clock anywhere in the scene or the hud: no elapsed time, no wall clock, no rAF loop of our own
-      if (rel.startsWith("src/scene") || rel.startsWith("src/hud") || rel.startsWith("src/campus")) {
+      if (rel.startsWith("src/scene") || rel.startsWith("src/hud") || rel.startsWith("src/lab")) {
         expect(text, rel).not.toMatch(/\bclock\b|elapsedTime|getElapsedTime|performance\.now|Date\.now|requestAnimationFrame|setInterval/);
       }
     }
@@ -87,32 +87,43 @@ describe("animation law", () => {
     expect(energy).toMatch(/multisampling=\{0\}/);
   });
 
-  it("the campus on / obeys the same law: demand at rest, ledger-driven loop, no shadows, no post-processing, no environment map, no well import", () => {
-    const campus = readFileSync(join(ROOT, "src/campus/Campus.tsx"), "utf8");
-    expect(campus).toContain("frameloop={loop}");
-    expect(campus).toMatch(/useState<"always" \| "demand">\("demand"\)/);
-    expect(campus).toMatch(/subscribe\(\(awake\) => \{\s*setLoop\(awake \? "always" : "demand"\)/);
-    expect(campus).toMatch(/if \(!awake\) invalidate\(\)/);
-    expect(campus).toContain("dpr={[1, 1.5]}");
-    expect(campus).toContain("shadows={false}");
-    expect(campus).not.toMatch(/castShadow|receiveShadow|EffectComposer|Environment|useTexture|TextureLoader|RGBELoader|Physics|useRapier|cannon/);
-    expect(campus).not.toMatch(/scene\/Well|Catalogue3D|scene\/Timechain|scene\/Council/);
+  it("the lab on / obeys the same law: demand at rest, ledger-driven loop, no shadows, no post-processing, no environment map, no texture loader, no physics, no well import", () => {
+    const lab = readFileSync(join(ROOT, "src/lab/Lab.tsx"), "utf8");
+    expect(lab).toContain("frameloop={loop}");
+    expect(lab).toMatch(/useState<"always" \| "demand">\("demand"\)/);
+    expect(lab).toMatch(/subscribe\(\(awake\) => \{\s*setLoop\(awake \? "always" : "demand"\)/);
+    expect(lab).toMatch(/if \(!awake\) invalidate\(\)/);
+    expect(lab).toContain("dpr={[1, 1.5]}");
+    expect(lab).toContain("shadows={false}");
+    expect(lab).not.toMatch(/castShadow|receiveShadow|EffectComposer|Environment|useTexture|TextureLoader|RGBELoader|Physics|useRapier|cannon|<iframe|useVideoTexture|<video/);
+    expect(lab).not.toMatch(/scene\/Well|Catalogue3D|scene\/Timechain|scene\/Council/);
+    // the baked stills are drawn once into a 2D canvas: no image file, no fetch, no network
+    const baked = stripComments(readFileSync(join(ROOT, "src/lab/baked.ts"), "utf8"));
+    expect(baked).toContain("CanvasTexture");
+    expect(baked).not.toMatch(/fetch\(|new Image\(|\.png|\.jpg|\.webp|<img|XMLHttpRequest|import\(/);
     const landing = readFileSync(join(ROOT, "src/pages/Landing.tsx"), "utf8");
-    expect(landing).not.toMatch(/scene\/Well|Catalogue3D|useFrame|<Canvas|frameloop/); // scroll never sets the loop mode; it touches the ledger
-    expect(landing).toContain('touch("scroll")');
+    expect(landing).not.toMatch(/scene\/Well|Catalogue3D|useFrame|<Canvas|frameloop/); // the page never sets the loop mode
+    expect(stripComments(landing)).not.toMatch(/addEventListener\("scroll"|touch\(/); // scroll moves nothing: no frame is drawn for it
     // no title overlay exists; the door is ≤ 800 ms
     expect(existsSync(join(ROOT, "src/components/TitleBeat.tsx"))).toBe(false);
     const doorSrc = readFileSync(join(ROOT, "src/components/DoorIris.tsx"), "utf8");
     expect(Number(doorSrc.match(/DOOR_MS = (\d+)/)![1])).toBeLessThanOrEqual(800);
-    const rig = readFileSync(join(ROOT, "src/campus/CampusRig.tsx"), "utf8");
-    for (const t of rig.match(/gsap\.timeline\(\{[\s\S]*?\}\);/g) ?? []) expect(t).toMatch(/onUpdate: \(\) => \{[\s\S]*invalidate\(\)/);
+    const rig = readFileSync(join(ROOT, "src/lab/LabRig.tsx"), "utf8");
     expect(rig).toMatch(/hold\("/);
-    expect(stripComments(rig)).not.toMatch(/parallax|hover|Physics|velocity|wheelbase|honk|wheel|autoRot|spin/i); // drag orbit only; scroll is the driver, and nothing spins on its own
-    expect(rig).toContain("storyGoal(progress.current");
+    expect(stripComments(rig)).not.toMatch(/parallax|Physics|velocity|wheelbase|honk|wheel|autoRot|spin|follow/i); // drag orbit only; nothing turns on its own
+    expect(stripComments(rig)).not.toMatch(/gsap/); // the camera has no tween of its own: it damps toward the goal
+    // the operator's walk is one held, invalidating, one-shot timeline per click; idle is still
+    const figure = readFileSync(join(ROOT, "src/lab/Figure.tsx"), "utf8");
+    const timelines = figure.match(/gsap\.timeline\(\{[\s\S]*?\}\);/g) ?? [];
+    expect(timelines).toHaveLength(1);
+    expect(timelines[0]).toMatch(/onUpdate: \(\) => \{[\s\S]*invalidate\(\)/);
+    expect(figure).toMatch(/hold\("walk"\)/);
+    expect(stripComments(figure)).not.toMatch(/useFrame|breath|sway|idle|bob|hover/i);
+    expect(stripComments(figure)).toMatch(/ease: "none"/); // a walk at a constant pace, distance-driven
   });
 
   it("every tween that moves the camera, the iris or the bloom invalidates on every tick and holds the loop", () => {
-    for (const rel of ["src/scene/PointerRig.tsx", "src/hud/Iris.tsx", "src/scene/Energy.tsx", "src/scene/Timechain.tsx", "src/scene/Council.tsx", "src/scene/DummyMind.tsx", "src/components/DoorIris.tsx"]) {
+    for (const rel of ["src/scene/PointerRig.tsx", "src/hud/Iris.tsx", "src/scene/Energy.tsx", "src/scene/Timechain.tsx", "src/scene/Council.tsx", "src/scene/DummyMind.tsx", "src/components/DoorIris.tsx", "src/lab/Figure.tsx"]) {
       const text = readFileSync(join(ROOT, rel), "utf8");
       const timelines = text.match(/gsap\.timeline\(\{[\s\S]*?\}\);/g) ?? [];
       expect(timelines.length, rel).toBeGreaterThan(0);

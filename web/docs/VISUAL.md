@@ -230,128 +230,138 @@ display): the name of Chia's production network; a CHIP-48 compatibility claim;
 a wallet-connect call to action; a token price; a TVL figure; the phrase "live
 network". **Law:** `tests/honesty.test.ts`.
 
-## 5b. RexMetrix campus (the landing at `/`)
+## 5b. RexMetrix instrument lab (the landing at `/`)
 
-`/` is the company's landing and, with motion allowed and WebGL present, a
-**campus**: one canvas, one world, load once, clickable places — the Bruno
-Simon idea in a contractor's register. A poured pad on a grid, one fence with
-one gate plated REXMETRIX, three volumes:
+`/` is the company's landing and, with motion allowed and WebGL present, an
+**indoor working lab**: one canvas, one room, load once, clickable pieces —
+a shop window onto a small instrument lab. Not a university, not a research
+park, not a quad, not a lecture theatre, not a lawn. A dark resin floor with
+pale tape zones, three walls with a dado, a glass front the camera stands
+outside, a cable tray along the back wall with a drop to each bench, two
+luminaires on rods over the benches. Five pieces, and **every piece has a
+job**:
 
-- **CHRONARCH · RUNNING** — the lab block: lit windows (one instanced mesh of
-  phosphor planes), a door plate, edges that light on hover. Its door is a
-  route: `/chronarch`.
-- **CONTINUUM · RUNNING** — a darker shed with lit windows; a door to its own host (see 5d).
-- **LATERION · FORTHCOMING · NOT A DIAGNOSTIC** — a windowless block. A card,
-  not a door; its copy stays *not a diagnostic; not a person-score; not an
-  assessment of anyone*. (It was signed FACE MAP before the product was named.)
+- **CHRONARCH · RUNNING** (`RX-01`) — a laminate bench on two pedestals with
+  a large display on its arm, a keyboard and a bench meter. The display is a
+  baked still of the catalogue graph and its readouts — never a live iframe.
+  Its door is a route: `/chronarch`.
+- **CONTINUUM · RUNNING** (`RX-02`) — a standing console with a sloped top
+  and a keypad; on a glass pane in a thin frame, a baked sectional schematic —
+  three tissue layers as arcs, tension lines across them, afferent lines
+  converging on one node — and the sentence *Model outputs, not measurements
+  of a person.* Its door is its own host, `https://continuum.rexmetrix.com`,
+  in this same tab. Nothing of Continuum runs here: no engine, no embed, no
+  source copy.
+- **LATERION · NOT SHIPPING · NOT A DIAGNOSTIC** (`RX-03`) — a kinematics
+  bench along the right wall under a dust cover, trestle legs showing, the
+  isolator off and unlit, tagged *COVERED · NOT IN SERVICE*. An honest dead
+  instrument: no camera mesh, no optics, nothing that looks usable. Clicking
+  it opens a one-line drawer — *Not shipping. Not a diagnostic. Not a
+  person-score.* — and nothing else. No door, no href.
+- **SPEC BOARD · LEGAL** (`RX-04`) — a framed sheet on the back wall, between
+  the benches, with the
+  legal text (baked). Clicking it opens the same legal text — the LLC, the
+  products, Continuum, the Labs split, the data sentence, both attributions —
+  in a drawer.
+- **LAB BOOK · WORKBENCH** (`RX-05`) — a closed lab book and a pack box on a
+  side bench: *export a note that names its parents.* Its door is a route:
+  `/chronarch/tech`.
 
-Clicking a building (or its plate in the docked legend, which is the keyboard
-path) opens a **docked HTML panel** in the app's own chrome — name, status, one
-sentence, the negations, and *Enter Chronarch* only on the running building.
-The honesty sentence is the top strip; the footer keeps the domain
-reservation and claims nothing about DNS.
+Each piece is a hotspot: its meshes and an HTML sign (`sign-<key>`, the
+keyboard path) share one handler; the hovered piece lights its edge and its
+sentence appears under the buyer line (`lab-sentence`). The equipment tags,
+the floor tape, the bench height (0.9 m), the monitor bezel, the cable tray
+and the task lights are the scale cues. **Forbidden cosmetics:** random
+glassware, floating particles, idle steam, neon logos, crests, posters naming
+the example corpus as a product, chain words. If a mesh cannot say what it
+does in one sentence, it is not on the floor.
 
-**Same law as the well.** `src/campus/Campus.tsx` subscribes to the render
-policy: `frameloop` is the ledger's word ("demand" at rest), `dpr [1, 1.5]`,
-`shadows={false}`, no EffectComposer, no environment map, no texture, a
-handful of shared materials. `src/campus/CampusRig.tsx` is the well's rig on a
-simpler goal: a slow damped orbit while dragging on the ground plane, a zoom
-on wheel, a one-shot GSAP tween (held, invalidating per tick) when the
-selection changes, `useFrame` reading `delta` only. No hover parallax, no
-vehicle, no physics. When nothing holds the ledger, no frame is drawn: the
-campus is still. Tone: `#0b0d0c` background, `#1a1e1c` metal, `#e8e4d8`
-ivory, `#8faf88` phosphor, `#2a302c` hairline.
+`src/lab/labLayout.ts` is the data (the room, the pieces, the stand points,
+the camera view); `src/lab/materials.ts` the palette; `src/lab/baked.ts` the
+stills (drawn once into a 2D canvas — no image file, no fetch);
+`src/lab/Lab.tsx` the room and the pieces; `src/lab/Figure.tsx` the operator;
+`src/lab/LabRig.tsx` the camera.
 
-**Not mounted** under `prefers-reduced-motion` or without WebGL: the same
-catalogue stands as three cards. **Unmounted** on the way into `/chronarch`
-so the well has the GPU to itself — one WebGL context at a time, and never a
-second one on `/chronarch/tech`, which stays HTML. The landing never imports
-the well scene.
+## 5c. The operator
 
-## 5c. Campus story (the landing as a product story)
+One adult figure, 1.72 m in a 12 m room, in a white coat with closed shoes;
+a small capsule for a head, no face, no cartoon proportions — an operator,
+not a mascot. **Idle is still**: no breathing, no sway, no coat simulation.
+A click on a piece is a **walk**: one GSAP one-shot along the baked path (a
+short turn, one straight leg at a brisk pace — 1.9 m/s, capped at 2.6 s — a
+short turn to face the piece), legs and arms swinging with distance walked,
+not with time. On arrival the piece acts: the door tween for a product, the
+drawer for the covered bench, the legal text for the board. One walk at a
+time; a click while walking is ignored. Click-to-walk is the affordance;
+pointer drag turns the view within a clamp (never through the floor, never
+round a side wall); there is no wheel zoom and no scroll-driven camera. Under
+prefers-reduced-motion there is no walk: the lab is not mounted and the same
+pieces stand as an HTML station list with the same doors, the same statuses
+and the same refusals; the header links are the same doors either way.
 
-`/` reads like a product page: one 3D campus fixed behind the page, and the
-**scroll position is the only driver of the camera**. Almost no chrome.
+**Same law as the well.** `Lab.tsx` subscribes to the render policy:
+`frameloop` is the ledger's word ("demand" at rest), `dpr [1, 1.5]`,
+`shadows={false}`, no EffectComposer, no environment map, no texture loader.
+The ledger is held only by a pointer drag, the walk, the door tween and the
+rig's damping; a hover asks for one frame. `useFrame` lives in `LabRig.tsx`
+only and reads `delta`, never a clock; the walk is a held, invalidating
+one-shot in `Figure.tsx`. When nothing holds the ledger no frame is drawn and
+two screenshots a second apart are byte-identical. Tone: `#0b0d0c`
+background, `#222826` floor, `#313835` walls, `#3b4640` bench tops,
+`#8faf88` phosphor for what is switched on, `#5a5d58` for the cover,
+`#e8e4d8` ivory for the coat and the luminaires, `#b9b39f` tape.
 
-- **Hero (progress 0).** Three buildings in frame and the gate plated
-  REXMETRIX. The chrome is one STATUS line (the landing honesty sentence — it
-  appears here and nowhere else on the page), the wordmark *RexMetrix*, and
-  two text links: *Chronarch*, *Workbench*. No manifesto box, no plates row;
-  the 3D signs already name the buildings.
-- **Chapter 1 (⅓) — Chronarch** fills the frame. "Research software that is
-  running." Two more sentences at most, the negations, and the one CTA on the
-  page: *Open Chronarch* → `/chronarch`.
-- **Chapter 2 (⅔) — Continuum.** RUNNING: a literature-informed biotensegrity
-  and afferent-flow teaching simulation on `https://continuum.rexmetrix.com` —
-  model outputs, not measurements of a person; not a diagnostic; not a
-  programme ledger. Its door is that host (see 5d); its source repository is
-  named once, as a source. No in-app Continuum route; nothing of it is
-  embedded here.
-- **Chapter 3 (1) — Laterion.** "Laterion records facial kinematics including
-  partial trials and laterality. It is not a diagnostic, not a person-score,
-  and not an assessment of anyone." Not shipping in this repository: no
-  camera, no image, no landmark code here. No engine link.
-
-Chapters are `<section id=…>` with a scroll margin, so `#chronarch`,
-`#continuum` and `#laterion` deep-link. Clicking the Chronarch building
-or its sign is the door (`/chronarch`); clicking Continuum or Laterion
-scrolls to its chapter and nothing else.
-
-**Light.** Hemisphere plus a dim ivory key and a faint phosphor fill; faces
-lifted to `#2a322e`; Chronarch's windows are an emissive phosphor material
-(no bloom composer, no neon), its edge phosphor, the others a lit hairline.
-`tests/campus-materials.test.ts` pins that no material is a black basic
-material and that the windows emit.
-
-**Motion.** `storyGoal(progress)` interpolates four keyframes with a
-smoothstep; the rig damps toward it, reading `delta` only. Every scroll event
-touches the render ledger; drag holds it; when both stop the loop returns to
-demand and the frame is byte-identical. Wheel is left to the page (it is the
-driver), so there is no wheel zoom and no idle spin. Under
-prefers-reduced-motion, or without WebGL, the campus is not mounted: the hero
-and the three chapters stand as stacked HTML, 0 canvas.
+**Not mounted** under `prefers-reduced-motion` or without WebGL.
+**Unmounted** on the way into `/chronarch` so the well has the GPU to
+itself — one WebGL context at a time, and never one on `/chronarch/tech`,
+which stays HTML. The landing never imports the well scene.
 
 ## 5d. The first screen is a shop window
 
-The catalogue is visible on first paint. No checkbox, no splash, no storage
-flag: the campus (or the stacked chapters under reduced motion / without
-WebGL) and, beside it, the law in a compact strip — RexMetrix Technologies,
-LLC; Chronarch and Continuum are research software, not a diagnostic, not a
-medical device; Continuum: simulation, model outputs, not measurements of any
+The lab is visible on first paint. No checkbox, no splash, no storage flag:
+the room (or the station list under reduced motion / without WebGL) and,
+across its top, the law in a compact strip — RexMetrix Technologies, LLC;
+Chronarch and Continuum are research software, not a diagnostic, not a
+medical device; Continuum: simulation, model outputs, not measurements of a
 person; the Labs split; the data sentence; credit, not endorsement, with the
 two attribution links in a new tab. Above the fold, one buyer line: *A local
 workbench for a group to declare fields, pin sources, and write a synthesis
 that names its parents. Continuum is a separate simulation on its own host.*
-The footer repeats the LLC and both links; **Legal** expands the same text in
-place, never a wall.
+Below the room, three chapters (`#chronarch`, `#continuum`, `#laterion`) and
+the footer, which repeats the LLC and both links; **Legal** expands the same
+text in place, never a wall.
 
-Two buildings are doors and one is not:
+Three of the five pieces are doors; two are not:
 
-- **CHRONARCH · RUNNING** — the door tween, then `/chronarch`.
-- **CONTINUUM · RUNNING** — one state everywhere; a door to another origin,
-  `https://continuum.rexmetrix.com`, Continuum's one product URL, **in this
-  same tab**: the same door tween, then one `location.assign`; the header link
-  and the chapter CTA are ordinary anchors to that URL. One click, one
-  navigation. (A new-tab door was tried and removed: with "noopener" the
-  browser returns null from `window.open`, so a same-tab fallback fired too
-  and one click navigated twice.) Its source repository is named once, as a
-  source, never as the door. Continuum is never mounted inside this app.
-- **LATERION · FORTHCOMING · NOT A DIAGNOSTIC** — no door: the chapter only,
-  with its three negations.
+- **CHRONARCH · RUNNING** — the walk, the door tween, then `/chronarch`.
+- **CONTINUUM · RUNNING** — one state everywhere; the walk, the same tween,
+  then one `location.assign` to `https://continuum.rexmetrix.com`,
+  Continuum's one product URL, **in this same tab**; the header link and the
+  chapter CTA are ordinary anchors to that URL. One click, one navigation. (A
+  new-tab door was tried and removed: with "noopener" the browser returns
+  null from `window.open`, so a same-tab fallback fired too and one click
+  navigated twice.) Its source repository is named once, as a source, never
+  as the door. Continuum is never mounted inside this app.
+- **LAB BOOK · WORKBENCH** — the walk, the door tween, then `/chronarch/tech`.
+- **LATERION · NOT SHIPPING · NOT A DIAGNOSTIC** — no door: the walk, then
+  the one-line drawer. The chapter below carries the same status word and
+  its three negations; "forthcoming" is not a word the landing uses.
+- **SPEC BOARD · LEGAL** — no door: the walk, then the legal text in a drawer.
 
-The **door tween** (`DoorIris.tsx`, ≤ 800 ms): an ivory plane rises from the
-volume while the rig eases the camera at it (`doorGoal`); it holds the render
-ledger and invalidates per tick; on completion the route changes and the
-campus unmounts. Under reduced motion, or without the campus, a door is an
-immediate route change. **A door never stays half-open**: `doorState.ts`
-resets it when the tween completes or when the document hides or shows
-again — `pagehide`, `pageshow` (a BFCache restore included),
-`visibilitychange` to visible — so the plane unmounts, its hold on the ledger
-is released, the rig's door goal clears, and one frame is asked for. The
-campus is clickable again.
+The **door tween** (`DoorIris.tsx`, ≤ 800 ms): an ivory plane rises while the
+rig eases the camera at the piece (`doorView`); it holds the render ledger
+and invalidates per tick; on completion the route changes and the lab
+unmounts. Without the lab a door is an immediate route change. **A door
+never stays half-open**: `doorState.ts` resets it when the tween completes or
+when the document hides or shows again — `pagehide`, `pageshow` (a BFCache
+restore included), `visibilitychange` to visible — so the plane unmounts,
+its hold on the ledger is released, the rig's door goal clears, and one
+frame is asked for. The lab is clickable again.
 
 No substrate word — DACO, Timechain, Chronos, Council, "not a public chain",
-Chia, PoST — appears on the landing chrome or the Chronarch well chrome;
+Chia, PoST — appears on the landing chrome or the Chronarch well chrome, and
+no school or chain word — university, campus, institute, token, wallet — or
+the slogan "Measurement is King" appears in the landing's strings;
 `scripts/check-chrome.mjs` fails the build on any of them.
 
 ## 6. Rejected (kept rejected)
@@ -381,26 +391,43 @@ Chia, PoST — appears on the landing chrome or the Chronarch well chrome;
   eight sensorimotor interfaces, a corpus's array — does not become a template.
 - **A Bruno Simon car clone** — no. A drivable vehicle, physics, honks,
   collectibles, balloons, a mascot: lag and a toy feel on a page whose job is
-  to say what three instruments are not. The campus is approached by a slow
-  orbit and a click.
+  to say what three instruments are not. The lab is approached by a click:
+  the operator walks, once, and the piece acts.
 - **A second WebGL context on `/chronarch/tech`** — no. The workbench is
-  HTML; the campus unmounts before the well mounts.
-- **A face model on the landing** — no. Laterion is a windowless block
-  and a sentence; no image is read, no landmark code exists here.
+  HTML; the lab unmounts before the well mounts.
+- **A face model on the landing** — no. Laterion is a covered bench, an
+  isolator that is off and a sentence; no camera mesh, no image is read, no
+  landmark code exists here.
 - **A title beat ("Measurement is King!")** — no. It was tried as a one-shot
   after the gate and removed: a slogan overlay is a hero animation whatever
-  its repeat count, and the campus needs no announcement.
+  its repeat count, and the lab needs no announcement.
 - **Embedding Continuum** — no iframe, no mounted route, no shared engine.
   Its door leaves this origin.
 - **Foundation endorsement** — no. The attributions are credit for literature
   and cited materials; every mention of endorsement on the site is a negation.
 - **A checkbox before the catalogue** — no. The law is visible on the first
   screen and again in the footer; it does not gate the shop window.
-- **A manifesto on the hero** — no. The first screen is three readable
-  buildings, one STATUS line, a wordmark and two links; the story is told by
-  scrolling, not by a box of rules over the render.
-- **Idle spin** — no. The camera moves when the page scrolls or the hand
-  drags; at rest no frame is drawn.
+- **A manifesto on the hero** — no. The first screen is a readable room, one
+  strip, a wordmark and three links; the pieces tell the story, not a box of
+  rules over the render.
+- **Idle spin** — no. The camera moves when the hand drags or a door opens;
+  at rest no frame is drawn.
+- **A university quad / research park** — no. Lawns, a fence, three volumes
+  and a gate read as an institution selling a place. RexMetrix sells
+  instruments; the landing is the room they stand in.
+- **An idle lab loop** — no. Steam off a beaker, blinking LEDs, a pacing
+  figure, a slow orbit: all of it is life the room does not have. The
+  operator stands still until a piece is clicked, walks once, and stands
+  still again.
+- **Cosmetics-only glassware** — no. A retort stand or a rack of flasks with
+  no sentence and no job is set dressing; a visitor who clicks it learns
+  nothing. Every mesh on the floor answers a hover.
+- **Scroll as the camera's driver** — removed. It woke the loop for a page
+  scroll and told a story the room already tells; the view is one shop
+  window, turned only by a drag.
+- **A child, a mascot, a cartoon head** — no. The figure is an adult
+  operator in a coat, small in the room, with no face; nothing waves.
+- **A checkbox wall before the room** — no (see 5d).
 - **Claiming a live subdomain** — no. DEPLOY.md names the intended hosts;
   nothing here says they resolve.
 - **A theme-park loop** — no. A "fun" idle — particles, drift, a looping

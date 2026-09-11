@@ -31,7 +31,7 @@ describe("RexMetrix landing", () => {
     expect(screen.getByTestId("chapters").querySelectorAll("section")).toHaveLength(3);
     expect(screen.getByTestId("chapter-chronarch")).toHaveAttribute("data-status", "RUNNING");
     expect(screen.getByTestId("chapter-continuum")).toHaveAttribute("data-status", "RUNNING");
-    expect(screen.getByTestId("chapter-laterion")).toHaveAttribute("data-status", "FORTHCOMING");
+    expect(screen.getByTestId("chapter-laterion")).toHaveAttribute("data-status", "NOT SHIPPING");
     expect(screen.getByTestId("chapter-laterion")).toHaveTextContent(/not a diagnostic/);
     expect(screen.getByTestId("chapter-laterion")).toHaveTextContent(/not a person-score/);
     expect(screen.getByTestId("landing-footer")).toHaveTextContent(/Domain reserved for the RexMetrix landing/);
@@ -49,7 +49,7 @@ describe("RexMetrix landing", () => {
     expect(body).not.toMatch(/\bassess(es|ing)? (a|the|each) person\b/i);
     expect(body).not.toMatch(/Chronarch is RexMetrix/);
     expect(body).toMatch(/Chronarch is one of its products/);
-    for (const c of CHAPTERS.filter((x) => x.status === "FORTHCOMING")) expect(c.door).toBeNull(); // a forthcoming product has no door
+    for (const c of CHAPTERS.filter((x) => x.status !== "RUNNING")) expect(c.door).toBeNull(); // a product that is not shipping has no door
     expect(body).not.toMatch(/Face mapping|FACE MAP/);
     expect(body).toContain("Laterion");
     expect(body).not.toMatch(/Laterion is (running|shipping|live)/);

@@ -1971,6 +1971,66 @@ Bug: the technician room still exposed a second product — /council,
     /sitemap.xml with index.html. Crawlers read real files.
   - **Listing /workbench as a page** — it is a redirect, not a URL of record.
 
+## The landing is an indoor working lab
+
+- `/` is no longer an outdoor pad with three volumes behind a fence. With
+  motion allowed and WebGL present it is one room: a dark resin floor with
+  tape zones, three walls, a glass front the camera stands outside, a cable
+  tray, two luminaires over the benches, and five pieces that each have a
+  job — the Chronarch bench with its large display (`RX-01`, a baked still of
+  the catalogue graph; a door to `/chronarch`), the Continuum console with a
+  sectional tissue / afferent-flow schematic on glass (`RX-02`, baked; a door
+  to its host in this same tab), the Laterion kinematics bench under a dust
+  cover with the isolator off (`RX-03`, *COVERED · NOT IN SERVICE*; a
+  one-line drawer, no door, no href, no camera mesh), the spec board on the
+  back wall between the benches (`RX-04`; the legal text in a drawer), the lab book and pack on a side
+  bench (`RX-05`; a door to `/chronarch/tech`). Equipment tags, bench height,
+  bezels, a cable tray and task lights carry the scale.
+- One operator: an adult in a white coat, small in the room, a capsule head
+  with no face. Idle is still. A click on a piece is one GSAP one-shot walk
+  along a straight leg between stand points (brisk pace, ≤ 2.6 s, a turn at
+  each end, limbs swinging with distance not time); on arrival the piece acts
+  (door tween / drawer / legal text). One walk at a time. Drag turns the view
+  within a clamp; no wheel, no scroll-driven camera, no follow.
+- Motion law kept and re-pinned: `frameloop` follows the ledger; the ledger is
+  held by a drag, the walk, the door and the damping only; hover asks for one
+  frame; `useFrame` only in `src/lab/LabRig.tsx`, delta only; no clock in
+  `src/lab`; dpr [1, 1.5]; shadows off; no composer, no environment map, no
+  texture loader, no image file (the stills are drawn once into a 2D canvas).
+  Rest frames are byte-identical one second apart, before and after a walk.
+- Doors unchanged in law: Chronarch walk → door → `/chronarch` (the lab
+  unmounts); Continuum walk → door → one `location.assign`, same tab, reset on
+  pagehide / pageshow / visibilitychange; Laterion walk → drawer, stay on `/`.
+  Without the lab (reduced motion, no WebGL) the same pieces are an HTML
+  station list with the same doors and the same statuses.
+- The chrome law grows a landing rule: no university, campus, institute,
+  token, wallet or "Measurement is King" in the landing's strings.
+- Tests: the lab stub (`tests/labMock.tsx`) replaces the campus stub; layout
+  tests pin five pieces with jobs, the statuses RUNNING / RUNNING / NOT
+  SHIPPING, clear straight walks, the camera clamps and the copy bans;
+  materials tests pin on-emits / off-does-not; the animation law names the
+  lab rig and the figure's one timeline; a headless probe checks one canvas
+  on `/`, still frames at rest, the walk waking and sleeping the loop, the
+  drawer, the spec drawer, the mid-door reset, one same-tab Continuum
+  navigation and Back, the Chronarch door, 0 canvas on the workbench, and
+  the reduced-motion list.
+- REJECTED:
+  - **A university quad / research park** — lawns, a fence, a gate and three
+    volumes read as an institution selling a place. The company sells
+    instruments; the landing is the room they stand in.
+  - **An idle lab loop** — steam, blinking LEDs, a pacing figure, a slow
+    orbit. Life the room does not have. Nothing moves until a piece is
+    clicked; then it moves once.
+  - **Cosmetics-only glassware** — a rack of flasks with no sentence and no
+    job. Every mesh answers a hover.
+  - **Embedding Continuum** — an iframe or a live texture of the other host
+    in the console. The console shows a baked schematic; the door leaves.
+  - **A child mascot / cartoon head** — the figure is an adult operator with
+    no face; nothing waves.
+  - **A checkbox wall** — the law is a strip and a footer, never a gate.
+  - **A camera-like mesh on the Laterion bench** — the bench is covered;
+    what is under the cover is not modelled.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

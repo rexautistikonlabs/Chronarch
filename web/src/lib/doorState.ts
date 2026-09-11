@@ -1,7 +1,7 @@
 /** Door state with a lifecycle: a door opens (the tween runs), completes, or
  *  is reset by the document going away and coming back — pagehide, pageshow
  *  (including a BFCache restore, event.persisted), visibilitychange to
- *  visible. Whatever happens to the tab, the campus never keeps a half-open
+ *  visible. Whatever happens to the tab, the lab never keeps a half-open
  *  door: the plane is gone and the flag is clear. Pure TypeScript; the page
  *  subscribes and React state follows. */
 export type DoorKey = string;

@@ -7,21 +7,12 @@ import { join } from "node:path";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { BuildingKey } from "../src/campus/campusLayout";
 import { STAND_INS } from "../src/lib/filters";
 import { FIRST_RUN_STEPS } from "../src/lib/firstRun";
 import { PROGRAMME_CHIPS } from "../src/lib/human";
 import { renderAt } from "./render";
 
-vi.mock("../src/campus/Campus", () => ({
-  webglAvailable: () => true,
-  Campus: ({ onPick }: { onPick: (k: BuildingKey) => void }) => (
-    <div data-testid="campus-viewport">
-      <canvas data-testid="campus-canvas" />
-      <button type="button" data-testid="sign-laterion" onClick={() => onPick("laterion")}>LATERION · FORTHCOMING · NOT A DIAGNOSTIC</button>
-    </div>
-  ),
-}));
+vi.mock("../src/lab/Lab", () => import("./labMock"));
 
 const ROOT = join(__dirname, "..");
 
@@ -85,7 +76,7 @@ describe("static host files", () => {
 });
 
 describe("Laterion", () => {
-  it("clicking the mesh opens a one-line drawer with no href; the chapter still has no door", () => {
+  it("clicking the covered bench opens a one-line drawer with no href; the chapter still has no door", () => {
     renderAt("/");
     expect(screen.queryByTestId("laterion-drawer")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("sign-laterion"));
