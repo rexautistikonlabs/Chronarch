@@ -1,7 +1,8 @@
 // `node scripts/probe-lab.mjs <screenshot-dir>` — the lab in a headless Chromium against `vite preview`
 // (built dist/). Not part of `npm test`: it needs playwright-core (present through vitest's browser package)
 // and a Chromium (env CHROMIUM, default the Playwright install path). Exits 1 on any broken law:
-// one canvas on /, byte-identical frames one second apart at rest and after a walk, the walk and the
+// one canvas on /, the notice hidden on demand (flag written, room full-bleed, footer law intact, the
+// header control bringing every line back), byte-identical frames one second apart at rest and after a walk, the walk and the
 // door waking then sleeping the loop, the Laterion drawer with no href, the spec drawer, a mid-door
 // pagehide/pageshow reset, one same-tab Continuum navigation and Back, the Chronarch door unmounting
 // the lab, 0 canvas on the workbench, the reduced-motion station list, no console error, no external request.
@@ -31,6 +32,22 @@ try {
     gate: (await count('[data-testid="gate"]')) + (await count('input[type="checkbox"]')), signs: await page.$$eval('[data-testid^="sign-"]', (els) => els.map((e) => e.textContent)),
     storage: await page.evaluate(() => localStorage.length), slogan: (await page.innerText("body")).includes("Measurement is King"), stationList: await count('[data-testid="station-list"]'),
   };
+  // the notice: hide it, the room goes full-bleed and the flag is written; the footer keeps the law; a reload starts closed and the header brings it back
+  const stripLines = async (sel) => (await page.innerText(sel)).replace(/\s+/g, " ");
+  out.notice = { cold: await stripLines('[data-testid="legal-strip"]'), hideButton: await count('[data-testid="strip-hide"]'), headerExpanded: await attr('[data-testid="header-legal"]', "aria-expanded") };
+  await page.click('[data-testid="strip-hide"]');
+  await sleep(400);
+  out.notice.afterHide = {
+    strip: await count('[data-testid="legal-strip"]'), flag: await page.evaluate(() => localStorage.getItem("rexmetrix.strip.v1")), canvases: await count("canvas"),
+    footerLlc: await page.innerText('[data-testid="footer-llc"]'), footerLinks: await page.$$eval('[data-testid^="footer-attribution-"]', (els) => els.map((e) => e.getAttribute("href"))), footerLegal: await count('[data-testid="footer-legal"]'),
+    canvasTop: await page.evaluate(() => document.querySelector("canvas")?.getBoundingClientRect().top ?? -1),
+  };
+  await page.screenshot({ path: OUT + "/lab-notice-hidden.png" });
+  await page.reload({ waitUntil: "networkidle" }); await sleep(2000);
+  out.notice.afterReload = { strip: await count('[data-testid="legal-strip"]'), mode: await attr('[data-testid="landing-body"]', "data-notice"), canvases: await count("canvas") };
+  await page.click('[data-testid="header-legal"]'); await sleep(300);
+  out.notice.afterReopen = { lines: await stripLines('[data-testid="legal-strip"]'), flag: await page.evaluate(() => localStorage.getItem("rexmetrix.strip.v1")) };
+  await page.click('[data-testid="strip-hide"]'); await sleep(300); // leave it hidden: the rest of the probe runs full-bleed
   const cv = page.locator("canvas");
   const a0 = await cv.screenshot(); await sleep(1000); const a1 = await cv.screenshot(); out.stillAtRest = a0.equals(a1);
   await page.screenshot({ path: OUT + "/lab-cold.png" });
@@ -98,6 +115,15 @@ try {
   check(problems.length === 0, "console/page errors"); check(requests.length === 0, "external requests");
   check(out.cold.mode === "lab" && out.cold.canvases === 1 && out.cold.loop === "demand" && out.cold.strip === 1 && out.cold.llc.includes("RexMetrix Technologies, LLC") && out.cold.buyer.startsWith("A local workbench") && out.cold.gate === 0 && out.cold.storage === 0 && !out.cold.slogan && out.cold.stationList === 0, "cold load");
   check(JSON.stringify(out.cold.signs) === JSON.stringify(["CONTINUUM · RUNNING", "CHRONARCH · RUNNING", "SPEC BOARD · LEGAL", "LAB BOOK · WORKBENCH", "LATERION · NOT SHIPPING · NOT A DIAGNOSTIC"]), "signs");
+  // innerText is what the visitor reads, so a text-transform'd line (CREDIT, NOT ENDORSEMENT) is matched case-insensitively
+  const LAW = ["RexMetrix Technologies, LLC", "Not a diagnostic. Not a medical device.", "Model outputs, not measurements of a person", "independent 501(c)(3)", "in this browser only", "Credit, not endorsement"];
+  const carriesLaw = (text) => LAW.every((s) => text.toLowerCase().includes(s.toLowerCase()));
+  check(carriesLaw(out.notice.cold) && out.notice.hideButton === 1 && out.notice.headerExpanded === "true", "cold notice");
+  check(out.notice.afterHide.strip === 0 && out.notice.afterHide.flag === "1" && out.notice.afterHide.canvases === 1 && out.notice.afterHide.canvasTop <= 0
+    && out.notice.afterHide.footerLlc.includes("RexMetrix Technologies, LLC") && out.notice.afterHide.footerLegal === 1
+    && JSON.stringify(out.notice.afterHide.footerLinks) === JSON.stringify(["https://rexautistikonlabs.org", "https://cyberphysics.ai"]), "hidden notice");
+  check(out.notice.afterReload.strip === 0 && out.notice.afterReload.mode === "hidden" && out.notice.afterReload.canvases === 1, "notice starts closed on the next visit");
+  check(carriesLaw(out.notice.afterReopen.lines) && out.notice.afterReopen.flag === null, "header Legal reopens the notice");
   check(out.stillAtRest, "rest frames differ"); check(out.hover.sentence.startsWith("Chronarch") && out.hover.cursor === "pointer", "hover sentence"); check(out.hoverReset.loop === "demand", "loop after hover");
   check(out.walkLoop === "always", "walk did not wake the loop"); check(out.laterion.drawer.includes("Not shipping. Not a diagnostic. Not a person-score.") && out.laterion.links === 0 && out.laterion.url.endsWith("/") && out.laterion.doorIris === 0 && out.laterion.hrefs === 0, "laterion drawer");
   check(out.loopAfterWalk === "demand" && out.stillAfterWalk, "loop or frame after the walk");

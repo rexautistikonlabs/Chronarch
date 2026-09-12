@@ -2034,6 +2034,43 @@ Bug: the technician room still exposed a second product — /council,
   - **A camera-like mesh on the Laterion bench** — the bench is covered;
     what is under the cover is not modelled.
 
+## The first screen's notice can be hidden (and always comes back)
+
+- The legal strip on `/` now carries **Hide notice**, a real button in the tab
+  order. Hiding removes the strip from the layout — the lab is full-bleed —
+  and writes one flag, `rexmetrix.strip.v1`; a return visit with that flag
+  starts closed. `web/src/lib/notice.ts` is the whole mechanism: read, write,
+  clear, and a storage failure that means "show it".
+- The law does not move with the strip. The header keeps a small **Legal**
+  control (`aria-expanded`, `aria-controls="legal-strip"`) that brings the
+  notice back and clears the flag, so the stored preference always mirrors
+  what the visitor last chose. The footer keeps the LLC line, both attribution
+  links and its own **Legal**, which expands the same sentences in place. The
+  lab's spec board opens them too. Three ways in, in every state.
+- No tween in either motion mode: the strip is in the layout or out of it, so
+  reduced motion needs no special case. The doors, the walk and the render
+  ledger are untouched; hiding the notice draws no frame of its own.
+- Tests (`web/tests/notice.test.tsx`): cold load writes nothing and shows every
+  line; Hide leaves the canvas mounted, writes the flag and keeps the footer's
+  LLC, both attribution links and Legal; a flagged visit starts closed and the
+  header control restores every line and clears the flag; clearing the flag by
+  hand shows it again; junk in the key is not a hidden notice; the footer
+  panel and the spec board carry every line while the strip is hidden;
+  reduced motion behaves identically; and with `localStorage` throwing, the
+  notice shows and still hides for that mount.
+- REJECTED:
+  - **Deleting the notice with no way back** — a dismiss that leaves no
+    control anywhere is how a disclaimer quietly stops existing. Hiding is
+    allowed only because the header, the footer and the spec board each still
+    open the same sentences.
+  - **Persisting "hidden" as "the footer may drop the attributions"** — the
+    footer's LLC line and both credit links are not part of what the strip
+    controls; they stand in every state.
+  - **A checkbox or an "I agree" before the lab** — still no. The notice is
+    read, not agreed to; nothing about `/` is gated.
+  - **A slide or fade on the strip** — a dismissal is not an animation. It is
+    in the layout or it is not.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

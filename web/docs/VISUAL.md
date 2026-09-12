@@ -331,6 +331,22 @@ Below the room, three chapters (`#chronarch`, `#continuum`, `#laterion`) and
 the footer, which repeats the LLC and both links; **Legal** expands the same
 text in place, never a wall.
 
+**The notice is dismissible, never deletable.** The strip carries a real
+**Hide notice** button (in the tab order, beside the law it dismisses). One
+click and the strip leaves the layout — the room is full-bleed — and this
+browser remembers it in one flag, `rexmetrix.strip.v1`. A return visit with
+that flag starts closed. What is hidden is *what shows first*, never *what is
+available*: the header keeps a small **Legal** control (`aria-expanded`,
+`aria-controls="legal-strip"`) that brings the whole strip back and clears
+the flag, so the stored preference always mirrors the visitor's last choice;
+the footer keeps the LLC line, both attribution links and its own **Legal**,
+which expands the same sentences in place; and the lab's spec board opens
+them too. There is no tween in either motion mode — the strip is simply in
+the layout or out of it — and no storage at all (a private window) just means
+the notice shows every visit. It is a notice, not a gate: nothing is agreed
+to, nothing is blocked, and the only buttons on the first screen are the
+notice's own two.
+
 Three of the five pieces are doors; two are not:
 
 - **CHRONARCH · RUNNING** — the walk, the door tween, then `/chronarch`.

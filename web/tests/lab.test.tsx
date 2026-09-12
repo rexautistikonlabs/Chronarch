@@ -19,7 +19,7 @@ const reduceStub = (matches: boolean) => (q: string) => ({ matches: matches && q
 describe("RexMetrix instrument lab", () => {
   afterEach(() => { vi.unstubAllGlobals(); mockControl.manual = false; });
 
-  it("/ mounts one canvas when motion is allowed; the hero is the legal strip, the wordmark, three text links, the buyer line and the hint — no manifesto, no buttons, no checkbox", () => {
+  it("/ mounts one canvas when motion is allowed; the hero is the legal strip, the wordmark, three text links, the buyer line and the hint — no manifesto, no checkbox, and the only buttons are the notice's own", () => {
     renderAt("/");
     expect(screen.getByTestId("landing-body")).toHaveAttribute("data-mode", "lab");
     expect(document.querySelectorAll("canvas")).toHaveLength(1);
@@ -33,7 +33,8 @@ describe("RexMetrix instrument lab", () => {
     expect(links.map((a) => a.getAttribute("href"))).toEqual(["/chronarch", "https://continuum.rexmetrix.com", "/chronarch/tech"]);
     expect(within(hero).getByTestId("buyer-line")).toHaveTextContent(/A local workbench for a group/);
     expect(within(hero).getByTestId("lab-sentence")).toHaveTextContent("Click a station: the operator walks there. Drag to look around.");
-    expect(hero.querySelectorAll("button")).toHaveLength(0);
+    // the only buttons on the first screen are the notice's own controls: nothing to agree to
+    expect(Array.from(hero.querySelectorAll("button")).map((b) => b.getAttribute("data-testid"))).toEqual(["strip-hide", "header-legal"]);
     expect(document.querySelectorAll('input[type="checkbox"]')).toHaveLength(0);
     expect(screen.queryByTestId("gate")).not.toBeInTheDocument();
     expect(hero.textContent).not.toMatch(/Three buildings|how RexMetrix talks|builds research instruments|Measurement is King/);

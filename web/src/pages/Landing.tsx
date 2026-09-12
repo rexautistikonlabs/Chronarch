@@ -16,7 +16,12 @@
  *  BFCache restore, visibilitychange): plane gone, ledger asleep, lab
  *  clickable — so Back from Continuum shows the lab, not an ivory plane.
  *  Continuum has one state (RUNNING) and one product URL; its source
- *  repository is named once, as a source. Under prefers-reduced-motion, or
+ *  repository is named once, as a source. The strip that carries the law can
+ *  be hidden — "Hide notice" — so the room is full-bleed; the choice is one
+ *  flag in this browser, the header's "Legal" brings it straight back, and
+ *  the footer's "Legal", the footer's LLC line, both attribution links and
+ *  the lab's spec board keep every sentence either way. Nothing is ever
+ *  agreed to: no checkbox, no wall. Under prefers-reduced-motion, or
  *  without WebGL, the lab is not mounted: the same catalogue stands as an
  *  HTML station list with the same doors and the same refusals, and a door
  *  is an immediate route change. Continuum is never mounted inside this app;
@@ -26,12 +31,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { DoorIris } from "../components/DoorIris";
-import { LegalFooter, LegalStrip, LegalText } from "../components/LegalStrip";
+import { LegalFooter, LegalStrip, LegalText, LegalToggle } from "../components/LegalStrip";
 import { Lab, webglAvailable } from "../lab/Lab";
 import { PROPS, propByKey, type Door, type PropKey, type StationKey, type WalkRequest } from "../lab/labLayout";
 import { attachDoorReset, createDoorState } from "../lib/doorState";
 import { BUYER_LINE, CONTINUUM_URL, exits, LLC, SCIENTIFICLAB_URL } from "../lib/legal";
 import { usePrefersReducedMotion } from "../lib/motion";
+import { noticeHidden, setNoticeHidden } from "../lib/notice";
 
 export interface Chapter {
   key: StationKey;
@@ -81,16 +87,18 @@ const LAB_HINT = "Click a station: the operator walks there. Drag to look around
 /** The first screen's chrome, over the lab: the strip, the wordmark, three
  *  links, the buyer line and the hovered piece's sentence. Text takes no
  *  pointer, so the pieces behind it stay clickable; only the links do. */
-function Hero({ lab, hovered }: { lab: boolean; hovered: PropKey | null }) {
+function Hero({ lab, hovered, notice, onHideNotice, onToggleNotice }: { lab: boolean; hovered: PropKey | null; notice: boolean; onHideNotice: () => void; onToggleNotice: () => void }) {
   return (
     <section className={`pointer-events-none flex flex-col ${lab ? "absolute inset-0" : "relative"}`} data-testid="hero" aria-label="RexMetrix">
-      <LegalStrip />
+      {/* hidden, the strip leaves the layout entirely: the room is full-bleed and the header keeps the way back */}
+      {notice && <LegalStrip onHide={onHideNotice} />}
       <div className="pointer-events-none flex flex-wrap items-baseline justify-between gap-6 px-6 pt-5">
         <h1 className="text-2xl font-semibold tracking-tight" data-testid="landing-title">RexMetrix <span className="readout text-[11px] uppercase tracking-wider text-dim">· {LLC}</span></h1>
         <nav aria-label="Products" className="pointer-events-auto flex items-center gap-5 text-sm" data-testid="landing-nav">
           <Link to="/chronarch" className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-chronarch">Chronarch</Link>
           <a href={CONTINUUM_URL} className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-continuum">Continuum</a>
           <Link to="/chronarch/tech" className="text-mute underline-offset-4 hover:text-ivory hover:underline" data-testid="landing-to-tech">Workbench</Link>
+          <LegalToggle open={notice} onToggle={onToggleNotice} />
         </nav>
       </div>
       {/* the buyer line sits low, over the floor in front of the benches, so it never covers a sign; still above the fold */}
@@ -172,6 +180,17 @@ export function Landing() {
   const departing = useRef(false); // a door has completed: the plane and the camera hold at the piece until the route changes
   const [hovered, setHovered] = useState<PropKey | null>(null);
   const [drawer, setDrawer] = useState<"laterion" | "spec" | null>(null);
+  // The notice starts as this browser last left it. Hiding it changes what is
+  // shown first, never what is available: the footer and the spec board keep
+  // the same sentences, and the header's control brings the strip back.
+  const [notice, setNotice] = useState(() => !noticeHidden());
+  const hideNotice = useCallback(() => { setNotice(false); setNoticeHidden(true); }, []);
+  const toggleNotice = useCallback(() => {
+    setNotice((open) => {
+      setNoticeHidden(open); // open now means the click hides it, and the other way round
+      return !open;
+    });
+  }, []);
 
   // The door's lifecycle: React state follows the helper. When a door
   // completes, the plane and the rig's goal stay at the piece (the route is
@@ -257,10 +276,10 @@ export function Landing() {
   }, [doorState, go]);
 
   return (
-    <div data-testid="landing-body" data-mode={lab ? "lab" : reduced ? "reduced-motion" : "no-webgl"} data-leaving={leaving ?? ""}>
+    <div data-testid="landing-body" data-mode={lab ? "lab" : reduced ? "reduced-motion" : "no-webgl"} data-leaving={leaving ?? ""} data-notice={notice ? "open" : "hidden"}>
       <section className={lab ? "relative h-screen" : "relative"} data-testid="first-screen">
         {lab && <Lab walk={walk} door={door} onPick={pick} onHover={setHovered} onArrive={act} />}
-        <Hero lab={lab} hovered={hovered} />
+        <Hero lab={lab} hovered={hovered} notice={notice} onHideNotice={hideNotice} onToggleNotice={toggleNotice} />
       </section>
       {!lab && <StationList onPick={pick} />}
       {leaving && <DoorIris key={leaving} onDone={doorDone} />}

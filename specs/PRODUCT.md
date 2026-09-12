@@ -68,7 +68,7 @@
   **The first screen** is a shop window, not a splash: the catalogue is
   visible on first paint, in both motion modes, with no checkbox and no
   storage flag required (an old `rexmetrix.gate.v1`, if a browser holds it,
-  is ignored). A compact strip always shows: **RexMetrix Technologies, LLC**;
+  is ignored). A compact strip shows on a first visit: **RexMetrix Technologies, LLC**;
   *Chronarch and Continuum are research software. Not a diagnostic. Not a
   medical device.*; *Continuum: simulation; model outputs, not measurements of
   any person.*; the Labs split (*Rex Autistikōn Labs, https://rexautistikonlabs.org,
@@ -92,6 +92,18 @@
   landing's strings; `scripts/check-chrome.mjs` runs before every build and
   fails on any of them, on the simulation's name near a "forthcoming" state,
   or on the GitHub URL used as a door.
+
+  **The notice is dismissible, never deletable.** The strip carries a
+  **Hide notice** button; one click removes it from the layout (the lab goes
+  full-bleed) and writes `rexmetrix.strip.v1`, so a return visit starts
+  closed. Hiding changes what is shown first, never what is available: the
+  header's **Legal** control brings the strip back and clears the flag (the
+  stored preference mirrors the visitor's last choice), the footer always
+  keeps the LLC line, both attribution links and its own **Legal** — the same
+  sentences, expanded in place, never a full-screen wall — and the lab's spec
+  board opens them as well. No storage (a private window) simply means the
+  notice shows every visit. It is a notice, not a gate: nothing is agreed to
+  and nothing is blocked.
 
 The sections below describe the product — Chronarch. Where older text says
 "RexMetrix" for the product, read Chronarch; the company name stays on the
