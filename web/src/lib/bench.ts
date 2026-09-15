@@ -107,6 +107,8 @@ export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, 
   const parents = selected.map((w) => ({ pin: `pin:${w.id}`, field: w.field ?? "", work: w.id }));
   for (const p of parents) {
     if (!p.field) return refuse("UNKNOWN_FIELD", `work ${p.work} is not shelved in a field; give it one before it parents a child`);
+    // a shelf the loaded programme does not know: load the catalogue that declares it, or declare the field yourself
+    if (!cat.fields.has(p.field)) return refuse("UNKNOWN_FIELD", `work ${p.work} is shelved in ${p.field}, which is not in the loaded programme's catalogue — load the catalogue that declares it, or declare the field on this project`);
   }
   // The declared connection: shortest live path between consecutive parent fields.
   const fields = parents.map((p) => p.field);

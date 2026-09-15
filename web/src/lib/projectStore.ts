@@ -9,8 +9,8 @@
  *  would accept, otherwise it is dropped and counted. */
 import type { AnalysisNote } from "./analysisNote";
 import type { BenchOk } from "./bench";
-import type { Bridge } from "./programme";
-import { isOperatorBridge, OPERATOR_JUNCTION, type Project, type ProjectNote } from "./project";
+import type { Bridge, Field } from "./programme";
+import { BLANK_PROGRAMME_ID, FIELD_ANTI_OVERREACH_ALWAYS, isOperatorBridge, isOperatorField, OPERATOR_JUNCTION, type Project, type ProjectNote } from "./project";
 import { acceptUpload, type License, type Work } from "./works";
 
 export const PROJECT_STORAGE_KEY = "rexmetrix.project.v1";
@@ -35,9 +35,20 @@ export function parseProject(text: string, preload: readonly Work[]): ParseResul
   for (const k of ["works", "extra_bridges", "notes"] as const) {
     if (!Array.isArray(raw[k])) return { ok: false, code: "IMPORT_INVALID", detail: `missing ${k}[]` };
   }
-  const programme_ids = Array.isArray(raw.programme_ids) && raw.programme_ids.every(str) ? (raw.programme_ids as string[]) : ["programme-zero", "programme-classics"];
+  const programme_ids = Array.isArray(raw.programme_ids) && raw.programme_ids.every(str) ? (raw.programme_ids as string[]) : [BLANK_PROGRAMME_ID];
   const id = str(raw.id) && raw.id.trim() ? raw.id : "project-imported";
   const created_at = str(raw.created_at) ? raw.created_at : "tick:imported";
+
+  // fields: operator-declared only (an older file has none); each keeps the refusal of any person-level score
+  const extra_fields: Field[] = [];
+  for (const f of Array.isArray(raw.extra_fields) ? (raw.extra_fields as unknown[]) : []) {
+    if (!isRecord(f) || !str(f.id) || !str(f.label) || !str(f.units) || !str(f.sector)) continue;
+    const packs = Array.isArray(f.anti_overreach) ? (f.anti_overreach as unknown[]).filter(str) : [];
+    const candidate: Field = { id: f.id, label: f.label, units: f.units, sector: f.sector, anti_overreach: packs.includes(FIELD_ANTI_OVERREACH_ALWAYS) ? packs : [...packs, FIELD_ANTI_OVERREACH_ALWAYS], license_required: false, origin: "operator" };
+    if (f.origin !== "operator" || !isOperatorField(candidate)) continue;
+    if (extra_fields.some((x) => x.id === candidate.id)) continue;
+    extra_fields.push(candidate);
+  }
 
   // bridges: operator-declared only; anything else is stripped, never shipped
   let stripped_bridges = 0;
@@ -86,7 +97,7 @@ export function parseProject(text: string, preload: readonly Work[]): ParseResul
     notes.push({ seq: notes.length + 1, result: res as BenchOk, note: note as AnalysisNote });
   }
 
-  const project: Project = { schema: "rexmetrix.project/1", id, name: raw.name.trim(), programme_ids, works, extra_bridges, notes, created_at };
+  const project: Project = { schema: "rexmetrix.project/1", id, name: raw.name.trim(), programme_ids, works, extra_fields, extra_bridges, notes, created_at };
   return { ok: true, project, skipped_works, stripped_bridges, dropped_notes };
 }
 

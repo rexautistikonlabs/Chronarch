@@ -1,18 +1,18 @@
 /** RexMetrix model law: fixtures parse, counts differ, refusals are hard errors. */
 import { describe, expect, it } from "vitest";
 
-import toy from "../fixtures/programme-toy.json";
-import zero from "../fixtures/programme-zero.json";
-import childFixture from "../fixtures/synthesis-child.json";
-import preload from "../fixtures/works-preload.json";
-import { catalogueOf, programmeCounts, Refusal, requestIndividualScore, validateChild, type ChildPin, type ProgrammeFile } from "../src/lib/programme";
-import { worksMap, type WorksFile } from "../src/lib/works";
+import toy from "../../fixtures/programme-toy.json";
+import zero from "../../fixtures/programme-zero.json";
+import childFixture from "../../fixtures/synthesis-child.json";
+import { ALL_WORKS } from "./pack";
+import { catalogueOf, programmeCounts, Refusal, requestIndividualScore, validateChild, type ChildPin, type ProgrammeFile } from "../../src/lib/programme";
+import { worksMap } from "../../src/lib/works";
 
 const ZERO = zero as ProgrammeFile;
 const TOY = toy as ProgrammeFile;
 const CHILD = childFixture as ChildPin;
 const cat = catalogueOf([ZERO, TOY]);
-const works = worksMap((preload as WorksFile).works);
+const works = worksMap(ALL_WORKS);
 
 describe("fixtures", () => {
   it("Programme Zero is a two-field, one-bridge programme with rated assumptions and a stop clock", () => {

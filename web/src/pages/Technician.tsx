@@ -54,7 +54,7 @@ const EXAMPLE = `{"ok": true, "result": {"identity": "chronarch-pulse", "height"
  *  the research substrate under Chronarch; not offered as a feature). Not the default landing. */
 export function Technician() {
   const { session, error, loadFixture, loadText } = useSession();
-  const { programmeName, loadProgramme, works, catalogue, results, notes } = useProgramme();
+  const { programmeName, loadProgramme, loadExamplePack, packState, works, catalogue, results, notes } = useProgramme();
   // First run: shown until the operator skips or finishes it (one flag in this browser).
   const [firstRun, setFirstRun] = useState<boolean>(() => !seenFirstRun());
   const [packDone, setPackDone] = useState(false);
@@ -84,21 +84,32 @@ export function Technician() {
 
   return (
     <div>
-      <PageHeader eyebrow="chronarch · technician · workbench" title="One room for the operator." lede={<>Filters, the field–bridge graph, the project and its session bridges, the works and their licences, a selection, three actions that enable only when the bench law would pass, the note, the notes library, and the export — a note or the whole project as one pack. HTML only — no well on this route. The workbench calls no model, fetches nothing, adds no bridge on its own, and refuses anything that is not a well-formed input.</>} />
+      <PageHeader eyebrow="chronarch · technician · workbench" title="One room for the operator." lede={<>A blank programme to start — your fields, your sources — with optional starter catalogues. Filters, the field–bridge graph of the loaded programme, the project with its own fields and session bridges, the works and their licences, a selection, three actions that enable only when the bench law would pass, the note, the notes library, and the export — a note or the whole project as one pack. HTML only — no well on this route. The workbench calls no model, fetches nothing, adds no field or bridge on its own, and refuses anything that is not a well-formed input.</>} />
 
-      {firstRun && <FirstRun notes={notes} packDone={packDone} onDismiss={dismissFirstRun} onGo={(f) => { setFilter(f); setFieldFilter(null); }} />}
+      {firstRun && <FirstRun state={{ fieldCount: catalogue.fields.size, selectedCount: selected.size, noteCount: notes.length, packDone }} onDismiss={dismissFirstRun} onGo={(a) => { if (a.kind === "programme") loadProgramme(a.fixture as ProgrammeName); setFilter("all"); setFieldFilter(null); }} />}
 
       <Section title="filters">
         <div className="flex flex-wrap items-center gap-2" data-testid="filters">
           {FILTERS.map((f) => (
-            <Button key={f.key} onPress={() => setFilter(f.key)} aria-pressed={filter === f.key} className={`readout border hair px-2.5 py-1 text-xs ${filter === f.key ? "bg-panel text-ivory" : "text-mute hover:text-ivory"}`} data-testid={`filter-${f.key}`}>
-              {f.label} <span className="text-dim">· {applyFilter(works, f.key, null).length}</span>
+            <Button
+              key={f.key}
+              onPress={() => {
+                // the example corpus is a pack: pressing its chip loads it (once), then filters to it
+                if (f.key === "autistikon" && packState !== "loaded") void loadExamplePack();
+                setFilter(f.key);
+              }}
+              aria-pressed={filter === f.key}
+              className={`readout border hair px-2.5 py-1 text-xs ${filter === f.key ? "bg-panel text-ivory" : "text-mute hover:text-ivory"}`}
+              data-testid={`filter-${f.key}`}
+              data-pack={f.key === "autistikon" ? packState : undefined}
+            >
+              {f.label} <span className="text-dim">· {f.key === "autistikon" && packState !== "loaded" ? (packState === "loading" ? "loading…" : "not loaded") : applyFilter(works, f.key, null).length}</span>
             </Button>
           ))}
           {fieldFilter && (
             <Button onPress={() => setFieldFilter(null)} className="readout border hair px-2.5 py-1 text-xs text-ivory" data-testid="clear-field-filter">field: {fieldFilter} ×</Button>
           )}
-          <span className="readout text-[11px] text-dim">All = every preload + this session's uploads · Autistikon = the example corpus (Programme Zero stand-ins) — not the product · Classics = the six public-domain fields</span>
+          <span className="readout text-[11px] text-dim">All = every preload + this session's uploads · Autistikon = the example corpus, an optional pack that loads only when pressed — not the product · Classics = the six public-domain fields</span>
         </div>
       </Section>
 
@@ -106,7 +117,7 @@ export function Technician() {
         <FieldGraph cat={catalogue} highlighted={new Set(chosen.map((w) => w.field ?? ""))} missing={missing} activeField={fieldFilter} onPickField={setFieldFilter} />
       </Section>
 
-      <Section title="project · name and session bridges">
+      <Section title="project · name, your fields, session bridges">
         <ProjectPanel />
       </Section>
 

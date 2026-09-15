@@ -5,6 +5,7 @@ import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { STAND_INS } from "../src/lib/filters";
+import { loadClassicsUI } from "./pack-ui";
 import { renderAt } from "./render";
 
 const visibleIds = () =>
@@ -37,15 +38,16 @@ describe("workbench chrome", () => {
 });
 
 describe("workbench filters", () => {
-  it("All lists every preload including the two Autistikon stand-ins; Autistikon → exactly the two stand-in ids; Classics → Darwin and Faraday, stand-ins hidden", () => {
+  it("All lists the ten preload rows and no stand-in; the Autistikon chip loads its pack and shows exactly the two stand-in ids; Classics → Darwin and Faraday, stand-ins hidden", async () => {
     renderAt("/tech");
     const all = visibleIds();
-    expect(all.length).toBe(12);
-    for (const id of STAND_INS) expect(all).toContain(id);
-    expect(screen.getByTestId("programme-work-pz-ledger-structure")).toHaveTextContent("Autistikon (example corpus)");
+    expect(all.length).toBe(10);
+    for (const id of STAND_INS) expect(all).not.toContain(id);
     expect(screen.getByTestId("programme-work-darwin-1859")).toHaveTextContent("Classics");
 
     fireEvent.click(screen.getByTestId("filter-autistikon"));
+    await screen.findByTestId("select-work-pz-ledger-structure", {}, { timeout: 4000 });
+    expect(screen.getByTestId("programme-work-pz-ledger-structure")).toHaveTextContent("Autistikon (example corpus)");
     expect(new Set(visibleIds())).toEqual(new Set(STAND_INS));
     expect(visibleIds()).toHaveLength(2);
 
@@ -62,24 +64,27 @@ describe("workbench filters", () => {
 
   it("clicking a graph node filters the table to that field; clicking again clears", () => {
     renderAt("/tech");
+    loadClassicsUI();
     fireEvent.click(screen.getByTestId("node-optics"));
     expect(visibleIds()).toEqual(["work-newton-opticks"]);
     expect(screen.getByTestId("clear-field-filter")).toHaveTextContent("optics");
     fireEvent.click(screen.getByTestId("node-optics"));
-    expect(visibleIds()).toHaveLength(12);
+    expect(visibleIds()).toHaveLength(10);
   });
 });
 
 describe("field–bridge graph", () => {
-  it("edges are the live bridges of the loaded catalogues and nothing else: the three classics edges are present, no implicit edge", () => {
+  it("edges are the live bridges of the loaded programme and nothing else: blank draws none; Classics draws its three, no implicit edge", () => {
     renderAt("/tech");
+    expect(document.querySelectorAll('[data-testid^="edge-"]')).toHaveLength(0); // the blank programme ships no edge
+    loadClassicsUI();
     const graph = screen.getByTestId("field-graph");
     const edges = Array.from(graph.querySelectorAll('[data-testid^="edge-"]')).map((e) => e.getAttribute("data-edge"));
     expect(edges).toContain("natural-history—heredity");
     expect(edges).toContain("electricity—electromagnetism");
     expect(edges).toContain("optics—electromagnetism");
-    // zero (1) + toy (2) + classics (3) live bridges, and no other
-    expect(edges).toHaveLength(6);
+    // the classics programme's three live bridges, and no other
+    expect(edges).toHaveLength(3);
     expect(edges).not.toContain("natural-history—optics");
     expect(edges.some((e) => (e ?? "").includes("metrology"))).toBe(false);
     expect(within(graph).getByTestId("node-metrology")).toBeInTheDocument();
@@ -90,6 +95,7 @@ describe("field–bridge graph", () => {
 describe("workbench actions and export", () => {
   it("Darwin + Newton → Analyze disabled with the missing pair named; the graph draws the gap dashed", () => {
     renderAt("/tech");
+    loadClassicsUI();
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
     const analyze = screen.getByTestId("action-analyze");
@@ -105,12 +111,13 @@ describe("workbench actions and export", () => {
     expect(screen.getByTestId("missing-caption")).toHaveTextContent("missing: natural-history — optics");
     // the bridge was not added silently
     const edges = Array.from(document.querySelectorAll('[data-testid^="edge-"]'));
-    expect(edges).toHaveLength(6);
+    expect(edges).toHaveLength(3);
     expect(screen.queryByTestId("export-panel")).not.toBeInTheDocument();
   });
 
   it("Faraday + Maxwell → Analyze enabled; after the run the export markdown names both parents and says not an individual score", () => {
     renderAt("/tech");
+    loadClassicsUI();
     fireEvent.click(screen.getByTestId("select-work-faraday-ere-v1"));
     fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
     const analyze = screen.getByTestId("action-analyze");

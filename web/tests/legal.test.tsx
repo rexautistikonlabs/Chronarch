@@ -117,10 +117,13 @@ describe("Continuum has one state and one URL", () => {
     expect(findVisitorBanned(chrome)).toBeNull();
   });
 
-  it("the workbench names Autistikon as the example corpus, not the product", () => {
+  it("the workbench names Autistikon as the example corpus, not the product — and lists its rows only once its pack is loaded", async () => {
     renderAt("/chronarch/tech");
     expect(screen.getByTestId("filter-autistikon")).toHaveTextContent(/example corpus/);
     expect(screen.getByTestId("filter-autistikon")).toHaveTextContent(/not the product/);
+    expect(screen.queryByTestId("programme-work-pz-ledger-structure")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("filter-autistikon"));
+    await screen.findByTestId("select-work-pz-ledger-structure", {}, { timeout: 4000 });
     expect(screen.getByTestId("programme-work-pz-ledger-structure")).toHaveTextContent("Autistikon (example corpus)");
     const h1 = document.querySelector("main h1")?.textContent ?? "";
     expect(h1).not.toMatch(/Autistikon|RexMetrix/);

@@ -1,0 +1,25 @@
+{
+  "schema": "rexmetrix.child/1",
+  "id": "child-q-classics-001",
+  "kind": "question",
+  "parents": [
+    {
+      "pin": "pin:work-darwin-1859",
+      "field": "natural-history",
+      "work": "work-darwin-1859"
+    },
+    {
+      "pin": "pin:work-mendel-1866-de",
+      "field": "heredity",
+      "work": "work-mendel-1866-de"
+    }
+  ],
+  "path": [
+    "bridge-natural-history-heredity"
+  ],
+  "method": "question: which counts of varieties in a natural-history excerpt could stand beside which offspring ratios in a hybridisation excerpt, along the one declared bridge — a pin that asks and claims nothing",
+  "grants": [],
+  "sector": "synthesis",
+  "subject": "cohort-level literature",
+  "writes_to": null
+}

@@ -12,8 +12,9 @@ Laterion is not shipping here.
 > Autistikōn Labs (https://rexautistikonlabs.org) is a separate 501(c)(3);
 > Labs does not sell these products and RexMetrix does not speak for Labs.
 > This site spawns no process, opens no socket, reads no filesystem, calls no
-> model. The Autistikon programme is the example corpus, not the product, and
-> not what a cold workbench opens on.
+> model. The Autistikon programme is the example corpus, an optional pack —
+> not the product, never loaded until its chip is pressed, and not what a cold
+> workbench opens on: that is a blank programme (`specs/NEW_PROGRAMME.md`).
 
 ## Dev
 
@@ -46,25 +47,35 @@ awake only while something holds the render policy and for 200 ms after. See
 | Route | Who | What |
 |---|---|---|
 | `/` | anyone | the **RexMetrix landing**: a shop window — the law in a compact strip (RexMetrix Technologies, LLC; not a diagnostic; not a medical device; the Labs split; the data sentence; credit, not endorsement) beside the company's catalogue — Chronarch (this product, running), Continuum (running at continuum.rexmetrix.com — a door that leaves this origin; not mounted here; source on GitHub) and Laterion (not shipping; not a diagnostic, not a person-score, not an assessment of anyone; a covered bench, no door); the landing honesty line; an indoor instrument lab (one canvas: an operator who walks to the product stations) when motion is allowed, an HTML station list otherwise |
-| `/chronarch` | a visitor | **Chronarch** — the programme well: honesty sentence, three programme chips (*Classics* selected on a cold load, *Toy programme*, *Programme Zero* — the example corpus), four benches (**Fields, Bridges, Programmes, Synthesis**), readouts in programme words (fields, bridges, assumptions rated, falsifiers registered, items locked, stops on). No protocol names, no hex, no credits. |
-| `/chronarch/about` | a visitor | what Chronarch is, Programme Zero as the example programme, what Chronarch will not ship; `/about` and `/consortium` redirect here |
-| `/chronarch/tech` | a technician | **one workbench**, one column: filters (All \| Autistikon \| Classics), a field–bridge graph of live bridges only, the project (name, Declare bridge as a session amendment, Clear extra bridges), the works table with a Programme column and the upload model, Converge / Compare / Analyze that disable with a reason, the AnalysisNote, the notes library, Copy Markdown / Download .md, Download pack (the whole project as one .md) and Download project.json / import (saved in this browser only under `rexmetrix.project.v1`; no server); then the refuse glossary and a closed "substrate instrument" details block (programmes, fixtures, paste JSON, hashes; the research substrate under Chronarch, not offered as a feature). `/workbench`, `/tech`, `/lab`, `/council`, `/timechain`, `/hearth`, `/farm`, `/gym`, `/operator` redirect here. |
+| `/chronarch` | a visitor | **Chronarch** — the programme well: honesty sentence, four programme chips (*Untitled (blank)* selected on a cold load, *Classics* and *Toy programme* as optional starter packs, *Programme Zero* — the example corpus, an optional pack that loads only when pressed), four benches (**Fields, Bridges, Programmes, Synthesis**), readouts in programme words (fields, bridges, assumptions rated, falsifiers registered, items locked, stops on). No protocol names, no hex, no credits. |
+| `/chronarch/about` | a visitor | what Chronarch is, the optional starter packs, Programme Zero as one appendix paragraph (example corpus, not required), what Chronarch will not ship; `/about` and `/consortium` redirect here |
+| `/chronarch/tech` | a technician | **one workbench**, one column: filters (All \| Autistikon — loads the example pack on press \| Classics), a field–bridge graph of the loaded programme's live bridges only (a blank programme draws none), the project (name, Add field — the group's own fields, Declare bridge as a session amendment, Clear extra bridges), the works table with a Programme column and the upload model, Converge / Compare / Analyze that disable with a reason, the AnalysisNote, the notes library, Copy Markdown / Download .md, Download pack (the whole project as one .md) and Download project.json / import (saved in this browser only under `rexmetrix.project.v1`; no server); then the refuse glossary and a closed "substrate instrument" details block (programmes, fixtures, paste JSON, hashes; the research substrate under Chronarch, not offered as a feature). `/workbench`, `/tech`, `/lab`, `/council`, `/timechain`, `/hearth`, `/farm`, `/gym`, `/operator` redirect here. |
 
 ## Fixtures
 
-- `fixtures/programme-zero.json` — Programme Zero (Rex Autistikon / Kim 2026): a
-  two-field, one-bridge programme, **metadata only** — bridge id and junction,
-  ledger and register counts, a locked-array size, a stop rule, an illustrative
-  `license_grant`. No chapters, no measured array, no scores.
+- `fixtures/programme-blank.json` — **the default**: "Untitled programme", no
+  fields, no bridges, no works, nothing locked, no clock. A group declares its
+  own fields and bridges on the project (`specs/NEW_PROGRAMME.md`).
+- `fixtures/programme-classics.json` — an optional starter pack: six fields
+  and three bridges over public-domain / US-government excerpts;
+  `fixtures/synthesis-child-classics.json` is its example child (Darwin and
+  Mendel across the one shipped bridge, no grant needed).
 - `fixtures/programme-toy.json` — an **invented** three-field demo with a path
   of two bridges; it stands for nothing real.
-- `fixtures/synthesis-child.json` — a `question` child with parents in both
-  programmes and a declared three-bridge path.
+- `fixtures/programme-zero.json`, `fixtures/works-example-corpus.json`,
+  `fixtures/synthesis-child.json` — **the optional example pack**: Programme
+  Zero (Rex Autistikon / Kim 2026), two-field, one-bridge, **metadata only**
+  — bridge id and junction, ledger and register counts, a locked-array size,
+  a stop rule, an illustrative `license_grant`; its two structure-only
+  stand-in works; its `question` child. Loaded only by
+  `src/lib/examplePack.ts` (dynamic imports) when the chip labelled "example
+  corpus — not the product" is pressed; no module on the default path imports
+  them, and `npm run test:core` proves the suite passes without them.
 - `fixtures/session-*.json` — the substrate's own operator-path records, for the
   technician room.
 
-Loading Programme Zero vs the toy programme moves `field-count` 2 → 3 and
-`bridge-count` 1 → 2 in the readouts (tested).
+A cold load reads `field-count` 0 and `bridge-count` 0; Toy moves them to 3
+and 2; Programme Zero, once loaded, to 2 and 1 (tested).
 
 ## Works
 

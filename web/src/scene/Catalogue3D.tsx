@@ -42,7 +42,7 @@ export function layoutCatalogue(cat: Catalogue, seed: string): GraphLayout {
 export function Catalogue3D({ cat, programme, child, childOk, hovered, onHover, onSelect, reduced }: {
   cat: Catalogue;
   programme: ProgrammeFile;
-  child: ChildPin;
+  child: ChildPin | null;
   childOk: boolean;
   hovered: BenchKey | null;
   onHover: (b: BenchKey | null) => void;
@@ -74,7 +74,7 @@ export function Catalogue3D({ cat, programme, child, childOk, hovered, onHover, 
 
   const pos = (id: string) => layout.nodes.get(id) ?? [0, 0, 0];
   const childPos: [number, number, number] = [0, GRAPH.childHeight, 0];
-  const childBridges = new Set(child.path ?? child.clique ?? []);
+  const childBridges = new Set(child?.path ?? child?.clique ?? []);
 
   return (
     <group>
@@ -153,6 +153,7 @@ export function Catalogue3D({ cat, programme, child, childOk, hovered, onHover, 
           <meshStandardMaterial color="#2a323c" roughness={1} />
         </mesh>
         {childOk &&
+          child &&
           child.parents.map((p) => {
             const a = pos(p.field);
             return <Line key={p.pin} points={[childPos, [a[0], 0.14, a[2]]]} color="#7fb3a6" lineWidth={1.2} transparent opacity={0.8} />;

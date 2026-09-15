@@ -66,7 +66,7 @@ export function Well() {
         <div className="absolute bottom-24 left-6 max-w-sm text-sm text-mute">
           <p className="hud-label inline-block">well · no webgl</p>
           <p className="mt-2">
-            The well cannot draw here. Its readouts are still true; it would show <span className="readout text-ivory">{counts.field_count}</span> fields and <span className="readout text-ivory">{counts.bridge_count}</span> bridge{counts.bridge_count === 1 ? "" : "s"} of the loaded programme on a ring, with the synthesis child above.
+            The well cannot draw here. Its readouts are still true; it would show <span className="readout text-ivory">{counts.field_count}</span> fields and <span className="readout text-ivory">{counts.bridge_count}</span> bridge{counts.bridge_count === 1 ? "" : "s"} of the loaded programme on a ring{child ? ", with the synthesis child above" : "; a blank programme is an empty ring until you declare your fields"}.
           </p>
         </div>
       </div>

@@ -56,19 +56,21 @@ describe("README", () => {
 });
 
 describe("defaults", () => {
-  it("a cold workbench is not Programme Zero: Classics is the loaded programme, All is the filter, the Autistikon chip is an example corpus", () => {
+  it("a cold workbench is not Programme Zero: the blank programme is loaded, All is the filter, the Autistikon chip is an example corpus that is not yet loaded", () => {
     renderAt("/chronarch/tech");
-    expect(screen.getByTestId("tech-programme-classics.json")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("tech-programme-blank.json")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("tech-programme-classics.json")).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByTestId("tech-programme-zero.json")).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByTestId("filter-autistikon")).toHaveAttribute("data-pack", "absent");
     expect(screen.getByTestId("filter-all")).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByTestId("filter-autistikon")).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByTestId("filter-autistikon")).toHaveTextContent(/example corpus — not the product/);
     expect(document.querySelectorAll("canvas")).toHaveLength(0);
   });
 
-  it("the well opens on Classics too, and the Programme Zero chip still loads the example corpus on request", () => {
+  it("the well opens blank too, and the Programme Zero chip still loads the example corpus on request", () => {
     renderAt("/chronarch");
-    expect(screen.getByTestId("viewport-fallback")).toHaveAttribute("data-programme", "programme-classics");
+    expect(screen.getByTestId("viewport-fallback")).toHaveAttribute("data-programme", "programme-blank");
     expect(screen.getByTestId("chip-programme-zero.json")).toBeInTheDocument();
   });
 

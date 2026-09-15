@@ -11,7 +11,9 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "check:loops": "node scripts/check-loops.mjs"
+    "check:loops": "node scripts/check-loops.mjs",
+    "test:core": "vitest run --exclude \"tests/example-pack/**\"",
+    "test:pack": "vitest run tests/example-pack"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.0",

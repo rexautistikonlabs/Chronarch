@@ -5,19 +5,19 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import classics from "../fixtures/programme-classics.json";
-import toy from "../fixtures/programme-toy.json";
-import zero from "../fixtures/programme-zero.json";
-import preload from "../fixtures/works-preload.json";
-import { buildNote } from "../src/lib/analysisNote";
-import { runAction } from "../src/lib/bench";
-import { comparePair } from "../src/lib/metrics";
-import { catalogueOf, type ProgrammeFile } from "../src/lib/programme";
-import { worksMap, type WorksFile } from "../src/lib/works";
+import classics from "../../fixtures/programme-classics.json";
+import toy from "../../fixtures/programme-toy.json";
+import zero from "../../fixtures/programme-zero.json";
+import { ALL_WORKS } from "./pack";
+import { buildNote } from "../../src/lib/analysisNote";
+import { runAction } from "../../src/lib/bench";
+import { comparePair } from "../../src/lib/metrics";
+import { catalogueOf, type ProgrammeFile } from "../../src/lib/programme";
+import { worksMap } from "../../src/lib/works";
 
 const FILES = [zero as ProgrammeFile, toy as ProgrammeFile, classics as ProgrammeFile];
 const cat = catalogueOf(FILES);
-const map = worksMap((preload as WorksFile).works);
+const map = worksMap(ALL_WORKS);
 const norm = (s: string) => s.replace(/\s+/g, " ").trim();
 
 const BRIEF: Record<string, { license: string; field: string; source_url: string; text: string }> = {
@@ -97,7 +97,7 @@ describe("Compare across the classics bridges", () => {
 
 describe("no fetch in src", () => {
   it("nothing under src/ calls fetch, XMLHttpRequest or a socket", () => {
-    const root = join(__dirname, "..", "src");
+    const root = join(__dirname, "..", "..", "src");
     const walk = (d: string, out: string[] = []): string[] => {
       for (const n of readdirSync(d)) {
         const p = join(d, n);

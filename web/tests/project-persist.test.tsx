@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import example from "../fixtures/project-example.json";
 import { STAND_INS } from "../src/lib/filters";
 import { PROJECT_STORAGE_KEY } from "../src/lib/projectStore";
+import { loadClassicsUI } from "./pack-ui";
 import { renderAt } from "./render";
 
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
@@ -31,8 +32,9 @@ async function importText(text: string, name = "project.json") {
 describe("project persistence", () => {
   it("writes rexmetrix.project.v1 after rename, declare, note, upload and clear-bridges; nothing else is stored; no cookie", () => {
     renderAt("/tech");
+    loadClassicsUI();
     expect(screen.getByTestId("saved-line")).toHaveTextContent("Saved in this browser only.");
-    expect(stored()).toBeNull(); // nothing is written until the project differs from a fresh one
+    expect(stored()).toBeNull(); // nothing is written until the project differs from a fresh one — switching programmes is not such a change
     fireEvent.change(screen.getByTestId("project-name"), { target: { value: "Kept across reload" } });
     expect(stored().name).toBe("Kept across reload");
     declareNaturalHistoryOptics();
@@ -59,6 +61,7 @@ describe("project persistence", () => {
 
   it("reload keeps the declared Darwin–Newton bridge: Analyze still enabled, the note still in the library, the upload still in the table", () => {
     const first = renderAt("/tech");
+    loadClassicsUI();
     fireEvent.change(screen.getByTestId("project-name"), { target: { value: "Survivor" } });
     declareNaturalHistoryOptics();
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
@@ -72,9 +75,10 @@ describe("project persistence", () => {
     expect(screen.getByTestId("upload-result")).toHaveTextContent(/accepted/);
     first.unmount();
 
-    // the page component mounts again on the same browser
+    // the page component mounts again on the same browser — on the programme the project was on
     renderAt("/tech");
     expect(screen.getByTestId("project-name")).toHaveValue("Survivor");
+    expect(screen.getByTestId("tech-programme-classics.json")).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByTestId("extra-amend-natural-history-optics")).toBeInTheDocument();
     expect(screen.getByTestId("edge-amend-natural-history-optics")).toHaveAttribute("data-origin", "operator");
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
@@ -85,12 +89,12 @@ describe("project persistence", () => {
     expect(items[0]).toHaveTextContent(/On the Origin of Species.*operator-declared bridge/);
     fireEvent.click(screen.getByTestId("note-open-1"));
     expect(screen.getByTestId("note-is-not")).toHaveTextContent(/bridge was operator-declared/);
-    expect(visibleIds()).toHaveLength(13);
+    expect(visibleIds()).toHaveLength(11);
     expect(screen.getByText("Session excerpt on lenses")).toBeInTheDocument();
-    // the shipped fixture did not change: six shipped edges, the seventh is the amendment
+    // the shipped fixture did not change: three shipped edges, the fourth is the amendment
     const edges = Array.from(document.querySelectorAll('[data-testid^="edge-"]'));
-    expect(edges.filter((e) => e.getAttribute("data-origin") === "shipped")).toHaveLength(6);
-    expect(edges).toHaveLength(7);
+    expect(edges.filter((e) => e.getAttribute("data-origin") === "shipped")).toHaveLength(3);
+    expect(edges).toHaveLength(4);
   });
 
   it("corrupt storage is ignored: the page mounts Untitled and does not crash", () => {
@@ -103,6 +107,7 @@ describe("project persistence", () => {
 
   it("Download project.json: canonical JSON with the extra bridge and a note id after the fixture flow", () => {
     renderAt("/tech");
+    loadClassicsUI();
     declareNaturalHistoryOptics();
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
@@ -121,6 +126,7 @@ describe("project persistence", () => {
 
   it("import of the fixture project.json restores the name and one extra bridge; Darwin + Newton enables", async () => {
     renderAt("/tech");
+    loadClassicsUI();
     expect(screen.getByTestId("project-name")).toHaveValue("Untitled project");
     const status = await importText(JSON.stringify(example));
     expect(status).toHaveTextContent(/imported “Example project \(fixture\)” · 1 extra bridge · 0 notes/);
@@ -132,11 +138,12 @@ describe("project persistence", () => {
     expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "true");
     expect(stored().name).toBe("Example project (fixture)");
     // the imported project is on the project, not in the shipped catalogue
-    expect(Array.from(document.querySelectorAll('[data-testid^="edge-"][data-origin="shipped"]'))).toHaveLength(6);
+    expect(Array.from(document.querySelectorAll('[data-testid^="edge-"][data-origin="shipped"]'))).toHaveLength(3);
   });
 
   it('import of "{" is IMPORT_INVALID and leaves the project unchanged; a non-operator bridge is stripped; unlicensed works are skipped with a count', async () => {
     renderAt("/tech");
+    loadClassicsUI();
     fireEvent.change(screen.getByTestId("project-name"), { target: { value: "Before" } });
     declareNaturalHistoryOptics();
     let status = await importText("{", "bad.json");
@@ -160,11 +167,12 @@ describe("project persistence", () => {
     expect(status).toHaveTextContent(/1 bridge stripped \(not operator-declared\)/);
     expect(screen.getByTestId("extra-bridges")).toHaveTextContent("no extra bridges");
     expect(screen.queryByTestId("edge-bridge-optics-metrology")).not.toBeInTheDocument();
-    expect(document.querySelectorAll('[data-testid^="edge-"]')).toHaveLength(6);
+    expect(document.querySelectorAll('[data-testid^="edge-"]')).toHaveLength(3);
   });
 
-  it("Clear project needs the confirm checkbox, then wipes memory and the key; filters still show exactly the two stand-ins", () => {
+  it("Clear project needs the confirm checkbox, then wipes memory and the key; the example chip still loads exactly the two stand-ins", async () => {
     renderAt("/tech");
+    loadClassicsUI();
     fireEvent.change(screen.getByTestId("project-name"), { target: { value: "Doomed" } });
     declareNaturalHistoryOptics();
     expect(screen.getByTestId("clear-project")).toHaveAttribute("aria-disabled", "true");
@@ -178,6 +186,7 @@ describe("project persistence", () => {
     // the key is gone and a fresh Untitled project is not written back
     expect(stored()).toBeNull();
     fireEvent.click(screen.getByTestId("filter-autistikon"));
+    await screen.findByTestId("select-work-pz-ledger-structure", {}, { timeout: 4000 });
     expect(new Set(visibleIds())).toEqual(new Set(STAND_INS));
     expect(visibleIds()).toHaveLength(2);
   });

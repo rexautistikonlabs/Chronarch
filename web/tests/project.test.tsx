@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import classics from "../fixtures/programme-classics.json";
 import { STAND_INS } from "../src/lib/filters";
 import type { ProgrammeFile } from "../src/lib/programme";
+import { loadClassicsUI } from "./pack-ui";
 import { renderAt } from "./render";
 
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
@@ -32,11 +33,12 @@ describe("session project", () => {
 
   it("without a declared bridge Darwin + Newton Analyze is disabled; declaring natural-history — optics enables it; the note says the bridge was operator-declared with no assumptions; clearing disables again", () => {
     renderAt("/tech");
+    loadClassicsUI();
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
     expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "false");
     expect(screen.getByTestId("missing-caption")).toHaveTextContent("missing: natural-history — optics");
-    expect(document.querySelectorAll('[data-testid^="edge-"]')).toHaveLength(6);
+    expect(document.querySelectorAll('[data-testid^="edge-"]')).toHaveLength(3);
 
     // the checkbox is law: unticked → refused, nothing added
     select("declare-left", "natural-history");
@@ -53,11 +55,11 @@ describe("session project", () => {
     expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "true");
     expect(screen.queryByTestId("missing-caption")).not.toBeInTheDocument();
     const edges = Array.from(document.querySelectorAll('[data-testid^="edge-"]'));
-    expect(edges).toHaveLength(7);
+    expect(edges).toHaveLength(4);
     const op = screen.getByTestId("edge-amend-natural-history-optics");
     expect(op).toHaveAttribute("data-origin", "operator");
     expect(op).toHaveAttribute("data-edge", "natural-history—optics");
-    expect(edges.filter((e) => e.getAttribute("data-origin") === "shipped")).toHaveLength(6);
+    expect(edges.filter((e) => e.getAttribute("data-origin") === "shipped")).toHaveLength(3);
 
     fireEvent.click(screen.getByTestId("action-analyze"));
     expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · analyze · kind couple · ok/);
@@ -76,13 +78,14 @@ describe("session project", () => {
     fireEvent.click(screen.getByTestId("clear-extra-bridges"));
     expect(screen.getByTestId("extra-bridges")).toHaveTextContent("no extra bridges");
     expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "false");
-    expect(document.querySelectorAll('[data-testid^="edge-"]')).toHaveLength(6);
+    expect(document.querySelectorAll('[data-testid^="edge-"]')).toHaveLength(3);
     // the note already written stays in the project
     expect(within(screen.getByTestId("notes-list")).getAllByRole("listitem")).toHaveLength(1);
   });
 
-  it("notes library lists notes in time order and re-opens a card; filters do not wipe the project; the pack carries the Darwin URL, the Faraday title and operator-declared", () => {
+  it("notes library lists notes in time order and re-opens a card; filters do not wipe the project; the pack carries the Darwin URL, the Faraday title and operator-declared", async () => {
     renderAt("/tech");
+    loadClassicsUI();
     // note 1: Faraday + Maxwell over a shipped bridge
     fireEvent.click(screen.getByTestId("select-work-faraday-ere-v1"));
     fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
@@ -109,8 +112,9 @@ describe("session project", () => {
     expect(screen.getByTestId("result-card")).not.toHaveTextContent(/Origin of Species/);
     expect(Array.from(screen.getByTestId("result-card").querySelectorAll("h3"))).toHaveLength(8);
 
-    // filters never touch the project
+    // filters never touch the project (the Autistikon chip also loads its pack)
     fireEvent.click(screen.getByTestId("filter-autistikon"));
+    await screen.findByTestId("select-work-pz-ledger-structure", {}, { timeout: 4000 });
     expect(new Set(visibleIds())).toEqual(new Set(STAND_INS));
     expect(visibleIds()).toHaveLength(2);
     fireEvent.click(screen.getByTestId("filter-classics"));
@@ -139,6 +143,7 @@ describe("session project", () => {
 
   it("an accepted upload joins the project's works and the pack", () => {
     renderAt("/tech");
+    loadClassicsUI();
     fireEvent.change(screen.getByTestId("upload-title"), { target: { value: "Session excerpt on lenses" } });
     select("upload-license", "cc0");
     select("upload-field", "optics");
@@ -148,6 +153,6 @@ describe("session project", () => {
     expect(screen.getByTestId("upload-result")).toHaveTextContent(/accepted/);
     expect(screen.getByTestId("project-summary")).toHaveTextContent(/1 work used/);
     expect(pack()).toContain("Session excerpt on lenses");
-    expect(visibleIds()).toHaveLength(13);
+    expect(visibleIds()).toHaveLength(11);
   });
 });

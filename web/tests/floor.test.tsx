@@ -1,6 +1,6 @@
 /** The programme well (/): no protocol names in the primary chrome, one plain
  *  honesty sentence, two programme chips, four benches, plain readouts. */
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { renderAt } from "./render";
@@ -31,16 +31,18 @@ describe("programme well", () => {
     expect(screen.getByTestId("status-banner")).toHaveTextContent(/Not a medical device/);
   });
 
-  it("Programme Zero vs the toy programme changes field_count 2 → 3 and bridge_count 1 → 2", () => {
+  it("a cold load is the blank programme (0 fields, 0 bridges); Toy changes to 3 and 2; the example corpus loads on request and reads 2, 1, 6, 4", async () => {
     renderAt("/chronarch");
-    expect(screen.getByTestId("field-count")).toHaveTextContent("6"); // a cold load opens on Classics, never the example corpus
-    expect(screen.getByTestId("bridge-count")).toHaveTextContent("3");
+    expect(screen.getByTestId("field-count")).toHaveTextContent("0"); // a cold load is blank, never the example corpus
+    expect(screen.getByTestId("bridge-count")).toHaveTextContent("0");
+    expect(screen.getByTestId("viewport-fallback")).toHaveAttribute("data-programme", "programme-blank");
     fireEvent.click(screen.getByTestId("chip-programme-toy.json"));
     expect(screen.getByTestId("field-count")).toHaveTextContent("3");
     expect(screen.getByTestId("bridge-count")).toHaveTextContent("2");
     expect(screen.getByTestId("viewport-fallback")).toHaveAttribute("data-programme", "programme-toy");
     fireEvent.click(screen.getByTestId("chip-programme-zero.json"));
-    expect(screen.getByTestId("field-count")).toHaveTextContent("2");
+    await waitFor(() => expect(screen.getByTestId("field-count")).toHaveTextContent("2"), { timeout: 4000 });
+    expect(screen.getByTestId("bridge-count")).toHaveTextContent("1");
     expect(screen.getByTestId("ledger-count")).toHaveTextContent("6");
     expect(screen.getByTestId("register-count")).toHaveTextContent("4");
   });
@@ -65,23 +67,32 @@ describe("programme well", () => {
     fireEvent.click(screen.getByTestId("bench-fields"));
     expect(viewport()).toHaveAttribute("data-focus", "fields");
     expect(screen.getByTestId("bench-card")).toHaveAttribute("data-bench", "fields");
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/no fields yet — yours to declare/); // blank
+    fireEvent.click(screen.getByTestId("bench-synthesis"));
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/no example child — on the workbench you write yours/);
+    fireEvent.click(screen.getByTestId("chip-programme-classics.json")); // the starter pack, on request
+    fireEvent.click(screen.getByTestId("bench-fields"));
     expect(screen.getByTestId("bench-card")).toHaveTextContent(/6 fields, each with its own units/);
     fireEvent.click(screen.getByTestId("bench-bridges"));
     expect(screen.getAllByTestId("bench-card")).toHaveLength(1);
     expect(screen.getByTestId("bench-card")).toHaveTextContent(/NO_BRIDGE/);
     fireEvent.click(screen.getByTestId("bench-synthesis"));
-    expect(screen.getByTestId("bench-card")).toHaveTextContent(/a question child, 2 parents, 3 bridges on its path/);
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/a question child, 2 parents, 1 bridges on its path/);
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/natural-history and heredity/);
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/needs no grant/);
     fireEvent.click(screen.getByTestId("bench-synthesis"));
     expect(screen.queryByTestId("bench-card")).not.toBeInTheDocument();
     expect(viewport()).toHaveAttribute("data-focus", "overview");
   });
 
-  it("the programmes card tells the truth about each programme", () => {
+  it("the programmes card tells the truth about each programme", async () => {
     renderAt("/chronarch");
     fireEvent.click(screen.getByTestId("bench-programmes"));
-    fireEvent.click(screen.getByTestId("chip-programme-zero.json")); // the example corpus, on request — a cold load is Classics
-    expect(screen.getByTestId("bench-card")).toHaveTextContent(/Programme Zero/);
-    expect(screen.getByTestId("bench-card")).toHaveTextContent(/example programme and first corpus/);
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/blank programme — yours/); // a cold load is blank
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/inherits no field, no bridge, no corpus/);
+    fireEvent.click(screen.getByTestId("chip-programme-zero.json")); // the example corpus, on request
+    await waitFor(() => expect(screen.getByTestId("bench-card")).toHaveTextContent(/Programme Zero/), { timeout: 4000 });
+    expect(screen.getByTestId("bench-card")).toHaveTextContent(/example corpus, optional and not required/);
     fireEvent.click(screen.getByTestId("chip-programme-toy.json"));
     expect(screen.getByTestId("bench-card")).toHaveTextContent(/invented demo programme/);
     expect(screen.getByTestId("bench-card")).toHaveTextContent(/1 amendment/);

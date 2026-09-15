@@ -1,30 +1,37 @@
-/** First run: three steps an amateur can finish without the glossary — two
- *  real Compares on the Classics corpus, one pack. Nothing here requires the
- *  Autistikon example corpus: it stays a chip a visitor may load, never a
- *  step. A professional skips it; one flag in this browser remembers either
- *  outcome. No new science: the steps only read the notes the bench wrote. */
-import type { FilterKey } from "./filters";
-import type { ProjectNote } from "./project";
-
+/** First run: four steps a researcher on any question can finish without
+ *  inheriting anything — your fields, your sources, one bridge if two fields,
+ *  one pack. No step names a corpus, a fixture id or a particular author; the
+ *  starter catalogues (Classics, Toy, the example corpus) are offered, never
+ *  required. A professional skips it; one flag in this browser remembers
+ *  either outcome. No new science: the steps read the workbench's own state
+ *  and the notes the bench wrote. */
 export const FIRST_RUN_KEY = "rexmetrix.seenFirstRun.v1";
 
-export interface FirstRunStep {
-  n: 1 | 2 | 3;
-  text: string;
-  filter: FilterKey | null; // the chip the "go" link sets
-  done: (notes: readonly ProjectNote[], packDone: boolean) => boolean;
+/** What a step's "go" control does: load a starter programme, or nothing. */
+export type FirstRunAction = { kind: "programme"; fixture: string; label: string };
+
+/** What the workbench knows at the moment a step is judged. */
+export interface FirstRunState {
+  fieldCount: number; // fields in the catalogue the bench reads: the programme's plus the project's own
+  selectedCount: number; // works ticked in the table
+  noteCount: number; // notes the bench has written to the project
+  packDone: boolean;
 }
 
-const parentIds = (n: ProjectNote) => new Set(n.result.parents.map((p) => p.id));
-const same = (a: ReadonlySet<string>, b: ReadonlySet<string>) => a.size === b.size && [...a].every((x) => b.has(x));
+export interface FirstRunStep {
+  n: 1 | 2 | 3 | 4;
+  text: string;
+  action: FirstRunAction | null;
+  done: (s: FirstRunState) => boolean;
+}
 
-export const FARADAY_MAXWELL: ReadonlySet<string> = new Set(["work-faraday-ere-v1", "work-maxwell-elem"]);
-export const DARWIN_MENDEL: ReadonlySet<string> = new Set(["work-darwin-1859", "work-mendel-1866-de"]);
+export const STARTER_PACK: FirstRunAction = { kind: "programme", fixture: "programme-classics.json", label: "load a public-domain starter pack" };
 
 export const FIRST_RUN_STEPS: readonly FirstRunStep[] = [
-  { n: 1, text: "Filter Classics. Tick Faraday and Maxwell. Compare.", filter: "classics", done: (notes) => notes.some((n) => n.note.job === "compare" && same(parentIds(n), FARADAY_MAXWELL)) },
-  { n: 2, text: "Still in Classics: tick Darwin and Mendel. Compare across the natural-history — heredity bridge.", filter: "classics", done: (notes) => notes.some((n) => n.note.job === "compare" && same(parentIds(n), DARWIN_MENDEL)) },
-  { n: 3, text: "Download pack.", filter: null, done: (_notes, packDone) => packDone },
+  { n: 1, text: "Add two fields — a label, its units, its sector — or load an optional catalogue (Classics, Toy, or the example corpus).", action: STARTER_PACK, done: (s) => s.fieldCount >= 2 },
+  { n: 2, text: "Pin or select two works you have rights to (or two from a loaded catalogue).", action: null, done: (s) => s.selectedCount >= 2 || s.noteCount > 0 },
+  { n: 3, text: "Converge or Compare. If the two works sit in two fields, declare a bridge first and tick “amendment, not evidence”.", action: null, done: (s) => s.noteCount > 0 },
+  { n: 4, text: "Download pack.", action: null, done: (s) => s.packDone },
 ];
 
 function storage(): Storage | null {

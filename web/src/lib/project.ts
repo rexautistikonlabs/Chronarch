@@ -1,16 +1,19 @@
 /** A Project: the unit a professional takes home and an amateur understands —
- *  the works used, the live bridges (shipped plus session amendments), the
- *  AnalysisNotes, and one Markdown pack to download (specs/PROJECT.md).
+ *  the fields the group declared, the works used, the live bridges (shipped
+ *  plus session amendments), the AnalysisNotes, and one Markdown pack to
+ *  download (specs/PROJECT.md, specs/NEW_PROGRAMME.md).
  *
- *  Session amendments live on the project only. Nothing here writes a
- *  programme file; a shipped catalogue never gains an edge from this module.
+ *  Session amendments — fields and bridges alike — live on the project only.
+ *  Nothing here writes a programme file; a shipped catalogue never gains a
+ *  field or an edge from this module. A blank programme plus a project's own
+ *  fields is a complete start: no corpus is inherited.
  *  Pure functions; the app keeps the project in memory (no persistence, no
  *  network, no wall clock — a monotonic counter stands where a fixture has
  *  an ISO date). */
 import type { AnalysisNote } from "./analysisNote";
 import type { BenchOk } from "./bench";
 import { noteToMarkdown } from "./exportNote";
-import type { Bridge, Catalogue } from "./programme";
+import type { Bridge, Catalogue, Field } from "./programme";
 import type { Work } from "./works";
 
 export interface ProjectNote {
@@ -25,6 +28,7 @@ export interface Project {
   name: string;
   programme_ids: string[];
   works: Work[]; // works referenced by a note (by id) and this session's uploads
+  extra_fields: Field[]; // the group's own fields, declared on this project; never merged into a shipped catalogue
   extra_bridges: Bridge[]; // session-only amendments; never merged into a shipped catalogue
   notes: ProjectNote[];
   created_at: string; // ISO string in a fixture; "tick:<n>" in the app (no wall clock)
@@ -33,6 +37,10 @@ export interface Project {
 export const DEFAULT_PROJECT_NAME = "Untitled project";
 export const OPERATOR_BRIDGE_PREFIX = "amend-";
 export const OPERATOR_JUNCTION = "operator-declared amendment for this project — not evidence; ledger and register empty";
+export const OPERATOR_FIELD_PREFIX = "field-";
+/** Every declared field carries the one refusal no field may drop. */
+export const FIELD_ANTI_OVERREACH_ALWAYS = "no individual-level score, index or assessment on any person";
+export const BLANK_PROGRAMME_ID = "programme-blank";
 
 export const PACK_CLOSING: readonly string[] = [
   "not a fitted model",
@@ -41,8 +49,50 @@ export const PACK_CLOSING: readonly string[] = [
   "not a public chain",
 ];
 
-export function newProject(tick: number, programme_ids: string[] = ["programme-zero", "programme-classics"]): Project {
-  return { schema: "rexmetrix.project/1", id: `project-${tick}`, name: DEFAULT_PROJECT_NAME, programme_ids, works: [], extra_bridges: [], notes: [], created_at: `tick:${tick}` };
+export function newProject(tick: number, programme_ids: string[] = [BLANK_PROGRAMME_ID]): Project {
+  return { schema: "rexmetrix.project/1", id: `project-${tick}`, name: DEFAULT_PROJECT_NAME, programme_ids, works: [], extra_fields: [], extra_bridges: [], notes: [], created_at: `tick:${tick}` };
+}
+
+export function isOperatorField(f: Field): boolean {
+  return f.origin === "operator" || f.id.startsWith(OPERATOR_FIELD_PREFIX);
+}
+
+export type DeclareFieldResult = { ok: true; field: Field } | { ok: false; reason: string };
+
+/** The id a declared field gets from its label: lower-case, hyphenated, prefixed. */
+export function fieldIdFor(label: string): string {
+  const slug = label.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `${OPERATOR_FIELD_PREFIX}${slug}`;
+}
+
+/** Declare one of the group's own fields on the project: a label, its units,
+ *  its sector, and the claims its data may never carry. Refuses an empty
+ *  label, units or sector, and an id that is already in the catalogue or
+ *  already declared. The anti-overreach pack always carries the refusal of
+ *  any person-level score. */
+export function declareField(project: Project, cat: Catalogue, input: { label: string; units: string; sector: string; anti_overreach?: readonly string[] }): DeclareFieldResult {
+  const label = input.label.trim();
+  const units = input.units.trim();
+  const sector = input.sector.trim();
+  if (!label) return { ok: false, reason: "a field needs a label" };
+  if (!units) return { ok: false, reason: "a field needs its units — what its literature counts or measures in" };
+  if (!sector) return { ok: false, reason: "a field needs a sector — a child never writes across sectors" };
+  const id = fieldIdFor(label);
+  if (id === OPERATOR_FIELD_PREFIX) return { ok: false, reason: "a label needs at least one letter or digit" };
+  if (cat.fields.has(id)) return { ok: false, reason: `${id} is already in the catalogue` };
+  if (project.extra_fields.some((f) => f.id === id)) return { ok: false, reason: `already declared: ${id}` };
+  const packs = (input.anti_overreach ?? []).map((s) => s.trim()).filter(Boolean);
+  const anti_overreach = packs.includes(FIELD_ANTI_OVERREACH_ALWAYS) ? packs : [...packs, FIELD_ANTI_OVERREACH_ALWAYS];
+  return { ok: true, field: { id, label, units, sector, anti_overreach, license_required: false, origin: "operator" } };
+}
+
+/** The catalogue with the project's own fields added. A new Map each time —
+ *  the shipped catalogue is never mutated. */
+export function withExtraFields(cat: Catalogue, extra: readonly Field[]): Catalogue {
+  if (extra.length === 0) return cat;
+  const fields = new Map(cat.fields);
+  for (const f of extra) fields.set(f.id, f);
+  return { fields, bridges: cat.bridges };
 }
 
 export function isOperatorBridge(b: Bridge): boolean {
@@ -116,6 +166,11 @@ export function projectToMarkdown(project: Project): string {
     L.push("|---|---|---|---|---|");
     for (const w of project.works) L.push(`| ${cell(w.id)} | ${cell(w.title)} | ${cell(w.license)} | ${cell(w.source_url)} | ${cell(w.attribution)} |`);
   }
+  L.push("");
+  L.push("## Fields declared (this group's own)");
+  L.push("");
+  if (project.extra_fields.length === 0) L.push("none — every field in this pack is one a loaded catalogue shipped");
+  for (const f of project.extra_fields) L.push(`- \`${f.id}\`: ${f.label} · units: ${f.units} · sector: ${f.sector} · will not carry: ${f.anti_overreach.join("; ")} · declared on this project, not written to any programme file`);
   L.push("");
   L.push("## Extra bridges (session amendments)");
   L.push("");

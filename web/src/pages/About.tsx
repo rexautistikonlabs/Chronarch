@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import { NotList, PageHeader, Section } from "../components/Page";
 
-/** About Chronarch — the tool first, then the starter corpora, then the example corpus, then what will not ship.
+/** About Chronarch — the tool first, then the optional starter packs, then the example corpus as one appendix paragraph, then what will not ship.
  *  Chronarch is one product of RexMetrix, the product house; this page is
  *  about the product. Visitor-facing: the floor's bans govern it. */
 export function About() {
@@ -21,11 +21,11 @@ export function About() {
       </Section>
 
       <Section title="starter corpora">
-        <p>A cold workbench opens on <span className="text-ivory">Classics</span>: six fields and three bridges over public-domain and US-government excerpts — Darwin, Newton, Faraday, Maxwell, Mendel, a NIST technical note — each row with its licence, its source URL and its attribution. A <span className="text-ivory">Toy programme</span> of invented fields shows the mechanics with nothing real. Every starter row is public-domain, Creative Commons or US-government; nothing is scraped and no publisher PDF is stored.</p>
+        <p>A cold workbench opens on a <span className="text-ivory">blank programme</span>: no fields, no bridges, nothing inherited — you declare your fields and pin your sources. Two optional packs are there to load if you want a worked shape: <span className="text-ivory">Classics</span>, six fields and three bridges over public-domain and US-government excerpts — Darwin, Newton, Faraday, Maxwell, Mendel, a NIST technical note — each row with its licence, its source URL and its attribution; and a <span className="text-ivory">Toy programme</span> of invented fields that shows the mechanics with nothing real. Every starter row is public-domain, Creative Commons or US-government; nothing is scraped and no publisher PDF is stored. How to start from nothing: <code className="readout">specs/NEW_PROGRAMME.md</code>.</p>
       </Section>
 
       <Section title="example corpus — programme zero">
-        <p>Programme Zero (Rex Autistikon / Kim 2026, <em>Tissue Mechanics…</em>) is an <span className="text-ivory">example template, an example programme and first corpus</span>: two fields, one bridge, and the structure of its control documents in this site's own words. It is a chip labelled "example corpus — not the product"; it is never the default. The volume's prose is the author's copyright; its corpus field is at arm's length, so a written grant must exist before its pins parent a Chronarch child.</p>
+        <p>Programme Zero (Rex Autistikon / Kim 2026, <em>Tissue Mechanics…</em>) is an <span className="text-ivory">example corpus, not required</span> — an example template, an example programme and first corpus: two fields, one bridge, and the structure of its control documents in this site's own words. It is an optional pack behind a chip labelled "example corpus — not the product"; nothing loads it until that chip is pressed, and no default, first-run step or document here depends on it. The volume's prose is the author's copyright; its corpus field is at arm's length, so a written grant must exist before its pins parent a Chronarch child.</p>
       </Section>
 
       <Section title="what chronarch will not ship">

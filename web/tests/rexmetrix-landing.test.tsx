@@ -57,7 +57,7 @@ describe("RexMetrix landing", () => {
     expect(document.querySelector('a[href="https://github.com/rexautistikonlabs/scientificlab"]')).not.toBeNull();
   });
 
-  it("Chronarch still runs the bench: /chronarch/tech is the workbench, /tech redirects there, Autistikon shows exactly two stand-ins; /chronarch is the well; /about redirects to About Chronarch", () => {
+  it("Chronarch still runs the bench: /chronarch/tech is the workbench, /tech redirects there, Autistikon shows exactly two stand-ins once loaded; /chronarch is the well; /about redirects to About Chronarch", async () => {
     const direct = renderAt("/chronarch/tech");
     expect(screen.getByTestId("tech-bench")).toBeInTheDocument();
     expect(screen.getByTestId("filters")).toBeInTheDocument();
@@ -68,6 +68,7 @@ describe("RexMetrix landing", () => {
     const old = renderAt("/tech");
     expect(screen.getByTestId("tech-bench")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("filter-autistikon"));
+    await screen.findByTestId("select-work-pz-ledger-structure", {}, { timeout: 4000 });
     expect(new Set(visibleIds())).toEqual(new Set(STAND_INS));
     expect(visibleIds()).toHaveLength(2);
     expect(screen.getByTestId("to-rexmetrix")).toHaveAttribute("href", "/");

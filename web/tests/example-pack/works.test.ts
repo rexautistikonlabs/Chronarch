@@ -1,14 +1,14 @@
 /** Only legal works enter RexMetrix (specs/WORKS.md). */
 import { describe, expect, it } from "vitest";
 
-import toy from "../fixtures/programme-toy.json";
-import zero from "../fixtures/programme-zero.json";
-import childFixture from "../fixtures/synthesis-child.json";
-import preload from "../fixtures/works-preload.json";
-import { catalogueOf, validateChild, type ChildPin, type ProgrammeFile } from "../src/lib/programme";
-import { acceptUpload, allowsFullText, FULLTEXT_LICENSES, hasFullText, LICENSES, MAX_UPLOAD_TEXT, REFUSAL_CODES_WORKS, validateWork, worksMap, type Work, type WorksFile } from "../src/lib/works";
+import toy from "../../fixtures/programme-toy.json";
+import zero from "../../fixtures/programme-zero.json";
+import childFixture from "../../fixtures/synthesis-child.json";
+import { ALL_WORKS, PACK_WORKS } from "./pack";
+import { catalogueOf, validateChild, type ChildPin, type ProgrammeFile } from "../../src/lib/programme";
+import { acceptUpload, allowsFullText, FULLTEXT_LICENSES, hasFullText, LICENSES, MAX_UPLOAD_TEXT, REFUSAL_CODES_WORKS, validateWork, worksMap, type Work } from "../../src/lib/works";
 
-const WORKS = (preload as WorksFile).works;
+const WORKS = ALL_WORKS;
 const cat = catalogueOf([zero as ProgrammeFile, toy as ProgrammeFile]);
 const CHILD = childFixture as ChildPin;
 
@@ -29,13 +29,14 @@ describe("preload fixture", () => {
       expect(w.license === "all-rights-reserved" && w.bytes === "present").toBe(false);
       expect([undefined, false, "present"]).toContain(w.bytes);
     }
-    expect(JSON.stringify(preload)).not.toMatch(/%PDF|base64|application\/pdf/i);
+    expect(JSON.stringify(ALL_WORKS)).not.toMatch(/%PDF|base64|application\/pdf/i);
   });
 
-  it("carries Programme Zero stand-ins (structure only), a toy stand-in, and obviously legal stubs", () => {
+  it("with the example pack loaded: the two Programme Zero stand-ins (structure only), a toy stand-in, and obviously legal stubs; the preload alone carries no stand-in", () => {
     const pz = WORKS.filter((w) => w.programme === "programme-zero");
-    expect(pz.length).toBeGreaterThanOrEqual(1);
-    expect(pz.length).toBeLessThanOrEqual(2);
+    expect(pz.length).toBe(2);
+    expect(PACK_WORKS.map((w) => w.id).sort()).toEqual(["work-pz-ledger-structure", "work-pz-register-structure"]);
+    expect(ALL_WORKS.length - PACK_WORKS.length).toBe(10); // the default path lists ten rows and none of these
     for (const w of pz) expect(w.title).toMatch(/structure only/);
     expect(WORKS.some((w) => w.programme === "programme-toy")).toBe(true);
     expect(WORKS.some((w) => w.license === "public-domain")).toBe(true);

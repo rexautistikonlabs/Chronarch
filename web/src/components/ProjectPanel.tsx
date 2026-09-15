@@ -1,6 +1,8 @@
-/** The session project's name and its bridge amendments. "Declare bridge"
- *  adds a live edge to this project only — never to a programme file — and
- *  only when the operator ticks "amendment, not evidence". */
+/** The session project's name, its own fields and its bridge amendments.
+ *  "Add field" declares one of the group's fields on this project only;
+ *  "Declare bridge" adds a live edge to this project only — never to a
+ *  programme file — and only when the operator ticks "amendment, not
+ *  evidence". A blank programme plus these is a complete start. */
 import { useRef, useState } from "react";
 import { Button } from "react-aria-components";
 
@@ -8,7 +10,7 @@ import { PROJECT_STORAGE_KEY } from "../lib/projectStore";
 import { useProgramme } from "../state/ProgrammeContext";
 
 export function ProjectPanel() {
-  const { project, setProjectName, declareBridge, clearExtraBridges, shippedCatalogue, importProject, clearProject, saved } = useProgramme();
+  const { project, setProjectName, declareBridge, declareField, clearExtraBridges, catalogue, importProject, clearProject, saved } = useProgramme();
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -29,7 +31,22 @@ export function ProjectPanel() {
     reader.onerror = () => setImportStatus("IMPORT_INVALID — the file could not be read · project unchanged");
     reader.readAsText(file);
   };
-  const fields = [...shippedCatalogue.fields.keys()].sort();
+  const fields = [...catalogue.fields.keys()].sort();
+  const [fieldLabel, setFieldLabel] = useState("");
+  const [fieldUnits, setFieldUnits] = useState("");
+  const [fieldSector, setFieldSector] = useState("");
+  const [fieldPack, setFieldPack] = useState("");
+  const [fieldStatus, setFieldStatus] = useState<string | null>(null);
+  const addField = () => {
+    const r = declareField({ label: fieldLabel, units: fieldUnits, sector: fieldSector, anti_overreach: fieldPack.split(/;|\n/) });
+    if (r.ok) {
+      setFieldStatus(`declared ${r.field.id} — on this project only`);
+      setFieldLabel("");
+      setFieldUnits("");
+      setFieldSector("");
+      setFieldPack("");
+    } else setFieldStatus(`refused — ${r.reason}`);
+  };
   const [left, setLeft] = useState("");
   const [right, setRight] = useState("");
   const [amendment, setAmendment] = useState(false);
@@ -69,6 +86,37 @@ export function ProjectPanel() {
           I understand: this wipes the project in memory and in this browser's storage.
         </label>
         <Button onPress={() => { clearProject(); setConfirmClear(false); setImportStatus(null); setStatus(null); }} isDisabled={!confirmClear} aria-disabled={!confirmClear} className={`readout border hair px-2.5 py-1 text-xs ${confirmClear ? "text-ivory hover:bg-line" : "text-dim opacity-60"}`} data-testid="clear-project">Clear project</Button>
+      </div>
+
+      <div className="mt-4 border hair bg-ink p-3" data-testid="add-field-panel">
+        <p className="readout text-[11px] uppercase tracking-wider text-dim">add field · your group's own</p>
+        <p className="mt-1 text-xs text-mute">A field is one literature: a label, the units its data comes in, the sector it belongs to, and the claims its data may never carry. It joins this project's catalogue only — no programme file is written — and every field refuses a person-level score.</p>
+        <div className="mt-2 flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1">
+            <span className="readout text-[11px] text-dim">label</span>
+            <input value={fieldLabel} onChange={(e) => setFieldLabel(e.target.value)} className="readout border hair bg-ink p-2 text-xs text-ivory" data-testid="field-label" aria-label="field label" placeholder="e.g. Soil chemistry (field surveys)" />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="readout text-[11px] text-dim">units</span>
+            <input value={fieldUnits} onChange={(e) => setFieldUnits(e.target.value)} className="readout border hair bg-ink p-2 text-xs text-ivory" data-testid="field-units" aria-label="field units" placeholder="e.g. mg/kg; pH" />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="readout text-[11px] text-dim">sector</span>
+            <input value={fieldSector} onChange={(e) => setFieldSector(e.target.value)} className="readout border hair bg-ink p-2 text-xs text-ivory" data-testid="field-sector" aria-label="field sector" placeholder="e.g. earth-sciences" />
+          </label>
+          <label className="flex min-w-[16rem] flex-col gap-1">
+            <span className="readout text-[11px] text-dim">will not carry (one claim per “;”)</span>
+            <input value={fieldPack} onChange={(e) => setFieldPack(e.target.value)} className="readout border hair bg-ink p-2 text-xs text-ivory" data-testid="field-pack" aria-label="anti-overreach pack" placeholder="e.g. no claim about any site not sampled" />
+          </label>
+          <Button onPress={addField} className="border hair bg-panel px-3 py-1.5 text-sm text-ivory hover:bg-line" data-testid="add-field">Add field</Button>
+          {fieldStatus && <span className="readout text-xs text-ivory" data-testid="field-status">{fieldStatus}</span>}
+        </div>
+        <ul className="readout mt-3 flex flex-wrap gap-2 text-[11px]" data-testid="extra-fields">
+          {project.extra_fields.length === 0 && <li className="text-dim">no fields declared on this project</li>}
+          {project.extra_fields.map((f) => (
+            <li key={f.id} className="border hair px-2 py-0.5 text-ivory" data-testid={`extra-field-${f.id}`}>{f.id} <span className="text-dim">· {f.units} · {f.sector}</span></li>
+          ))}
+        </ul>
       </div>
 
       <div className="mt-4 border hair bg-ink p-3">

@@ -11,12 +11,12 @@ describe("chronarch well (/chronarch)", () => {
     expect(document.title === "" || true).toBe(true);
   });
 
-  it("renders the programme readouts from the default fixture (Classics — never the Autistikon example corpus)", () => {
+  it("renders the programme readouts from the default fixture (the blank programme — never the Autistikon example corpus)", () => {
     renderAt("/chronarch");
-    expect(screen.getByTestId("field-count")).toHaveTextContent("6");
-    expect(screen.getByTestId("bridge-count")).toHaveTextContent("3");
-    expect(screen.getByTestId("array-size")).toHaveTextContent("3");
-    expect(screen.getByTestId("stop-date")).toHaveTextContent("2027-01-31");
+    expect(screen.getByTestId("field-count")).toHaveTextContent("0");
+    expect(screen.getByTestId("bridge-count")).toHaveTextContent("0");
+    expect(screen.getByTestId("array-size")).toHaveTextContent("0");
+    expect(screen.getByTestId("stop-date")).toHaveTextContent("—");
   });
 
   it("uses a still fallback when WebGL is unavailable (jsdom) rather than throwing", () => {

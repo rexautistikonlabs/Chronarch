@@ -1,31 +1,7 @@
 {
   "schema": "rexmetrix.works/1",
-  "note": "A few legal starter works. Hand-written; metadata and licence on every row; no PDF bytes anywhere in this repository — `bytes` is a flag. Programme Zero rows are structure-only stand-ins in our own words, not book chapters. `field` shelves a work in a catalogue field so it may parent a synthesis; the public-domain named work is left unshelved on purpose. Bodies (`text`) are short structure-only stand-ins written for this repository, at most 80 words each; stubs have none. The six base rows (Darwin, Newton, Faraday, Maxwell, Mendel, NIST TN 1297) carry the operator brief's strings exactly: an excerpt only, never the book; a URL is a citation and is never fetched.",
+  "note": "A few legal starter works. Hand-written; metadata and licence on every row; no PDF bytes anywhere in this repository — `bytes` is a flag. `field` shelves a work in a catalogue field so it may parent a synthesis; the public-domain named work is left unshelved on purpose. Bodies (`text`) are short excerpts or structure-only stand-ins written for this repository, at most 80 words each; stubs have none. The six base rows (Darwin, Newton, Faraday, Maxwell, Mendel, NIST TN 1297) carry the operator brief's strings exactly: an excerpt only, never the book; a URL is a citation and is never fetched. The example corpus's two structure-only stand-ins live in works-example-corpus.json and load only with that optional pack.",
   "works": [
-    {
-      "id": "work-pz-ledger-structure",
-      "title": "Assumption ledger (structure only) — Programme Zero control-document stand-in",
-      "year": 2026,
-      "license": "cc-by-4.0",
-      "oa": true,
-      "source": "preload",
-      "bytes": "present",
-      "programme": "programme-zero",
-      "field": "autistikon-programme-zero",
-      "text": "An assumption ledger lists every assumption a bridge rests on. Each entry names the assumption, the fields it spans, the evidence it leans on, and a rating: conjectural, supported, contested or established. No entry starts as established. Re-rating an entry is an amendment: the old rating stays beside the new with a date and a reason. A ledger is read before any synthesis job runs, and a job may claim no more than the lowest rating on its path allows."
-    },
-    {
-      "id": "work-pz-register-structure",
-      "title": "Falsification register (structure only) — Programme Zero control-document stand-in",
-      "year": 2026,
-      "license": "cc-by-4.0",
-      "oa": true,
-      "source": "preload",
-      "bytes": "present",
-      "programme": "programme-zero",
-      "field": "autistikon-programme-zero",
-      "text": "A falsification register lists what would break a bridge. Each entry names the falsifier, the pre-registered check that would show it, the consequence the programme must carry out when it does, and an anti-rescue rule: the bridge may not be saved afterwards by redefining its terms. Consequences are costly by design: retire the bridge, re-rate an assumption, drop an item from the locked array, or stop the programme early under its clock."
-    },
     {
       "id": "work-toy-materials-note",
       "title": "Toy materials demo note (invented; stands for nothing real)",

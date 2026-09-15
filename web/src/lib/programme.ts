@@ -13,6 +13,9 @@ export interface Field {
   sector: string;
   anti_overreach: string[];
   license_required?: boolean;
+  /** Set only on a field the operator declared on a project; never present
+   *  on a field shipped in a programme file. */
+  origin?: "operator";
 }
 
 export interface Bridge {

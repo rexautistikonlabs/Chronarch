@@ -48,10 +48,20 @@
   product", never on the floor. See `web/docs/VISUAL.md` 5b–5d.
 
   **Default programme.** A cold `/chronarch/tech` (and the well) opens on the
-  **Classics** programme. The Autistikon corpus stays a chip labelled "example
-  corpus — not the product"; it is never the default selected filter or the
-  default loaded programme. The well's chips run Classics, Toy, Programme
-  Zero; Zero's label is "an example template".
+  **blank programme** (`programme-blank`, "Untitled programme"): no fields,
+  no bridges, no works of its own, filter All. Nothing is inherited. Classics
+  and Toy are optional starter catalogues a group may load. **Autistikon is
+  an optional pack**: the corpus, its two structure-only stand-in works and
+  its example child live behind `loadExampleCorpus()` (dynamic imports, their
+  own chunk) and load only when the chip labelled "example corpus — not the
+  product" is pressed; no module on the default path imports them, and the
+  works table lists no stand-in until then. The well's chips run Untitled
+  (blank), Classics, Toy, Programme Zero; Zero's blurb is "example corpus —
+  not the product, not required". A saved project reopens on the programme
+  it was on. The catalogue the bench reads is the loaded programme's fields
+  and bridges plus the project's own declared fields and bridges — a blank
+  programme shows no shipped edge, and the first bridge is the operator's.
+  How to start from nothing: `specs/NEW_PROGRAMME.md`.
 
   **Routes.** The workbench is `/chronarch/tech`; `/workbench` and `/tech`
   redirect to it (React Router, and `web/public/_redirects` lines before the
@@ -60,10 +70,13 @@
   files in `web/public/` (copied to `dist/`); the sitemap lists `/`,
   `/chronarch`, `/chronarch/tech` and `/chronarch/about` only.
 
-  **First run.** The optional three-step panel on the workbench is Classics
-  only: Faraday + Maxwell Compare, Darwin + Mendel Compare across the
-  natural-history — heredity bridge, then the pack. No step names or requires
-  the Autistikon corpus; loading it is optional.
+  **First run.** The optional four-step panel on the workbench teaches "your
+  fields, your sources": (1) add two fields or load an optional catalogue,
+  (2) pin or select two works you have rights to, (3) Converge or Compare —
+  if two fields, declare a bridge and tick "amendment, not evidence", (4)
+  download the pack. No step names Autistikon, Programme Zero, Faraday,
+  Maxwell, Darwin or Mendel as a required id; the one "go" control offers
+  Classics as "load a public-domain starter pack", never a corpus filter.
 
   **The first screen** is a shop window, not a splash: the catalogue is
   visible on first paint, in both motion modes, with no checkbox and no
@@ -202,27 +215,10 @@ column); the title row reads "RexMetrix · Technician · workbench"; the nav is
 note."), the column runs in this order:
 
 1. **Filters** — chips All | Autistikon | Classics. All lists every preload
-   and this session's uploads; Autistikon lists the Programme Zero stand-ins;
-   Classics lists the six public-domain fields and hides the stand-ins. The
-   Autistikon rows are always in the works list under All.
-2. **Field–bridge graph** — a static SVG (no 3D): nodes are the fields of the
-   loaded catalogues, edges are declared **live** bridges only. Selected works
-   light their fields; a field pair the selection needs but no bridge joins is
-   drawn dashed with the caption "missing: A — B". Clicking a node filters the
-   table. The graph never adds a bridge.
-3. **Works** — the table with a Programme column ("Autistikon (example)" |
-   "Classics" | "Upload"), the licence, the body state, and the upload model.
-4. **Actions** — Converge, Compare, Analyze are enabled only when the current
-   selection would pass the bench law for that job; otherwise the button is
-   disabled (`aria-disabled`) and names the first blocking code and, for
-   `NO_BRIDGE`, the missing pair ("no path natural-history — optics").
-5. **Result** — the AnalysisNote card and the session's result list.
-6. **Export** — on a successful note, **Copy Markdown** and **Download .md**:
-   the eight sections, each parent's attribution and source URL, the Jaccard
-   line, and the is_not list. Built locally; no network.
-7. **Refuse glossary** — compact; then the closed substrate details (internal
-   code name Chronarch — not the product) with the programmes, fixtures,
-   paste box, hashes and instrument readouts.
+   and this session's uploads; Autistikon is the example corpus, an optional
+   pack: pressing the chip loads it (once) and then lists its two stand-ins;
+   until then the works list carries none of them. Classics lists the six
+   public-domain fields and hides the stand-ins.
 
 ## Project
 
@@ -249,22 +245,33 @@ Foundation-endorsed; not a public chain.
 
 ## First run
 
-An amateur should finish one real Compare and one Autistikon Converge without
-reading the glossary; a professional should be able to wave it away. On
-`/tech`, while the flag `rexmetrix.seenFirstRun.v1` is absent from this
-browser, a three-step panel sits **above the filters** — an aside in the
-column, not a modal; nothing traps focus:
+A researcher on an unrelated question should finish one real result and one
+pack without reading the glossary and without inheriting any corpus; a
+professional should be able to wave the panel away. On `/chronarch/tech`,
+while the flag `rexmetrix.seenFirstRun.v1` is absent from this browser, a
+four-step panel sits **above the filters** — an aside in the column, not a
+modal; nothing traps focus:
 
-1. "Filter Classics. Tick Faraday and Maxwell. Compare."
-2. "Filter Autistikon. Tick both stand-ins. Converge."
-3. "Download pack."
+1. "Add two fields — a label, its units, its sector — or load an optional
+   catalogue (Classics, Toy, or the example corpus)." Its one "go" control is
+   **load a public-domain starter pack** (Classics as a programme, never a
+   corpus filter).
+2. "Pin or select two works you have rights to (or two from a loaded
+   catalogue)."
+3. "Converge or Compare. If the two works sit in two fields, declare a bridge
+   first and tick 'amendment, not evidence'."
+4. "Download pack."
 
-Each step ticks itself when the matching note exists in the project (steps 1
-and 2 read the project's notes by job and parent ids; step 3 by the pack
-download). "I'm a professional — skip", Esc, or finishing writes the flag and
-the panel stays away on every later load. The panel repeats the honesty
-sentence and nothing else: no "AI scientist", no dashboard, no plot. It adds
-no science engine — the three steps are the bench as it is.
+Each step ticks itself from the workbench's own state — fields in the
+catalogue the bench reads, works ticked, a note written, the pack downloaded
+— never from a fixture id: no step names Autistikon, Programme Zero, Faraday,
+Maxwell, Darwin or Mendel as a required parent. "I'm a professional — skip",
+Esc, or finishing writes the flag and the panel stays away on every later
+load. The panel repeats the honesty sentence and nothing else: no "AI
+scientist", no dashboard, no plot. It adds no science engine — the four steps
+are the bench as it is. The one-page walkthrough with a non-corpus worked
+example (Newton + NIST over an operator-declared optics — metrology bridge)
+is `specs/NEW_PROGRAMME.md`.
 
 Pasted bodies are excerpts: `acceptUpload` refuses more than 20 000
 characters with `TEXT_TOO_LONG` and adds no row ([WORKS.md](WORKS.md)).

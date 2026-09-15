@@ -39,18 +39,20 @@ describe("routes", () => {
 });
 
 describe("first run", () => {
-  it("no step requires the Autistikon corpus: every step is Classics or the pack, and no stand-in id is a required parent", () => {
+  it("no step requires the Autistikon corpus: the one go-control loads a starter programme, never a corpus filter, and no stand-in id is a required parent", () => {
     const copy = FIRST_RUN_STEPS.map((s) => s.text).join("\n");
     expect(copy).not.toMatch(/Autistikon|Programme Zero|stand-in/i);
-    for (const s of FIRST_RUN_STEPS) expect(s.filter === "classics" || s.filter === null).toBe(true);
+    for (const s of FIRST_RUN_STEPS) expect(s.action === null || (s.action.kind === "programme" && s.action.fixture !== "programme-zero.json")).toBe(true);
     const src = readFileSync(join(ROOT, "src", "lib", "firstRun.ts"), "utf8");
     for (const id of STAND_INS) expect(src).not.toContain(id);
     expect(src).not.toMatch(/STAND_INS|autistikon/);
   });
 
-  it("a cold workbench has Classics selected and the Autistikon chip unselected", () => {
+  it("a cold workbench has the blank programme selected and the Autistikon chip unselected and unloaded", () => {
     renderAt("/chronarch/tech");
-    expect(screen.getByTestId("tech-programme-classics.json")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("tech-programme-blank.json")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("tech-programme-classics.json")).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByTestId("filter-autistikon")).toHaveAttribute("data-pack", "absent");
     expect(screen.getByTestId("filter-autistikon")).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByTestId("filter-autistikon")).toHaveTextContent(/example corpus — not the product/);
   });
@@ -112,12 +114,13 @@ describe("About and the well chips", () => {
     expect(panel).toHaveTextContent(/example template/);
   });
 
-  it("well chips: Classics and Toy before Programme Zero, whose label is an example template", () => {
-    expect(PROGRAMME_CHIPS.map((c) => c.fixture)).toEqual(["programme-classics.json", "programme-toy.json", "programme-zero.json"]);
-    expect(PROGRAMME_CHIPS[2]!.blurb).toMatch(/example template/);
-    expect(PROGRAMME_CHIPS[2]!.blurb).not.toMatch(/first filled/);
+  it("well chips: the blank start first, Classics and Toy as optional packs, Programme Zero last as an example corpus that is not required", () => {
+    expect(PROGRAMME_CHIPS.map((c) => c.fixture)).toEqual(["programme-blank.json", "programme-classics.json", "programme-toy.json", "programme-zero.json"]);
+    expect(PROGRAMME_CHIPS[3]!.blurb).toMatch(/example corpus — not the product, not required/);
+    expect(PROGRAMME_CHIPS[3]!.blurb).not.toMatch(/first filled/);
+    expect(PROGRAMME_CHIPS[1]!.blurb).toMatch(/optional/);
     renderAt("/chronarch");
     const chips = within(screen.getByTestId("programme-chips")).getAllByRole("button").map((b) => b.getAttribute("data-testid"));
-    expect(chips).toEqual(["chip-programme-classics.json", "chip-programme-toy.json", "chip-programme-zero.json"]);
+    expect(chips).toEqual(["chip-programme-blank.json", "chip-programme-classics.json", "chip-programme-toy.json", "chip-programme-zero.json"]);
   });
 });

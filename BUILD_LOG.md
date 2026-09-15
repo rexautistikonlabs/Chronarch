@@ -2071,6 +2071,59 @@ Bug: the technician room still exposed a second product — /council,
   - **A slide or fade on the strip** — a dismissal is not an animation. It is
     in the layout or it is not.
 
+## Chronarch is a transferable method: a blank start, an optional example pack
+
+- **Abstraction.** A cold workbench and well open on `programme-blank.json`
+  ("Untitled programme"): no fields, no bridges, no works of its own, filter
+  All. The default programme carries no Autistikon field id, pin id or stand-in
+  work id. Classics and Toy are optional starter catalogues.
+- **The example corpus is a pack.** Programme Zero, its two structure-only
+  stand-in works (moved out of `works-preload.json` into
+  `works-example-corpus.json`) and its example child load only through
+  `src/lib/examplePack.ts` — dynamic imports, their own chunk — when the chip
+  labelled "example corpus — not the product" is pressed. No module on the
+  default path imports them (`tests/core-child.test.ts` greps for it). The
+  works table lists no stand-in until then.
+- **Your fields.** A project now carries `extra_fields`: `declareField` makes a
+  field from a label, units and a sector, always with the person-score
+  refusal in its anti-overreach pack; `withExtraFields` adds them to the
+  catalogue the bench reads; the pack and project.json carry them; the import
+  guard strips any field not marked operator. The catalogue is the *loaded*
+  programme's fields and bridges plus the project's own — so a blank
+  programme shows no shipped edge and the first bridge is the operator's.
+  The bench refuses `UNKNOWN_FIELD` by name when a work is shelved in a field
+  the loaded programme does not know, instead of a bare `NO_BRIDGE`.
+- **Barriers.** First run is four generic steps — add two fields or load an
+  optional catalogue; pin or select two works you have rights to; Converge or
+  Compare, declaring a bridge first if two fields; download pack — ticked
+  from the workbench's own counts, never from parent ids. The one "go"
+  control is "load a public-domain starter pack" (Classics as a programme,
+  never a corpus filter). `specs/NEW_PROGRAMME.md` walks a blank start and a
+  non-corpus worked example: Newton + NIST across an operator-declared
+  optics — metrology bridge.
+- **Survivorship.** The engine tests that load the example fixture moved to
+  `tests/example-pack/` (`npm run test:pack`); `npm run test:core` excludes
+  that directory and stays green — `core-child.test.ts` builds children from
+  the blank programme plus declared fields and uploads, and from Classics,
+  with no example import; `blank-start.test.tsx` drives the same through the
+  workbench and the well.
+- A saved project reopens on the programme it was on; the well's synthesis
+  card and the 3D scene accept "no example child" (blank, Toy) and say so.
+- REJECTED:
+  - **Autistikon as the default** — any cold state that selects Programme
+    Zero, lists its stand-ins, or imports its fixture on the default path.
+  - **A first run that requires fixture ids** — a step that cannot be ticked
+    without a named author, corpus or work id. Steps read counts.
+  - **Tests that import programme-zero at top level for the default suite** —
+    the pack suite is isolated so the core suite proves the claim.
+  - **Keeping the union catalogue** — drawing every shipped fixture's edges
+    regardless of the loaded programme; a blank programme then could never
+    show "no shipped edge", and a group's graph would carry corpora it never
+    loaded.
+  - **Autistikon-only branches in the engine** — validateChild, bench and
+    analysisNote stay generic; the only corpus-specific code is the pack
+    loader.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

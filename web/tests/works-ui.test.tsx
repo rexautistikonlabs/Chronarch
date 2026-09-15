@@ -20,7 +20,9 @@ describe("works in the UI", () => {
     const table = screen.getByTestId("works-table");
     expect(within(table).getAllByRole("row")).toHaveLength(COUNT + 1);
     expect(screen.getByTestId("work-work-stub-doi-example")).toHaveTextContent(/STUB_NO_FULLTEXT/);
-    expect(screen.getByTestId("work-work-pz-ledger-structure")).toHaveTextContent(/present/);
+    expect(screen.getByTestId("work-work-darwin-1859")).toHaveTextContent(/present/);
+    expect(screen.queryByTestId("work-work-pz-ledger-structure")).not.toBeInTheDocument(); // the example corpus is a pack, not a preload
+    expect(COUNT).toBe(10);
     expect(screen.getByTestId("works-refusals")).toHaveTextContent(/FULLTEXT_FORBIDDEN/);
     expect(screen.getByTestId("works-refusals")).toHaveTextContent(/STUB_NO_FULLTEXT/);
   });

@@ -1,0 +1,23 @@
+{
+  "schema": "rexmetrix.programme/1",
+  "id": "programme-blank",
+  "label": "Untitled programme",
+  "tenant": "your group",
+  "note": "A blank start. No fields, no bridges, no works, no assumptions rated, no falsifiers registered, no array locked, no clock set: the programme is whatever your group declares on the workbench. Add your fields, pin the sources you have rights to, declare a bridge when two fields must be read together, and export the pack. Nothing here is inherited from any other programme.",
+  "fields": [],
+  "bridges": [],
+  "programme": {
+    "fields_used": [],
+    "bridges_used": [],
+    "array_lock": {
+      "items": [],
+      "locked_at": ""
+    },
+    "stop": {
+      "date": "",
+      "rule": ""
+    },
+    "deviations": [],
+    "amendments": []
+  }
+}

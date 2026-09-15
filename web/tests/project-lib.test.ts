@@ -28,7 +28,8 @@ describe("project", () => {
     expect(p.extra_bridges).toEqual([]);
     expect(p.notes).toEqual([]);
     expect(p.created_at).toBe("tick:1");
-    expect(p.programme_ids).toEqual(["programme-zero", "programme-classics"]);
+    expect(p.programme_ids).toEqual(["programme-blank"]); // a new project starts on the blank programme
+    expect(p.extra_fields).toEqual([]);
     // the fixture carries the ISO form
     expect(example.created_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(example.schema).toBe("rexmetrix.project/1");

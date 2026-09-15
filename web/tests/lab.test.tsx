@@ -212,10 +212,11 @@ describe("RexMetrix instrument lab", () => {
     expect(screen.getByTestId("flat-page")).toBeInTheDocument();
   });
 
-  it("/chronarch/tech is still HTML with 0 canvas and the Autistikon filter shows exactly two stand-ins", () => {
+  it("/chronarch/tech is still HTML with 0 canvas and the Autistikon filter, once its pack has loaded, shows exactly two stand-ins", async () => {
     renderAt("/chronarch/tech");
     expect(document.querySelectorAll("canvas")).toHaveLength(0);
     fireEvent.click(screen.getByTestId("filter-autistikon"));
+    await screen.findByTestId("select-work-pz-ledger-structure", {}, { timeout: 4000 });
     const ids = Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => el.getAttribute("data-testid"));
     expect(ids.sort()).toEqual(["select-work-pz-ledger-structure", "select-work-pz-register-structure"]);
   });

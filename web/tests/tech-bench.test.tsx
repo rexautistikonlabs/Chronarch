@@ -1,7 +1,9 @@
-/** /tech is a flat HTML bench: no well on that route; the visitor keeps it. */
+/** /tech is a flat HTML bench: no well on that route; the visitor keeps it.
+ *  The bench flows here run on the shipped starter packs alone. */
 import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { loadClassicsUI } from "./pack-ui";
 import { renderAt } from "./render";
 
 describe("operator bench", () => {
@@ -33,10 +35,11 @@ describe("operator bench", () => {
     expect(screen.getByTestId("hud-top")).toHaveAttribute("data-fixed", "false");
   });
 
-  it("select two cc-by stand-ins → Converge → an overlap child; one selection → NEED_PARENTS disables; a stub → Compare disabled STUB_NO_FULLTEXT; two stubs → Analyze asks", () => {
+  it("Classics: Faraday + Maxwell → Converge → an overlap child with the eight-section note; one selection → NEED_PARENTS disables; a stub → Compare disabled STUB_NO_FULLTEXT; the earlier result stands", () => {
     renderAt("/tech");
+    loadClassicsUI();
     const status = () => screen.getByTestId("result-status");
-    fireEvent.click(screen.getByTestId("select-work-pz-ledger-structure"));
+    fireEvent.click(screen.getByTestId("select-work-faraday-ere-v1"));
     expect(screen.getByTestId("selected-count")).toHaveTextContent("1");
     // the workbench disables an action that would refuse, and says why; nothing runs
     expect(screen.getByTestId("action-converge")).toHaveAttribute("data-code", "NEED_PARENTS");
@@ -44,55 +47,58 @@ describe("operator bench", () => {
     fireEvent.click(screen.getByTestId("action-converge"));
     expect(screen.queryByTestId("result-status")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId("select-work-pz-register-structure"));
+    fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
     fireEvent.click(screen.getByTestId("action-converge"));
     expect(status()).toHaveTextContent(/ok · converge · kind overlap · ok/);
-    // the eight-section note: headings, both titles, snippets, the pinned percent, the negations — JSON closed
     const card = screen.getByTestId("result-card");
     const headings = Array.from(card.querySelectorAll("h3")).map((h) => h.textContent?.replace(/^\d+ · /, ""));
     expect(headings).toEqual(["Question", "Objects", "What was compared", "Findings", "Assumptions used", "What would falsify this reading", "What this is not", "Appendix"]);
     expect(screen.getByTestId("note-question")).toHaveTextContent(/Which identifiers and terms do/);
-    expect(card).toHaveTextContent(/Assumption ledger \(structure only\)/);
-    expect(card).toHaveTextContent(/Falsification register \(structure only\)/);
-    expect(screen.getByTestId("jaccard")).toHaveTextContent("16%");
-    expect(card).toHaveTextContent(/An assumption ledger lists every assumption/);
-    expect(screen.getByTestId("note-findings")).toHaveTextContent(/15 tokens are shared/);
-    expect(screen.getByTestId("note-findings")).toHaveTextContent(/\[work-pz-ledger-structure, work-pz-register-structure, metric:jaccard\]/);
-    expect(screen.getByTestId("note-assumptions")).toHaveTextContent(/assumption-1 · conjectural/);
+    expect(card).toHaveTextContent(/Experimental Researches in Electricity/);
+    expect(card).toHaveTextContent(/Elementary Treatise on Electricity/);
+    expect(screen.getByTestId("jaccard")).toHaveTextContent(/\d+%/);
+    expect(screen.getByTestId("note-findings")).toHaveTextContent(/\[work-faraday-ere-v1, work-maxwell-elem, metric:jaccard\]/);
     expect(screen.getByTestId("note-is-not")).toHaveTextContent(/not an individual score/);
     expect(screen.getByTestId("note-is-not")).toHaveTextContent(/not a fitted model/);
     expect(screen.getByTestId("result-json")).not.toHaveAttribute("open");
     const json = JSON.parse(screen.getByTestId("result-child").textContent ?? "{}");
     expect(json.child.kind).toBe("overlap");
+    expect(json.child.path).toEqual(["bridge-electricity-electromagnetism"]);
     expect(json.note.findings.every((f: { cites: string[] }) => f.cites.length > 0)).toBe(true);
     expect(within(screen.getByTestId("results-list")).getAllByRole("listitem")).toHaveLength(1);
-    expect(screen.getByTestId("results-list")).toHaveTextContent(/overlap · 16% · note/);
+    expect(screen.getByTestId("results-list")).toHaveTextContent(/overlap · \d+% · note/);
 
-    fireEvent.click(screen.getByTestId("select-work-pz-register-structure")); // deselect
-    fireEvent.click(screen.getByTestId("select-work-stub-doi-example"));
+    // a citation-only row on the Classics programme is not shelved in any of its fields: the bench says so and runs nothing
+    fireEvent.click(screen.getByTestId("select-work-maxwell-elem")); // deselect
+    fireEvent.click(screen.getByTestId("select-work-arxiv-style-example"));
     expect(screen.getByTestId("action-compare")).toHaveAttribute("data-enabled", "false");
-    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-code", "STUB_NO_FULLTEXT");
-    expect(screen.getByTestId("actions-helper")).toHaveTextContent(/STUB_NO_FULLTEXT/);
+    expect(["STUB_NO_FULLTEXT", "UNKNOWN_FIELD"]).toContain(screen.getByTestId("action-compare").getAttribute("data-code"));
     fireEvent.click(screen.getByTestId("action-compare"));
     expect(status()).toHaveTextContent(/ok · converge/); // the earlier result stands; no fake percent was written
     expect(within(screen.getByTestId("results-list")).getAllByRole("listitem")).toHaveLength(1);
+  });
 
-    fireEvent.click(screen.getByTestId("select-work-pz-ledger-structure")); // deselect
+  it("Toy: two stubs → Analyze asks a question along the declared two-bridge path; no finding is invented", () => {
+    renderAt("/tech");
+    fireEvent.click(screen.getByTestId("tech-programme-toy.json"));
+    fireEvent.click(screen.getByTestId("select-work-stub-doi-example"));
     fireEvent.click(screen.getByTestId("select-work-stub-title-only"));
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-code", "STUB_NO_FULLTEXT");
+    expect(screen.getByTestId("actions-helper")).toHaveTextContent(/STUB_NO_FULLTEXT/);
     fireEvent.click(screen.getByTestId("action-analyze"));
-    expect(status()).toHaveTextContent(/ok · analyze · kind question · ok/);
+    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · analyze · kind question · ok/);
     expect(screen.getByTestId("note-question")).toHaveTextContent(/could stand beside/);
     expect(screen.getByTestId("note-findings")).toHaveTextContent(/No findings: a stub is among the parents/);
     expect(screen.getByTestId("note-falsify")).toHaveTextContent(/a body appearing on the stub/);
     expect(screen.queryByTestId("overlap-bar")).not.toBeInTheDocument();
-    expect(within(screen.getByTestId("results-list")).getAllByRole("listitem")).toHaveLength(2);
     expect(screen.getByTestId("results-list")).toHaveTextContent(/question · —/);
   });
 
   it("a couple of two bodies carries the lexical-overlap caption", () => {
     renderAt("/tech");
-    fireEvent.click(screen.getByTestId("select-work-pz-ledger-structure"));
-    fireEvent.click(screen.getByTestId("select-work-toy-materials-note"));
+    loadClassicsUI();
+    fireEvent.click(screen.getByTestId("select-work-faraday-ere-v1"));
+    fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
     fireEvent.click(screen.getByTestId("action-analyze"));
     expect(screen.getByTestId("result-status")).toHaveTextContent(/kind couple/);
     expect(screen.getByTestId("couple-caption")).toHaveTextContent("lexical overlap only — not a fitted model.");

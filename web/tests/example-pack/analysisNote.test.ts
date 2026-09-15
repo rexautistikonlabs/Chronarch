@@ -1,17 +1,17 @@
 /** The AnalysisNote is built in code, cites everything, invents nothing. */
 import { describe, expect, it } from "vitest";
 
-import toy from "../fixtures/programme-toy.json";
-import zero from "../fixtures/programme-zero.json";
-import preload from "../fixtures/works-preload.json";
-import { buildNote, IS_NOT_ALWAYS, noteBanHits } from "../src/lib/analysisNote";
-import { runAction } from "../src/lib/bench";
-import { catalogueOf, type ProgrammeFile } from "../src/lib/programme";
-import { worksMap, type WorksFile } from "../src/lib/works";
+import toy from "../../fixtures/programme-toy.json";
+import zero from "../../fixtures/programme-zero.json";
+import { ALL_WORKS } from "./pack";
+import { buildNote, IS_NOT_ALWAYS, noteBanHits } from "../../src/lib/analysisNote";
+import { runAction } from "../../src/lib/bench";
+import { catalogueOf, type ProgrammeFile } from "../../src/lib/programme";
+import { worksMap } from "../../src/lib/works";
 
 const FILES = [zero as ProgrammeFile, toy as ProgrammeFile];
 const cat = catalogueOf(FILES);
-const map = worksMap((preload as WorksFile).works);
+const map = worksMap(ALL_WORKS);
 const pick = (...ids: string[]) => ids.map((id) => map.get(id)!);
 const ok = (r: ReturnType<typeof runAction>) => { if (!r.ok) throw new Error(r.code); return r; };
 

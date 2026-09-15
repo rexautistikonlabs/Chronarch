@@ -21,7 +21,9 @@ Not a diagnostic. Not a medical device. Not Foundation-endorsed.
 **Rex Autistikōn Labs** (https://rexautistikonlabs.org) is a separate,
 independent 501(c)(3). Labs does not sell these products, and RexMetrix does
 not speak for Labs. The Autistikon programme is Chronarch's *example corpus*,
-not the product, and not the default programme a cold workbench opens on.
+an optional pack — not the product, never loaded until its chip is pressed,
+and not the default programme a cold workbench opens on (that is a blank
+programme: your fields, your sources; see `specs/NEW_PROGRAMME.md`).
 
 Product law and the words the site may and may not use:
 [specs/PRODUCT.md](specs/PRODUCT.md), [specs/LEGAL.md](specs/LEGAL.md).
@@ -141,7 +143,7 @@ What the suite proves today (the Phase-0/Phase-1 testing bar):
 The product is described at the top of this file. Chronarch exposes no
 Council, no chain, no coin; the substrate in `packages/` sits under it and is
 not offered as a feature. Programme Zero (Rex Autistikon / Kim 2026) is the
-example corpus, not the product; a cold workbench opens on the Classics
+example corpus, an optional pack, not the product; a cold workbench opens on a blank programme, with Classics as an optional starter pack; the old text below said Classics
 programme. See [specs/PRODUCT.md](specs/PRODUCT.md) and [specs/LEGAL.md](specs/LEGAL.md).
 
 ## Web lab UI

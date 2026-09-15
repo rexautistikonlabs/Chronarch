@@ -1,15 +1,15 @@
 /** Deterministic token metrics; the two Programme Zero stand-ins are pinned. */
 import { describe, expect, it } from "vitest";
 
-import toy from "../fixtures/programme-toy.json";
-import zero from "../fixtures/programme-zero.json";
-import preload from "../fixtures/works-preload.json";
-import { runAction } from "../src/lib/bench";
-import { comparePair, jaccard, percent, snippet, tokenize } from "../src/lib/metrics";
-import { catalogueOf, type ProgrammeFile } from "../src/lib/programme";
-import { worksMap, type WorksFile } from "../src/lib/works";
+import toy from "../../fixtures/programme-toy.json";
+import zero from "../../fixtures/programme-zero.json";
+import { ALL_WORKS } from "./pack";
+import { runAction } from "../../src/lib/bench";
+import { comparePair, jaccard, percent, snippet, tokenize } from "../../src/lib/metrics";
+import { catalogueOf, type ProgrammeFile } from "../../src/lib/programme";
+import { worksMap } from "../../src/lib/works";
 
-const WORKS = (preload as WorksFile).works;
+const WORKS = ALL_WORKS;
 const map = worksMap(WORKS);
 const FILES = [zero as ProgrammeFile, toy as ProgrammeFile];
 const cat = catalogueOf(FILES);
