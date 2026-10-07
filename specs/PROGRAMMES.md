@@ -40,6 +40,12 @@ without each:
 6. **stop** — an abandonment rule with a **clock**: a date by which the rule is
    applied whatever the results look like.
 
+There is no seventh step. As an **optional record only**, a programme may store
+a calibration set id and a named second system (the system a comparison is
+declared against); neither is required, neither is asked for by the wizard, and
+neither changes what a job may do. The reading record itself lives on the
+child, not the programme ([ANALYSIS.md](ANALYSIS.md)).
+
 ## Amendments versus silent edits
 
 The programme record is append-only in spirit and in storage: the old claim is

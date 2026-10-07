@@ -2124,6 +2124,34 @@ Bug: the technician room still exposed a second product — /council,
     analysisNote stay generic; the only corpus-specific code is the pack
     loader.
 
+## The workbench is a ledger of readings, not a test
+
+Each `overlap`, `match` or `couple` child may carry a **reading record** —
+`mode`, `intermediary_status`, `identifiability`, `comparison` — an operator
+claim the bench checks for shape and copies onto the note. Nine refusals
+(`MODE_REQUIRED` … `THRESHOLD_NOT_LOCKED`, `COUPLE_IS_LEXICAL`) are hard
+errors with no note body. A question pin stays legal with none of the four.
+Jaccard stays lexical overlap; a couple whose only number is Jaccard is
+refused rather than captioned. `specs/ANALYSIS.md` carries the schema, the
+findings law and the copy law; `specs/PRODUCT.md` and the README say what the
+software records and what it does not perform.
+
+- **Rejected**
+  - **A solver, fitter, likelihood, cross-validation or model-comparison
+    routine** — the record is a ledger of a claim; the bench does not run the
+    protocol and computes no fit statistic.
+  - **Defaults that fill the record in** — the form starts empty, an empty
+    field stays null, and a live bridge assigns no status.
+  - **A caption that lets a couple succeed** — "no numeric coupling was
+    fitted" is said by refusing `COUPLE_IS_LEXICAL`, not by a footnote.
+  - **PASS / HIGH-POTENTIAL PASS or any grade on a note** — the surfaces
+    render the status string, the refuse code, and "operator record, not a
+    bench result."
+  - **Mapping bridge ratings onto the status vocabulary** — the two lists
+    stay on their own ledgers.
+  - **A seventh wizard step** — a programme may optionally store a
+    calibration set id and a named second system; neither is required.
+
 ## Open questions (for future Proposal + Ballot, not for quiet edits)
 
 - Mainnet issuance schedule (sim halving is FROZEN-MVP; real one is M4).

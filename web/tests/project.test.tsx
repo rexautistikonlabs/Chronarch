@@ -7,6 +7,7 @@ import classics from "../fixtures/programme-classics.json";
 import { STAND_INS } from "../src/lib/filters";
 import type { ProgrammeFile } from "../src/lib/programme";
 import { loadClassicsUI } from "./pack-ui";
+import { recordReading } from "./bench-ui";
 import { renderAt } from "./render";
 
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
@@ -31,12 +32,13 @@ describe("session project", () => {
     expect(document.querySelectorAll("canvas")).toHaveLength(0);
   });
 
-  it("without a declared bridge Darwin + Newton Analyze is disabled; declaring natural-history — optics enables it; the note says the bridge was operator-declared with no assumptions; clearing disables again", () => {
+  it("without a declared bridge Darwin + Newton Compare is disabled; declaring natural-history — optics enables it; the note says the bridge was operator-declared with no assumptions; clearing disables again", () => {
     renderAt("/tech");
     loadClassicsUI();
+    recordReading();
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
-    expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "false");
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-enabled", "false");
     expect(screen.getByTestId("missing-caption")).toHaveTextContent("missing: natural-history — optics");
     expect(document.querySelectorAll('[data-testid^="edge-"]')).toHaveLength(3);
 
@@ -45,14 +47,14 @@ describe("session project", () => {
     select("declare-right", "optics");
     fireEvent.click(screen.getByTestId("declare-bridge"));
     expect(screen.getByTestId("declare-status")).toHaveTextContent(/refused/);
-    expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "false");
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-enabled", "false");
     expect(screen.getByTestId("extra-bridges")).toHaveTextContent("no extra bridges");
 
     fireEvent.click(screen.getByTestId("declare-amendment"));
     fireEvent.click(screen.getByTestId("declare-bridge"));
     expect(screen.getByTestId("declare-status")).toHaveTextContent(/declared amend-natural-history-optics — on this project only/);
     expect(screen.getByTestId("extra-amend-natural-history-optics")).toHaveTextContent("natural-history — optics · operator-declared");
-    expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "true");
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-enabled", "true");
     expect(screen.queryByTestId("missing-caption")).not.toBeInTheDocument();
     const edges = Array.from(document.querySelectorAll('[data-testid^="edge-"]'));
     expect(edges).toHaveLength(4);
@@ -61,8 +63,8 @@ describe("session project", () => {
     expect(op).toHaveAttribute("data-edge", "natural-history—optics");
     expect(edges.filter((e) => e.getAttribute("data-origin") === "shipped")).toHaveLength(3);
 
-    fireEvent.click(screen.getByTestId("action-analyze"));
-    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · analyze · kind couple · ok/);
+    fireEvent.click(screen.getByTestId("action-compare"));
+    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · compare · kind match · ok/);
     expect(screen.getByTestId("note-is-not")).toHaveTextContent(/bridge was operator-declared/);
     expect(screen.getByTestId("note-is-not")).toHaveTextContent(/not an individual score/);
     expect(screen.getByTestId("note-assumptions")).toHaveTextContent(/none declared on these pins/);
@@ -77,7 +79,7 @@ describe("session project", () => {
 
     fireEvent.click(screen.getByTestId("clear-extra-bridges"));
     expect(screen.getByTestId("extra-bridges")).toHaveTextContent("no extra bridges");
-    expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "false");
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-enabled", "false");
     expect(document.querySelectorAll('[data-testid^="edge-"]')).toHaveLength(3);
     // the note already written stays in the project
     expect(within(screen.getByTestId("notes-list")).getAllByRole("listitem")).toHaveLength(1);
@@ -87,23 +89,24 @@ describe("session project", () => {
     renderAt("/tech");
     loadClassicsUI();
     // note 1: Faraday + Maxwell over a shipped bridge
+    recordReading();
     fireEvent.click(screen.getByTestId("select-work-faraday-ere-v1"));
     fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
-    fireEvent.click(screen.getByTestId("action-analyze"));
-    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · analyze/);
+    fireEvent.click(screen.getByTestId("action-compare"));
+    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · compare/);
     fireEvent.click(screen.getByTestId("select-work-faraday-ere-v1"));
     fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
     // note 2: Darwin + Newton over the amendment
     declareNaturalHistoryOptics();
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
-    fireEvent.click(screen.getByTestId("action-analyze"));
+    fireEvent.click(screen.getByTestId("action-compare"));
     expect(screen.getByTestId("note-is-not")).toHaveTextContent(/operator-declared/);
 
     const items = within(screen.getByTestId("notes-list")).getAllByRole("listitem");
     expect(items).toHaveLength(2);
-    expect(items[0]).toHaveTextContent(/01.*Experimental Researches in Electricity.*couple/);
-    expect(items[1]).toHaveTextContent(/02.*On the Origin of Species.*couple.*operator-declared bridge/);
+    expect(items[0]).toHaveTextContent(/01.*Experimental Researches in Electricity.*match/);
+    expect(items[1]).toHaveTextContent(/02.*On the Origin of Species.*match.*operator-declared bridge/);
     // the current card is the second; clicking the first re-opens the eight-section Faraday card
     expect(screen.getByTestId("note-open-2")).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByTestId("note-open-1"));
@@ -123,10 +126,10 @@ describe("session project", () => {
     expect(screen.getByTestId("extra-amend-natural-history-optics")).toBeInTheDocument();
 
     // the pack
-    fireEvent.change(screen.getByTestId("project-name"), { target: { value: "Two couples" } });
+    fireEvent.change(screen.getByTestId("project-name"), { target: { value: "Two matches" } });
     expect(screen.getByTestId("export-pack")).toHaveTextContent("Download pack");
     const md = pack();
-    expect(md.startsWith("# Two couples\n")).toBe(true);
+    expect(md.startsWith("# Two matches\n")).toBe(true);
     expect(md).toContain("https://www.gutenberg.org/ebooks/1228");
     expect(md).toContain("Project Gutenberg ebook #1228");
     expect(md).toContain("https://www.gutenberg.org/ebooks/14986");

@@ -18,6 +18,7 @@ import { catalogueOf, programmeCounts, validateChild, type ChildPin, type Progra
 import { BLANK_PROGRAMME_ID, declareBridge, declareField, FIELD_ANTI_OVERREACH_ALWAYS, fieldIdFor, newProject, projectToMarkdown, withExtraBridges, withExtraFields } from "../src/lib/project";
 import { parseProject, projectToJSON } from "../src/lib/projectStore";
 import { acceptUpload, worksMap, type Work, type WorksFile } from "../src/lib/works";
+import { CALIBRATION as R } from "./record";
 
 const BLANK = blank as ProgrammeFile;
 const CLASSICS = classics as ProgrammeFile;
@@ -109,7 +110,7 @@ describe("a child from the group's own fields, on the blank programme", () => {
     expect(declareField(project0, catalogueOf([CLASSICS]), { label: "optics", units: "x", sector: "y" })).toMatchObject({ ok: true }); // "field-optics" is not "optics": no clash
   });
 
-  it("two declared fields, two uploads shelved in them, one declared bridge → Analyze couples them; without the bridge NO_BRIDGE; Classics works are UNKNOWN_FIELD here", () => {
+  it("two declared fields, two uploads shelved in them, one declared bridge → Compare matches them (Analyze on two bodies is COUPLE_IS_LEXICAL); without the bridge NO_BRIDGE; Classics works are UNKNOWN_FIELD here", () => {
     const f1 = declareField(project0, blankCat, { label: "Soil chemistry", units: "mg/kg", sector: "earth-sciences" });
     const f2 = declareField(project0, blankCat, { label: "Plant physiology", units: "mmol/m²/s", sector: "earth-sciences" });
     if (!f1.ok || !f2.ok) throw new Error("fields refused");
@@ -121,7 +122,7 @@ describe("a child from the group's own fields, on the blank programme", () => {
     const works: Work[] = [u1.work, u2.work];
     const wmap = worksMap(works);
     // no bridge yet: the bench refuses and names the pair
-    const refused = runAction("analyze", works, withFields, [BLANK], wmap);
+    const refused = runAction("compare", works, withFields, [BLANK], wmap, R);
     expect(refused).toMatchObject({ ok: false, code: "NO_BRIDGE", missing: [f1.field.id, f2.field.id] });
     expect(bridgePath(withFields, f1.field.id, f2.field.id)).toBeNull();
     // the operator declares the first bridge — an amendment, never evidence
@@ -132,10 +133,13 @@ describe("a child from the group's own fields, on the blank programme", () => {
     const cat = withExtraBridges(withFields, [b.bridge]);
     expect(cat.bridges.size).toBe(1);
     expect([...cat.bridges.values()].every((x) => x.origin === "operator")).toBe(true); // no shipped edge on a blank programme
-    const r = runAction("analyze", works, cat, [BLANK], wmap);
+    expect(runAction("analyze", works, cat, [BLANK], wmap, R)).toMatchObject({ ok: false, code: "COUPLE_IS_LEXICAL" }); // no numeric coupling is fitted here
+    expect(runAction("compare", works, cat, [BLANK], wmap, null)).toMatchObject({ ok: false, code: "MODE_REQUIRED" }); // the record is the operator's to fill
+    const r = runAction("compare", works, cat, [BLANK], wmap, R);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
-    expect(r.child.kind).toBe("couple");
+    expect(r.child.kind).toBe("match");
+    expect(r.child.intermediary_status).toBe("recovered_known");
     expect(r.walk).toEqual([f1.field.id, f2.field.id]);
     expect(r.bridges).toEqual([b.bridge.id]);
     expect(r.child.grants).toEqual([]); // nothing at arm's length: no grant needed
@@ -146,7 +150,7 @@ describe("a child from the group's own fields, on the blank programme", () => {
     expect(noteBanHits(note)).toEqual([]);
     expect(JSON.stringify(note)).not.toMatch(/autistikon|programme-zero/i);
     // and a Classics work on the blank programme is not shelved anywhere the bench knows
-    expect(runAction("compare", pick("work-darwin-1859", "work-mendel-1866-de"), withFields, [BLANK], map)).toMatchObject({ ok: false, code: "UNKNOWN_FIELD" });
+    expect(runAction("compare", pick("work-darwin-1859", "work-mendel-1866-de"), withFields, [BLANK], map, R)).toMatchObject({ ok: false, code: "UNKNOWN_FIELD" });
   });
 
   it("the pack carries the group's fields; the JSON round-trips them; a field not marked operator is stripped, never shipped", () => {
@@ -182,7 +186,7 @@ describe("a child from the Classics starter pack (public-domain works, no corpus
   });
 
   it("Compare Darwin + Mendel over the shipped bridge writes a match note; every finding cites a work or a metric", () => {
-    const r = runAction("compare", pick("work-darwin-1859", "work-mendel-1866-de"), cat, [CLASSICS], map);
+    const r = runAction("compare", pick("work-darwin-1859", "work-mendel-1866-de"), cat, [CLASSICS], map, R);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.child.kind).toBe("match");
@@ -194,7 +198,7 @@ describe("a child from the Classics starter pack (public-domain works, no corpus
 
   it("Newton + NIST: Classics declares no optics — metrology bridge, so Compare refuses NO_BRIDGE; the operator declares one and the same Compare runs (NEW_PROGRAMME.md's worked example)", () => {
     const newtonNist = pick("work-newton-opticks", "work-nist-tn1297");
-    const before = availability(newtonNist, cat, [CLASSICS], map);
+    const before = availability(newtonNist, cat, [CLASSICS], map, R);
     expect(before.find((a) => a.action === "compare")).toMatchObject({ enabled: false, code: "NO_BRIDGE", missing: ["optics", "metrology"] });
     const p = newProject(1, [CLASSICS.id]);
     const b = declareBridge(p, cat, "optics", "metrology", true);
@@ -203,7 +207,7 @@ describe("a child from the Classics starter pack (public-domain works, no corpus
     expect(b.bridge.id).toBe("amend-optics-metrology");
     const amended = withExtraBridges(cat, [b.bridge]);
     expect(cat.bridges.has(b.bridge.id)).toBe(false); // the shipped catalogue never gained it
-    const r = runAction("compare", newtonNist, amended, [CLASSICS], map);
+    const r = runAction("compare", newtonNist, amended, [CLASSICS], map, R);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.walk).toEqual(["optics", "metrology"]);

@@ -3,7 +3,7 @@
  *  reading, what this is not, appendix (bar + closed JSON). A refusal shows
  *  its code and the selected parents. Numbers are token counts; nothing here
  *  is a finding a model wrote. */
-import type { AnalysisNote } from "../lib/analysisNote";
+import { RECORD_CAPTION, type AnalysisNote } from "../lib/analysisNote";
 import type { BenchResult } from "../lib/bench";
 import { percent, type PairMetrics } from "../lib/metrics";
 
@@ -50,6 +50,21 @@ export function ResultCard({ result, note }: { result: BenchResult; note: Analys
                 {note.compared.tokens ? <><span data-testid="jaccard">{percent(note.compared.tokens.jaccard)}</span> Jaccard · {note.compared.tokens.shared.length} shared · {note.compared.tokens.onlyLeft.length} only left · {note.compared.tokens.onlyRight.length} only right</> : "none — a body is missing, so no token comparison was made"}
               </li>
             </ul>
+            {(note.intermediary_status ?? null) && (
+              <div className="mt-2 border hair p-2" data-testid="note-record" data-status={note.intermediary_status ?? ""}>
+                <p className="readout text-[11px] text-dim">reading record · <span className="text-ivory">{RECORD_CAPTION}</span></p>
+                <ul className="readout mt-1 space-y-0.5 text-[11px] text-mute">
+                  <li>mode: <span className="text-ivory" data-testid="record-mode-value">{note.mode ?? "—"}</span></li>
+                  <li>intermediary_status: <span className="text-ivory" data-testid="record-status-value">{note.intermediary_status}</span></li>
+                  <li data-testid="record-identifiability-value">
+                    identifiability: {note.identifiability === "not_identified" ? "not_identified" : note.identifiability ? <>contrast “{note.identifiability.contrast}” · nominal input held fixed: {note.identifiability.nominal_input_held_fixed} · covariates held fixed: {note.identifiability.covariates_held_fixed.join(", ") || "none"}</> : "—"}
+                  </li>
+                  <li data-testid="record-comparison-value">
+                    comparison: {note.comparison ? <>published covariate set {note.comparison.published_covariate_set.join(", ")} · added parameter {note.comparison.added_parameter} · locked metric {note.comparison.locked_metric} · threshold {String(note.comparison.threshold)} · fixed before run: {String(note.comparison.threshold_fixed_before_run)}</> : "none"}
+                  </li>
+                </ul>
+              </div>
+            )}
           </NoteSection>
 
           <NoteSection n={4} title="Findings" testId="note-findings">

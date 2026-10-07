@@ -1,6 +1,6 @@
 /** Export a note as Markdown: the eight sections, attributions, source
  *  URLs, the Jaccard line and the is_not list. Pure text; no network. */
-import type { AnalysisNote } from "./analysisNote";
+import { RECORD_CAPTION, type AnalysisNote } from "./analysisNote";
 import type { BenchOk } from "./bench";
 import { percent } from "./metrics";
 
@@ -26,6 +26,15 @@ export function noteToMarkdown(result: BenchOk, note: AnalysisNote): string {
   L.push(`- grants: ${note.compared.grants.length ? note.compared.grants.join(", ") : "none needed"}`);
   const t = note.compared.tokens;
   L.push(`- Jaccard: ${t ? `${percent(t.jaccard)} (${t.shared.length} shared · ${t.onlyLeft.length} only left · ${t.onlyRight.length} only right)` : "none — a body is missing, so no token comparison was made"}`);
+  if (note.intermediary_status ?? null) {
+    const id = note.identifiability;
+    L.push(`- reading record (${RECORD_CAPTION}): mode ${note.mode ?? "—"} · intermediary_status ${note.intermediary_status}`);
+    L.push(`  - identifiability: ${id === "not_identified" ? "not_identified" : id ? `contrast “${id.contrast}”; nominal input held fixed: ${id.nominal_input_held_fixed}; covariates held fixed: ${id.covariates_held_fixed.join(", ") || "none"}` : "—"}`);
+    const c = note.comparison;
+    L.push(`  - comparison: ${c ? `published covariate set ${c.published_covariate_set.join(", ")}; added parameter ${c.added_parameter}; locked metric ${c.locked_metric}; threshold ${String(c.threshold)}; threshold fixed before run: ${String(c.threshold_fixed_before_run)}` : "none"}`);
+  } else if (note.kind !== "question") {
+    L.push("- reading record: none on this note");
+  }
   L.push("");
   L.push("## 4. Findings");
   if (note.findings.length === 0) L.push("No findings: a stub is among the parents, so no body supports one. The question above is the whole result.");

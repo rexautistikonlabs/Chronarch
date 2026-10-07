@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { STAND_INS } from "../src/lib/filters";
 import { loadClassicsUI } from "./pack-ui";
+import { recordReading } from "./bench-ui";
 import { renderAt } from "./render";
 
 const visibleIds = () =>
@@ -93,20 +94,21 @@ describe("field–bridge graph", () => {
 });
 
 describe("workbench actions and export", () => {
-  it("Darwin + Newton → Analyze disabled with the missing pair named; the graph draws the gap dashed", () => {
+  it("Darwin + Newton → Compare disabled with the missing pair named; the graph draws the gap dashed", () => {
     renderAt("/tech");
     loadClassicsUI();
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
-    const analyze = screen.getByTestId("action-analyze");
-    expect(analyze).toHaveAttribute("data-enabled", "false");
-    expect(analyze).toHaveAttribute("aria-disabled", "true");
-    expect(analyze).toHaveAttribute("data-code", "NO_BRIDGE");
+    recordReading();
+    const compare = screen.getByTestId("action-compare");
+    expect(compare).toHaveAttribute("data-enabled", "false");
+    expect(compare).toHaveAttribute("aria-disabled", "true");
+    expect(compare).toHaveAttribute("data-code", "NO_BRIDGE");
     const helper = screen.getByTestId("actions-helper");
     expect(helper).toHaveTextContent(/NO_BRIDGE/);
     expect(helper).toHaveTextContent(/optics/);
     expect(helper).toHaveTextContent(/natural-history/);
-    expect(screen.getByTestId("why-analyze")).toHaveTextContent(/no path natural-history — optics/);
+    expect(screen.getByTestId("why-compare")).toHaveTextContent(/no path natural-history — optics/);
     expect(screen.getByTestId("missing-edge")).toBeInTheDocument();
     expect(screen.getByTestId("missing-caption")).toHaveTextContent("missing: natural-history — optics");
     // the bridge was not added silently
@@ -115,22 +117,29 @@ describe("workbench actions and export", () => {
     expect(screen.queryByTestId("export-panel")).not.toBeInTheDocument();
   });
 
-  it("Faraday + Maxwell → Analyze enabled; after the run the export markdown names both parents and says not an individual score", () => {
+  it("Faraday + Maxwell → Compare enabled once the record is filled; after the run the export markdown names both parents, the record, and says not an individual score", () => {
     renderAt("/tech");
     loadClassicsUI();
     fireEvent.click(screen.getByTestId("select-work-faraday-ere-v1"));
     fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
-    const analyze = screen.getByTestId("action-analyze");
-    expect(analyze).toHaveAttribute("data-enabled", "true");
-    expect(analyze).not.toHaveAttribute("aria-disabled", "true");
-    expect(screen.getByTestId("actions-helper")).toHaveTextContent(/every action would pass/);
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-code", "MODE_REQUIRED");
+    recordReading();
+    const compare = screen.getByTestId("action-compare");
+    expect(compare).toHaveAttribute("data-enabled", "true");
+    expect(compare).not.toHaveAttribute("aria-disabled", "true");
+    // Analyze on two bodies stays COUPLE_IS_LEXICAL, so the helper names it; Converge and Compare pass
+    expect(screen.getByTestId("actions-helper")).toHaveTextContent(/some actions are blocked: COUPLE_IS_LEXICAL/);
+    expect(screen.getByTestId("action-converge")).toHaveAttribute("data-enabled", "true");
     expect(screen.queryByTestId("missing-caption")).not.toBeInTheDocument();
-    fireEvent.click(analyze);
-    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · analyze · kind couple · ok/);
+    fireEvent.click(compare);
+    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · compare · kind match · ok/);
     const md = (screen.getByTestId("export-markdown") as HTMLTextAreaElement).value;
     expect(md).toContain("Faraday");
     expect(md).toContain("Maxwell");
     expect(md).toContain("not an individual score");
+    expect(md).toContain("operator record, not a bench result.");
+    expect(md).toContain("recovered_known");
+    expect(md).not.toMatch(/(^|[^A-Za-z])PASS(?![a-z])/);
     expect(md).toContain("## 1. Question");
     expect(md).toContain("## 8. Appendix");
     expect(md).toMatch(/Jaccard: \d+%/);

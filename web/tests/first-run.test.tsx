@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { FIRST_RUN_KEY, FIRST_RUN_STEPS } from "../src/lib/firstRun";
 import { renderAt } from "./render";
+import { recordReading } from "./bench-ui";
 
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
 
@@ -21,7 +22,7 @@ describe("first run", () => {
     expect(within(panel).getAllByRole("listitem")).toHaveLength(4);
     expect(screen.getByTestId("first-run-step-1")).toHaveTextContent("Add two fields — a label, its units, its sector — or load an optional catalogue (Classics, Toy, or the example corpus).");
     expect(screen.getByTestId("first-run-step-2")).toHaveTextContent("Pin or select two works you have rights to (or two from a loaded catalogue).");
-    expect(screen.getByTestId("first-run-step-3")).toHaveTextContent("Converge or Compare. If the two works sit in two fields, declare a bridge first and tick “amendment, not evidence”.");
+    expect(screen.getByTestId("first-run-step-3")).toHaveTextContent("Fill the reading record (mode, status, identifiability), then Converge or Compare. If the two works sit in two fields, declare a bridge first and tick “amendment, not evidence”.");
     expect(screen.getByTestId("first-run-step-4")).toHaveTextContent("Download pack.");
     expect(panel.textContent).not.toMatch(/Autistikon|Programme Zero|stand-in|Faraday|Maxwell|Darwin|Mendel|Newton|NIST|work-|pz-/i);
     expect(screen.getByTestId("first-run-go-1")).toHaveTextContent("load a public-domain starter pack");
@@ -72,7 +73,8 @@ describe("first run", () => {
     fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
     expect(screen.getByTestId("first-run-step-2")).toHaveAttribute("data-done", "true");
 
-    // step 3 — Compare across the shipped electricity — electromagnetism bridge
+    // step 3 — the record, then Compare across the shipped electricity — electromagnetism bridge
+    recordReading();
     fireEvent.click(screen.getByTestId("action-compare"));
     expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · compare · kind match · ok/);
     expect(screen.getByTestId("jaccard")).toHaveTextContent("8%"); // the excerpts are not retuned

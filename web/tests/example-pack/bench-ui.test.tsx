@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { loadExamplePackUI } from "../pack-ui";
 import { renderAt } from "../render";
+import { recordReading } from "../bench-ui";
 
 describe("example pack on the bench", () => {
   it("two cc-by stand-ins → Converge → an overlap child at 16% with the ledger's assumptions and the grant; a stub → Compare disabled", async () => {
@@ -15,6 +16,7 @@ describe("example pack on the bench", () => {
     expect(screen.getByTestId("tech-programme-zero.json")).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByTestId("select-work-pz-ledger-structure"));
     fireEvent.click(screen.getByTestId("select-work-pz-register-structure"));
+    recordReading();
     fireEvent.click(screen.getByTestId("action-converge"));
     expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · converge · kind overlap · ok/);
     const card = screen.getByTestId("result-card");

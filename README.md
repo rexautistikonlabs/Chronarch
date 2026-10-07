@@ -9,6 +9,11 @@ page what each product is not.
   writes a synthesis whose child names its parents and the bridges it crossed.
   It runs as a static site (`web/`, the workbench at `/chronarch/tech`); a
   project lives in the browser and leaves only as a file you download.
+  Chronarch is the record of a reading protocol, not the protocol. The method
+  it can record is a known-answer calibration, then one operator-declared
+  comparison against a published covariate set. The software enforces
+  parents, bridges, negations, and the refusals in `specs/ANALYSIS.md`. It
+  does not perform the test.
 - **Continuum** is a separate, literature-informed biotensegrity and
   afferent-flow teaching simulation at https://continuum.rexmetrix.com. Model
   outputs, not measurements of a person. Not a programme ledger. It is not
@@ -47,21 +52,13 @@ only. See [specs/STATUS.md](specs/STATUS.md) for what is frozen vs. live,
 [specs/OPERATOR.md](specs/OPERATOR.md) for the operator path (which is itself a
 test).
 
-The substrate describes itself as a **decentralized autonomous cognitive
-organism (DACO)**: an append-only Timechain of rings for memory, a
-challenge-attested cognition layer, a biotensegrity-inspired nervous system
-that measures its own health, a Chia-family Proof-of-Space-and-Time body
-(research fork path), and a stewarding Council of bonded stakers. It is **not**
-a claim of consciousness or qualia; PoQ does not prove subjective experience.
-
-> Chronarch proposes. The Timechain remembers. The tensegrity feels.
-> The Council stewards. Chronos is blood, not conscience.
+The substrate is a lab model of append-only history and forbidden keys: not
+a public chain, not a claim about feeling, not consciousness. That is the one
+sentence this file keeps on it; the rest is in `specs/STATUS.md` and
+`specs/GENESIS.md`.
 
 **The invariant:** *Major change is a proposal ring plus a slashing-backed
 vote, not an AI rewrite and not an admin key.*
-
-**Security slogan:** *Tampering is detectable, expensive, incomplete, and
-metabolized into a scar.*
 
 ## Layout
 
@@ -95,7 +92,7 @@ pytest            # conftest.py wires packages/*/src onto sys.path
 
 ### Run a pulse
 
-One command runs the whole organism on a durable home — farm a slot, check
+One command runs the whole lab loop on a durable home — farm a slot, check
 pins, attest a DummyMind compute job, and credit Chronos — and prints a JSON
 summary. It is deterministic (no wall clock, no randomness beyond the lottery)
 and needs no install:
@@ -106,7 +103,7 @@ export PYTHONPATH="$(ls -d packages/*/src | tr '\n' ':')"
 python -m chronarch_cli pulse --home /tmp/chronarch-home
 ```
 
-Re-running against the same `--home` resumes the same organism and extends the
+Re-running against the same `--home` resumes the same home and extends the
 ledger. The pulse never uses an admin key, never creates a live faculty or a
 proposal, and never seals a Chronos credit into the Timechain — see
 [specs/PULSE.md](specs/PULSE.md).
@@ -143,8 +140,9 @@ What the suite proves today (the Phase-0/Phase-1 testing bar):
 The product is described at the top of this file. Chronarch exposes no
 Council, no chain, no coin; the substrate in `packages/` sits under it and is
 not offered as a feature. Programme Zero (Rex Autistikon / Kim 2026) is the
-example corpus, an optional pack, not the product; a cold workbench opens on a blank programme, with Classics as an optional starter pack; the old text below said Classics
-programme. See [specs/PRODUCT.md](specs/PRODUCT.md) and [specs/LEGAL.md](specs/LEGAL.md).
+example corpus, an optional pack, not the product; a cold workbench opens on a
+blank programme, with Classics as an optional starter pack. See
+[specs/PRODUCT.md](specs/PRODUCT.md) and [specs/LEGAL.md](specs/LEGAL.md).
 
 ## Web lab UI
 

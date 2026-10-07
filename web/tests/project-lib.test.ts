@@ -14,6 +14,7 @@ import { availability, runAction } from "../src/lib/bench";
 import { catalogueOf, type ProgrammeFile } from "../src/lib/programme";
 import { declareBridge, isOperatorBridge, newProject, operatorBridgeIds, PACK_CLOSING, packFilename, projectToMarkdown, withExtraBridges, withNote, withUpload } from "../src/lib/project";
 import { worksMap, type Work, type WorksFile } from "../src/lib/works";
+import { CALIBRATION as R } from "./record";
 
 const FILES = [zero as ProgrammeFile, toy as ProgrammeFile, classics as ProgrammeFile];
 const shipped = catalogueOf(FILES);
@@ -69,18 +70,18 @@ describe("project", () => {
     expect(onDisk.bridges).toHaveLength(3);
   });
 
-  it("Darwin + Newton: analyze refuses NO_BRIDGE on the shipped catalogue and passes over the amendment; the note says the bridge was operator-declared with no assumptions", () => {
+  it("Darwin + Newton: compare refuses NO_BRIDGE on the shipped catalogue and passes over the amendment; the note says the bridge was operator-declared with no assumptions", () => {
     const sel = pick("work-darwin-1859", "work-newton-opticks");
-    const before = availability(sel, shipped, FILES, map).find((a) => a.action === "analyze")!;
+    const before = availability(sel, shipped, FILES, map, R).find((a) => a.action === "compare")!;
     expect(before).toMatchObject({ enabled: false, code: "NO_BRIDGE", missing: ["natural-history", "optics"] });
     const p = newProject(1);
     const d = declareBridge(p, shipped, "natural-history", "optics", true);
     if (!d.ok) throw new Error(d.reason);
     const proj = { ...p, extra_bridges: [d.bridge] };
     const cat = withExtraBridges(shipped, proj.extra_bridges);
-    const after = availability(sel, cat, FILES, map).find((a) => a.action === "analyze")!;
+    const after = availability(sel, cat, FILES, map, R).find((a) => a.action === "compare")!;
     expect(after.enabled).toBe(true);
-    const r = runAction("analyze", sel, cat, FILES, map);
+    const r = runAction("compare", sel, cat, FILES, map, R);
     if (!r.ok) throw new Error(r.code);
     expect(r.child.path).toEqual([d.bridge.id]);
     const note = buildNote(r, map, FILES, operatorBridgeIds(proj));
@@ -97,8 +98,8 @@ describe("project", () => {
     if (!d.ok) throw new Error(d.reason);
     p = { ...p, name: "Bench trial", extra_bridges: [d.bridge] };
     const cat = withExtraBridges(shipped, p.extra_bridges);
-    const fm = runAction("analyze", pick("work-faraday-ere-v1", "work-maxwell-elem"), cat, FILES, map);
-    const dn = runAction("analyze", pick("work-darwin-1859", "work-newton-opticks"), cat, FILES, map);
+    const fm = runAction("compare", pick("work-faraday-ere-v1", "work-maxwell-elem"), cat, FILES, map, R);
+    const dn = runAction("compare", pick("work-darwin-1859", "work-newton-opticks"), cat, FILES, map, R);
     if (!fm.ok || !dn.ok) throw new Error("expected ok");
     p = withNote(p, fm, buildNote(fm, map, FILES, operatorBridgeIds(p)), map);
     p = withNote(p, dn, buildNote(dn, map, FILES, operatorBridgeIds(p)), map);

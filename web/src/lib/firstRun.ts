@@ -30,7 +30,7 @@ export const STARTER_PACK: FirstRunAction = { kind: "programme", fixture: "progr
 export const FIRST_RUN_STEPS: readonly FirstRunStep[] = [
   { n: 1, text: "Add two fields — a label, its units, its sector — or load an optional catalogue (Classics, Toy, or the example corpus).", action: STARTER_PACK, done: (s) => s.fieldCount >= 2 },
   { n: 2, text: "Pin or select two works you have rights to (or two from a loaded catalogue).", action: null, done: (s) => s.selectedCount >= 2 || s.noteCount > 0 },
-  { n: 3, text: "Converge or Compare. If the two works sit in two fields, declare a bridge first and tick “amendment, not evidence”.", action: null, done: (s) => s.noteCount > 0 },
+  { n: 3, text: "Fill the reading record (mode, status, identifiability), then Converge or Compare. If the two works sit in two fields, declare a bridge first and tick “amendment, not evidence”.", action: null, done: (s) => s.noteCount > 0 },
   { n: 4, text: "Download pack.", action: null, done: (s) => s.packDone },
 ];
 

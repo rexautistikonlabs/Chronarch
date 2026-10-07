@@ -22,7 +22,7 @@ status — not a line drawn during a job.
 |---|---|
 | `left`, `right` | the two field ids; a bridge has exactly two ends |
 | `junction` | the **bridge statement**: in what sense a quantity on one side may stand beside a term on the other, given that they do not share units |
-| `status` | `draft` → `live` → `retired`; only a **live** bridge carries a synthesis |
+| `status` | `draft` → `live` → `retired`; only a **live** bridge carries a synthesis. A live status does not assign, imply or default an `intermediary_status` on any child that crosses it ([ANALYSIS.md](ANALYSIS.md)) |
 | `ledger[]` | the **assumption ledger**: every assumption the junction rests on, each with a rating — `conjectural`, `supported`, `contested`, `established`. **None defaults to `established`.** |
 | `register[]` | the **falsification register**: what would falsify the junction, what it costs when it does (a consequence the programme must carry out), and `anti_rescue: true` — the bridge may not be saved after the fact by redefining its terms |
 

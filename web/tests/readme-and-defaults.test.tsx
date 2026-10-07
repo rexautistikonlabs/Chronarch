@@ -26,13 +26,17 @@ describe("README", () => {
     expect(lines).not.toMatch(/organism/i);
   });
 
-  it("the substrate sits under an implementation heading, after the product", () => {
+  it("the substrate sits under an implementation heading, after the product, and keeps one sentence on itself: no organism slogan, no DACO", () => {
     const text = readFileSync(join(ROOT, "README.md"), "utf8");
     const heading = text.indexOf("## Implementation note (lab-v0 substrate)");
     expect(heading).toBeGreaterThan(0);
-    expect(text.indexOf("DACO")).toBeGreaterThan(heading);
-    expect(text.indexOf("Chronos is blood")).toBeGreaterThan(heading);
     expect(text.indexOf("Timechain")).toBeGreaterThan(heading);
+    expect(text.indexOf("a lab model of append-only history and forbidden keys")).toBeGreaterThan(heading);
+    expect(text).toMatch(/not\s+a public chain, not a claim about feeling, not consciousness/);
+    for (const banned of ["DACO", "Chronos is blood", "The tensegrity feels", "digital organism", "organism"]) expect(text).not.toMatch(new RegExp(banned, "i"));
+    // the product paragraph says what the software records and what it does not perform, above the heading
+    expect(text.indexOf("Chronarch is the record of a reading protocol, not the protocol.")).toBeLessThan(heading);
+    expect(text.indexOf("It\n  does not perform the test.")).toBeLessThan(heading);
   });
 
   it("web/README leads with the same product and has no chain word above the fold", () => {

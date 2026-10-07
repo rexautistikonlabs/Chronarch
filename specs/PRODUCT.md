@@ -129,7 +129,13 @@ between chosen pairs of fields, and runs **programmes** that are subgraphs of
 that catalogue. Synthesis jobs write **child pins** with explicit parents and a
 declared path or clique of bridges.
 
-It is programme infrastructure, delivered as software-as-a-service:
+It is programme infrastructure, delivered as software-as-a-service.
+
+**Chronarch is the record of a reading protocol, not the protocol.** The
+method it can record is a known-answer calibration, then one operator-declared
+comparison against a published covariate set. The software enforces parents,
+bridges, negations, and the refusals in [ANALYSIS.md](ANALYSIS.md) and
+[SYNTHESIS.md](SYNTHESIS.md). It does not perform the test.
 
 | RexMetrix is | RexMetrix is not |
 |---|---|
@@ -137,6 +143,7 @@ It is programme infrastructure, delivered as software-as-a-service:
 | first-class bridges between fields that do not share units | a "digital organism" or a claim about minds |
 | programmes: fields used, bridges used, a locked array, a ledger, a register, a stop rule with a clock | a diagnostic, therapeutic or clinical tool, and not endorsed by any Foundation |
 | synthesis jobs (overlap, match, couple, question) that produce child pins with parents | an index, a score, or an assessment instrument |
+| a reading record on each child — mode, status, identifiability, comparison — kept as an operator claim ([ANALYSIS.md](ANALYSIS.md)) | a solver, a fitter, a likelihood, a model comparison, or a grade (no note is a PASS) |
 | quota per tenant (jobs, pins, storage) — **quota, not coin** | governance by a council, a vote market, or on-chain anything |
 
 ## Tenants and quota
@@ -184,8 +191,10 @@ page, no protocol museum. Retired paths (`/council`, `/timechain`, `/hearth`,
 `/tech` is one flat HTML room — no 3D, no well on that route: the works table
 with a selection, three actions that each write one child pin through the
 synthesis law or refuse (**Converge** = overlap, **Compare** = match,
-**Analyze** = question if any parent is only a stub, else couple), the result
-as the child's JSON or a refuse code, then the programmes and fixtures, a paste
+**Analyze** = question if any parent is only a stub; on two bodies it would be
+a couple, and a couple whose only number is Jaccard is refused
+`COUPLE_IS_LEXICAL`), the result as the child's JSON or a refuse code, then the
+programmes and fixtures, a paste
 box for session JSON, the hashes when a session is loaded, and the refuse
 glossary. Fewer than two selected works is `NEED_PARENTS`. The bench calls no
 model and fetches nothing. The well is the visitor's instrument, not the
@@ -200,9 +209,12 @@ A successful result is **readable before it is JSON**: a card with the action,
 kind and verdict; the two parents with title, field, licence and the first 160
 characters of each body; a bar of shared versus unique tokens with the Jaccard
 ratio as a whole percent — deterministic token counts, never a finding, and
-shown only when both parents have bodies; on a `couple`, the caption "lexical
-overlap only — not a fitted model."; on a stub-bearing `question`, the question
-sentence and no bar. The child's JSON sits under a closed details. The session
+shown only when both parents have bodies; on a `match`, the caption "lexical
+overlap only."; on a stub-bearing `question`, the question sentence and no bar.
+Above the buttons sits the **reading record** form (mode, status,
+identifiability, comparison), empty by default; Converge and Compare are
+disabled with `MODE_REQUIRED` until the operator fills it, and the card and the
+export render the status string under "operator record, not a bench result." The child's JSON sits under a closed details. The session
 list shows titles, kind and the percent (or none).
 
 ## Workbench

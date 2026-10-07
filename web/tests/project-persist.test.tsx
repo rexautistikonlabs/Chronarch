@@ -7,6 +7,7 @@ import example from "../fixtures/project-example.json";
 import { STAND_INS } from "../src/lib/filters";
 import { PROJECT_STORAGE_KEY } from "../src/lib/projectStore";
 import { loadClassicsUI } from "./pack-ui";
+import { recordReading } from "./bench-ui";
 import { renderAt } from "./render";
 
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
@@ -42,8 +43,10 @@ describe("project persistence", () => {
     expect(stored().extra_bridges[0]).toMatchObject({ id: "amend-natural-history-optics", origin: "operator" });
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
-    fireEvent.click(screen.getByTestId("action-analyze"));
+    recordReading();
+    fireEvent.click(screen.getByTestId("action-compare"));
     expect(stored().notes).toHaveLength(1);
+    expect(stored().notes[0].note.intermediary_status).toBe("recovered_known");
     expect(stored().notes[0].note.is_not).toContain("bridge was operator-declared");
     fireEvent.change(screen.getByTestId("upload-title"), { target: { value: "Session excerpt" } });
     select("upload-license", "cc0");
@@ -59,15 +62,16 @@ describe("project persistence", () => {
     expect(document.cookie).toBe("");
   });
 
-  it("reload keeps the declared Darwin–Newton bridge: Analyze still enabled, the note still in the library, the upload still in the table", () => {
+  it("reload keeps the declared Darwin–Newton bridge: Compare still enabled once the record is filled, the note still in the library, the upload still in the table", () => {
     const first = renderAt("/tech");
     loadClassicsUI();
     fireEvent.change(screen.getByTestId("project-name"), { target: { value: "Survivor" } });
     declareNaturalHistoryOptics();
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
-    fireEvent.click(screen.getByTestId("action-analyze"));
-    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · analyze/);
+    recordReading();
+    fireEvent.click(screen.getByTestId("action-compare"));
+    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · compare/);
     fireEvent.change(screen.getByTestId("upload-title"), { target: { value: "Session excerpt on lenses" } });
     select("upload-license", "cc0");
     select("upload-field", "optics");
@@ -83,7 +87,10 @@ describe("project persistence", () => {
     expect(screen.getByTestId("edge-amend-natural-history-optics")).toHaveAttribute("data-origin", "operator");
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
-    expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "true");
+    // the record does not survive on the form: a reload starts it empty, and the bench says so
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-code", "MODE_REQUIRED");
+    recordReading();
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-enabled", "true");
     const items = within(screen.getByTestId("notes-list")).getAllByRole("listitem");
     expect(items).toHaveLength(1);
     expect(items[0]).toHaveTextContent(/On the Origin of Species.*operator-declared bridge/);
@@ -111,13 +118,15 @@ describe("project persistence", () => {
     declareNaturalHistoryOptics();
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
-    fireEvent.click(screen.getByTestId("action-analyze"));
+    recordReading();
+    fireEvent.click(screen.getByTestId("action-compare"));
     expect(screen.getByTestId("export-project-json")).toHaveTextContent("Download project.json");
     const json = (screen.getByTestId("project-json") as HTMLTextAreaElement).value;
     const parsed = JSON.parse(json);
     expect(parsed.extra_bridges).toEqual([expect.objectContaining({ id: "amend-natural-history-optics", origin: "operator" })]);
     expect(parsed.notes).toHaveLength(1);
-    expect(parsed.notes[0].result.child.id).toMatch(/^child-analyze-\d{3}$/);
+    expect(parsed.notes[0].result.child.id).toMatch(/^child-compare-\d{3}$/);
+    expect(parsed.notes[0].result.child.mode).toBe("calibration");
     expect(parsed.notes[0].note.appendix.child_id).toBe(parsed.notes[0].result.child.id);
     expect(json).not.toMatch(/function|=>/);
     expect(json.indexOf('"created_at"')).toBeLessThan(json.indexOf('"name"'));
@@ -135,7 +144,8 @@ describe("project persistence", () => {
     expect(screen.getByTestId("project-summary")).toHaveTextContent(/2 works used · 1 extra bridge · 0 notes/);
     fireEvent.click(screen.getByTestId("select-work-darwin-1859"));
     fireEvent.click(screen.getByTestId("select-work-newton-opticks"));
-    expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "true");
+    recordReading();
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-enabled", "true");
     expect(stored().name).toBe("Example project (fixture)");
     // the imported project is on the project, not in the shipped catalogue
     expect(Array.from(document.querySelectorAll('[data-testid^="edge-"][data-origin="shipped"]'))).toHaveLength(3);

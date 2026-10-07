@@ -7,6 +7,7 @@ import { ALL_WORKS } from "./pack";
 import { bridgePath, kindFor, runAction } from "../../src/lib/bench";
 import { catalogueOf, type ProgrammeFile } from "../../src/lib/programme";
 import { worksMap } from "../../src/lib/works";
+import { CALIBRATION as R } from "../record";
 
 const FILES = [zero as ProgrammeFile, toy as ProgrammeFile];
 const cat = catalogueOf(FILES);
@@ -16,10 +17,11 @@ const pick = (...ids: string[]) => ids.map((id) => map.get(id)!);
 
 describe("bench actions", () => {
   it("Converge with the two preload cc-by stand-ins → ok child of kind overlap (one field, no bridge needed, grant carried)", () => {
-    const r = runAction("converge", pick("work-pz-ledger-structure", "work-pz-register-structure"), cat, FILES, map);
+    const r = runAction("converge", pick("work-pz-ledger-structure", "work-pz-register-structure"), cat, FILES, map, R);
     expect(r.ok).toBe(true);
     if (r.ok) {
       expect(r.child.kind).toBe("overlap");
+      expect(r.child.mode).toBe("calibration");
       expect(r.child.parents.map((p) => p.work)).toEqual(["work-pz-ledger-structure", "work-pz-register-structure"]);
       expect(r.bridges).toEqual([]);
       expect(r.walk).toEqual(["autistikon-programme-zero"]);
@@ -45,12 +47,11 @@ describe("bench actions", () => {
     }
   });
 
-  it("Analyze with two bodies → couple", () => {
+  it("Analyze with two bodies would be a couple, and a couple whose only number is Jaccard is refused COUPLE_IS_LEXICAL", () => {
     const bodies = pick("work-pz-ledger-structure", "work-toy-materials-note");
     expect(kindFor("analyze", bodies)).toBe("couple");
-    const r = runAction("analyze", bodies, cat, FILES, map);
-    expect(r.ok).toBe(true);
-    if (r.ok) expect(r.child.kind).toBe("couple");
+    expect(runAction("analyze", bodies, cat, FILES, map, R)).toMatchObject({ ok: false, code: "COUPLE_IS_LEXICAL" });
+    expect(runAction("analyze", bodies, cat, FILES, map)).toMatchObject({ ok: false, code: "COUPLE_IS_LEXICAL" });
   });
 
   it("one selection → NEED_PARENTS; an unshelved work → UNKNOWN_FIELD", () => {
@@ -65,7 +66,7 @@ describe("bench actions", () => {
     cut.bridges.delete("bridge-materials-mechanics");
     expect(runAction("analyze", pick("work-stub-doi-example", "work-stub-title-only"), cut, FILES, map)).toMatchObject({ ok: false, code: "NO_BRIDGE" });
     const noGrant = FILES.map((f) => ({ ...f, license_grant: undefined }));
-    expect(runAction("converge", pick("work-pz-ledger-structure", "work-pz-register-structure"), cat, noGrant, map)).toMatchObject({ ok: false, code: "LICENSE_MISSING" });
+    expect(runAction("converge", pick("work-pz-ledger-structure", "work-pz-register-structure"), cat, noGrant, map, R)).toMatchObject({ ok: false, code: "LICENSE_MISSING" });
   });
 
   it("bridgePath is the shortest live path, empty within one field, null when none", () => {

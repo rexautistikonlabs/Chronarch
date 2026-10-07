@@ -60,7 +60,36 @@ export interface ProgrammeFile {
   license_grant?: LicenseGrant;
 }
 
-export interface ChildPin {
+/** The reading record: an operator's claim about what a reading was, carried
+ *  on the child and copied into the note (specs/ANALYSIS.md, "Ledger of a
+ *  claim"). The bench checks its shape and refuses an incomplete or
+ *  contradictory record. It does not run the protocol, fit anything, or
+ *  verify that the claim is true. */
+export type ReadingMode = "calibration" | "incremental";
+export const READING_MODES: readonly ReadingMode[] = ["calibration", "incremental"];
+export const INTERMEDIARY_STATUSES = ["recovered_known", "candidate_confound", "not_identified", "untested_prediction", "incremental_value", "dropped"] as const;
+export type IntermediaryStatus = (typeof INTERMEDIARY_STATUSES)[number];
+export interface IdentifiabilityContrast {
+  contrast: string; // one sentence
+  nominal_input_held_fixed: string; // what was held
+  covariates_held_fixed: string[]; // published covariates
+}
+export type Identifiability = IdentifiabilityContrast | "not_identified";
+export interface Comparison {
+  published_covariate_set: string[]; // non-empty
+  added_parameter: string; // one string, never a list
+  locked_metric: string;
+  threshold: string | number; // operator-declared
+  threshold_fixed_before_run: boolean; // false is a refusal, not a warning
+}
+export interface ReadingRecord {
+  mode?: ReadingMode | null;
+  intermediary_status?: IntermediaryStatus | null;
+  identifiability?: Identifiability | null;
+  comparison?: Comparison | null;
+}
+
+export interface ChildPin extends ReadingRecord {
   schema?: "rexmetrix.child/1";
   id: string;
   kind: JobKind;
@@ -79,7 +108,65 @@ export interface Catalogue {
   bridges: Map<string, Bridge>;
 }
 
-export type RefusalCode = "NO_BRIDGE" | "LICENSE_MISSING" | "INDIVIDUAL_SCORE_FORBIDDEN" | "CROSS_SECTOR_WRITE" | "BAD_KIND" | "UNKNOWN_FIELD" | "FULLTEXT_FORBIDDEN" | "STUB_NO_FULLTEXT" | "UNKNOWN_WORK";
+export type RefusalCode =
+  | "NO_BRIDGE" | "LICENSE_MISSING" | "INDIVIDUAL_SCORE_FORBIDDEN" | "CROSS_SECTOR_WRITE" | "BAD_KIND" | "UNKNOWN_FIELD" | "FULLTEXT_FORBIDDEN" | "STUB_NO_FULLTEXT" | "UNKNOWN_WORK"
+  // the reading record (specs/ANALYSIS.md): shape and contradiction only — never the truth of the claim
+  | "MODE_REQUIRED" | "STATUS_REQUIRED" | "CALIBRATION_CANNOT_INCREMENT" | "IDENTIFIABILITY_REQUIRED" | "COMPARISON_BLOCKED" | "COMPARISON_REQUIRED" | "COMPARISON_FORBIDDEN" | "THRESHOLD_NOT_LOCKED" | "COUPLE_IS_LEXICAL";
+
+/** The job kinds that must carry a reading record; a question pin carries none. */
+export const RECORDED_KINDS: ReadonlySet<JobKind> = new Set<JobKind>(["overlap", "match", "couple"]);
+
+const nonEmpty = (v: unknown): v is string => typeof v === "string" && v.trim() !== "";
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+
+/** A comparison block counts as present when any of its fields carries a value; null, omitted or all-empty is absent. */
+export function comparisonPresent(c: unknown): boolean {
+  if (c === null || c === undefined) return false;
+  if (!isRecord(c)) return true; // a malformed presence is still a presence
+  return Object.values(c).some((v) => (Array.isArray(v) ? v.length > 0 : typeof v === "string" ? v.trim() !== "" : typeof v === "number" ? true : v === true));
+}
+
+/** Every field of the comparison block filled with the right shape (the lock's value is checked separately). */
+export function comparisonComplete(c: unknown): c is Comparison {
+  if (!isRecord(c)) return false;
+  const set = c.published_covariate_set;
+  if (!Array.isArray(set) || set.length === 0 || !set.every(nonEmpty)) return false;
+  if (!nonEmpty(c.added_parameter)) return false; // one string, not a list
+  if (!nonEmpty(c.locked_metric)) return false;
+  const th = c.threshold;
+  if (!(nonEmpty(th) || (typeof th === "number" && Number.isFinite(th)))) return false;
+  return typeof c.threshold_fixed_before_run === "boolean";
+}
+
+export function identifiabilityValid(v: unknown): v is Identifiability {
+  if (v === "not_identified") return true;
+  if (!isRecord(v)) return false;
+  return nonEmpty(v.contrast) && nonEmpty(v.nominal_input_held_fixed) && Array.isArray(v.covariates_held_fixed) && v.covariates_held_fixed.every((s) => typeof s === "string");
+}
+
+/** The reading record's law. Throws a Refusal; returns nothing. A question
+ *  pin is legal with none of the four fields and is not checked here. */
+export function validateReadingRecord(child: ChildPin): void {
+  if (!RECORDED_KINDS.has(child.kind)) return;
+  const mode = child.mode ?? null;
+  const status = child.intermediary_status ?? null;
+  if (mode === null) throw new Refusal("MODE_REQUIRED", `a ${child.kind} reading must say its mode: calibration or incremental`);
+  if (!READING_MODES.includes(mode)) throw new Refusal("MODE_REQUIRED", `mode ${String(mode)} is not calibration or incremental`);
+  if (status === null) throw new Refusal("STATUS_REQUIRED", `a ${child.kind} reading must carry an intermediary_status: ${INTERMEDIARY_STATUSES.join(" | ")}`);
+  if (!(INTERMEDIARY_STATUSES as readonly string[]).includes(status)) throw new Refusal("STATUS_REQUIRED", `intermediary_status ${String(status)} is not one of ${INTERMEDIARY_STATUSES.join(" | ")}`);
+  if (mode === "calibration" && status === "incremental_value") throw new Refusal("CALIBRATION_CANNOT_INCREMENT", "a calibration reading recovers a known answer; it cannot carry incremental_value");
+  const ident = child.identifiability ?? null;
+  if (ident === null || !identifiabilityValid(ident)) throw new Refusal("IDENTIFIABILITY_REQUIRED", `a ${child.kind} reading must carry identifiability: a contrast (one sentence, the nominal input held fixed, the published covariates held fixed) or exactly "not_identified"`);
+  const cmp = child.comparison ?? null;
+  const present = comparisonPresent(cmp);
+  if (ident === "not_identified" && present) throw new Refusal("COMPARISON_BLOCKED", "identifiability is not_identified: no comparison may stand beside it");
+  if (status === "incremental_value") {
+    if (!present || !comparisonComplete(cmp)) throw new Refusal("COMPARISON_REQUIRED", "incremental_value needs a complete comparison: published_covariate_set (non-empty), added_parameter (one string), locked_metric, threshold, threshold_fixed_before_run");
+    if (cmp.threshold_fixed_before_run !== true) throw new Refusal("THRESHOLD_NOT_LOCKED", "threshold_fixed_before_run must be true: a threshold chosen after the run is a refusal, not a warning");
+  } else if (present) {
+    throw new Refusal("COMPARISON_FORBIDDEN", `a comparison block belongs only to incremental_value; this reading is ${status}`);
+  }
+}
 
 export class Refusal extends Error {
   constructor(public readonly code: RefusalCode, detail: string) {
@@ -231,6 +318,9 @@ export function validateChild(cat: Catalogue, child: ChildPin, works?: Map<strin
     if (!target) throw new Refusal("UNKNOWN_FIELD", `writes_to ${child.writes_to} is not in the catalogue`);
     if (target.sector !== child.sector) throw new Refusal("CROSS_SECTOR_WRITE", `a ${child.sector} child may not write into ${target.id} (${target.sector})`);
   }
+
+  // The reading record: an operator's claim, checked for shape and contradiction only.
+  validateReadingRecord(child);
 
   return { walk, bridges };
 }

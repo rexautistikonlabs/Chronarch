@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 import { STAND_INS } from "../src/lib/filters";
 import { PROGRAMME_CHIPS } from "../src/lib/human";
 import { renderAt } from "./render";
+import { recordReading } from "./bench-ui";
 
 const visibleIds = () => Array.from(document.querySelectorAll('[data-testid^="select-work-"]')).map((el) => (el.getAttribute("data-testid") ?? "").replace(/^select-/, ""));
 const edges = () => Array.from(document.querySelectorAll('[data-testid^="edge-"]'));
@@ -113,6 +114,9 @@ describe("a cold workbench is an empty programme", () => {
     fireEvent.click(screen.getByTestId("declare-bridge"));
     expect(screen.getByTestId("declare-status")).toHaveTextContent("declared amend-optics-metrology — on this project only");
     expect(edges()).toHaveLength(4);
+    // the bridge is declared; the reading record is still the operator's to fill
+    expect(screen.getByTestId("action-compare")).toHaveAttribute("data-code", "MODE_REQUIRED");
+    recordReading();
     expect(screen.getByTestId("action-compare")).toHaveAttribute("data-enabled", "true");
     fireEvent.click(screen.getByTestId("action-compare"));
     expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · compare · kind match · ok/);

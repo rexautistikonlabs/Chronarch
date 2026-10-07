@@ -8,6 +8,7 @@ import { runAction } from "../../src/lib/bench";
 import { comparePair, jaccard, percent, snippet, tokenize } from "../../src/lib/metrics";
 import { catalogueOf, type ProgrammeFile } from "../../src/lib/programme";
 import { worksMap } from "../../src/lib/works";
+import { CALIBRATION as R } from "../record";
 
 const WORKS = ALL_WORKS;
 const map = worksMap(WORKS);
@@ -60,7 +61,7 @@ describe("metrics", () => {
       expect(r.question).toMatch(/could stand beside/);
       expect(r.parents.every((p) => p.snippet === null)).toBe(true);
     }
-    const c = runAction("converge", [map.get("work-pz-ledger-structure")!, map.get("work-pz-register-structure")!], cat, FILES, map);
+    const c = runAction("converge", [map.get("work-pz-ledger-structure")!, map.get("work-pz-register-structure")!], cat, FILES, map, R);
     expect(c.ok).toBe(true);
     if (c.ok) {
       expect(c.metrics?.jaccard).toBeCloseTo(15 / 95, 12);

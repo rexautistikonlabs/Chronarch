@@ -3,10 +3,12 @@
  *  validateChild accepted (specs/ANALYSIS.md). Pure: no fetch, no model.
  *
  *  Every finding sentence cites a work id or a metric id. Where the bodies
- *  cannot support a section, the section says so. Nothing is invented. */
+ *  cannot support a section, the section says so. Nothing is invented. The
+ *  four reading-record fields are copied from the child: a ledger of an
+ *  operator's claim, never a bench result. */
 import type { BenchOk, ParentView } from "./bench";
 import { percent, type PairMetrics } from "./metrics";
-import type { JobKind, ProgrammeFile } from "./programme";
+import type { Comparison, Identifiability, IntermediaryStatus, JobKind, ProgrammeFile, ReadingMode } from "./programme";
 import type { Work } from "./works";
 
 export type ObjectRole = "ledger" | "register" | "note" | "stub" | "body";
@@ -23,13 +25,24 @@ export interface AnalysisNote {
   would_falsify: string;
   is_not: string[];
   appendix: { jaccard?: number; snippets: { id: string; text: string }[]; child_id: string };
+  /** The reading record — an operator claim copied from the child; null on a question pin. */
+  mode: ReadingMode | null;
+  intermediary_status: IntermediaryStatus | null;
+  identifiability: Identifiability | null;
+  comparison: Comparison | null;
 }
+
+/** The line every rendering of the record must carry. */
+export const RECORD_CAPTION = "operator record, not a bench result.";
 
 export const IS_NOT_ALWAYS: readonly string[] = [
   "not a fitted model",
   "not peer review",
   "not a clinical claim",
   "not an individual score",
+  "not a nested model comparison",
+  "not a measurement of a person",
+  "not evidence the architecture generalises",
 ];
 
 /** Phrases a note may never carry (specs/LEGAL.md, product law on results). */
@@ -43,12 +56,24 @@ export const NOTE_BANS: readonly string[] = [
   "fascia " + "therapy",
 ];
 
+/** Result labels and verdict sentences a note may never carry: the bench
+ *  records a reading, it does not grade one. Patterns, where a substring
+ *  would catch ordinary words ("pass" inside "passes"). */
+export const NOTE_BAN_PATTERNS: readonly { name: string; re: RegExp }[] = [
+  { name: "PASS as a result label", re: /(^|[^A-Za-z])PASS(?![a-z])/ },
+  { name: "HIGH-POTENTIAL PASS", re: /high[- ]potential pass/i },
+  { name: "new experimentally separable variable", re: /new experimentally separable variable/i },
+  { name: "discovery opportunity", re: /discovery opportunit/i },
+  { name: "the bench fitted, proved or discovered an intermediary", re: /\b(fitted|fits?|proved|proves|proven|discovered|discovers)\b[^.;]{0,80}\bintermediar(y|ies)\b|\bintermediar(y|ies)\b[^.;]{0,80}\b(was|were|is|are|has been|have been)\s+(fitted|fit|proved|proven|discovered)\b/i },
+];
+
 export function noteBanHits(note: AnalysisNote): string[] {
   const texts = [note.question, ...note.findings.map((f) => f.text), note.would_falsify, ...note.is_not.filter((s) => !IS_NOT_ALWAYS.includes(s))];
   const hits: string[] = [];
   for (const t of texts) {
     const low = t.toLowerCase();
     for (const b of NOTE_BANS) if (low.includes(b) && !(b === "individual " + "score" && /\bnot an individual score\b/.test(low))) hits.push(`${b} ← ${t}`);
+    for (const p of NOTE_BAN_PATTERNS) if (p.re.test(t)) hits.push(`${p.name} ← ${t}`);
   }
   return hits;
 }
@@ -94,6 +119,13 @@ export function buildNote(result: BenchOk, works: Map<string, Work>, programmes:
   } else {
     findings.push({ text: `The bodies cannot support a token comparison here (a body is missing or more than two works were selected); no metric is reported.`, cites: ids });
   }
+  // The reading record is the operator's: when it claims incremental value, the
+  // note says in one sentence whose claim the comparison block is. Nothing is fitted.
+  const record = RECORDED.has(kind) ? { mode: result.child.mode ?? null, intermediary_status: result.child.intermediary_status ?? null, identifiability: result.child.identifiability ?? null, comparison: result.child.comparison ?? null } : { mode: null, intermediary_status: null, identifiability: null, comparison: null };
+  if (record.intermediary_status === "incremental_value" && record.comparison) {
+    const c = record.comparison;
+    findings.push({ text: `The comparison block (published covariate set: ${c.published_covariate_set.join(", ")}; added parameter: ${c.added_parameter}; locked metric: ${c.locked_metric}; threshold ${String(c.threshold)}, fixed before the run) is an operator record, not a bench result; no fit statistic was computed here.`, cites: ids });
+  }
 
   const overOperatorBridge = result.bridges.some((id) => operatorBridges.has(id)) || path.some((id) => operatorBridges.has(id));
   const assumptions_used = overOperatorBridge ? [] : assumptionsFor(objects, programmes);
@@ -124,8 +156,11 @@ export function buildNote(result: BenchOk, works: Map<string, Work>, programmes:
     would_falsify,
     is_not,
     appendix: { ...(m ? { jaccard: m.jaccard } : {}), snippets: result.parents.filter((p) => p.snippet).map((p) => ({ id: p.id, text: p.snippet! })), child_id: result.child.id },
+    ...record,
   };
 }
+
+const RECORDED: ReadonlySet<JobKind> = new Set<JobKind>(["overlap", "match", "couple"]);
 
 function questionFor(kind: JobKind, result: BenchOk, a?: AnalysisNote["objects"][number], b?: AnalysisNote["objects"][number], path: string[] = []): string {
   if (kind === "question" && result.question) return result.question;

@@ -11,7 +11,7 @@ overwrites a parent and never writes into a parent's field across a sector.
 |---|---|
 | `overlap` | where two fields' locked arrays measure the same thing under different names — a mapping, with the bridge's ledger ratings carried along |
 | `match` | which items in one field's array correspond to which in another's, one to one, with the unmatched remainder listed |
-| `couple` | a joint reading of two fields' results along a bridge, at the reliability the bridge's ledger permits — never a composite the scale rule forbids |
+| `couple` | a joint reading of two fields' results along a bridge, at the reliability the bridge's ledger permits — never a composite the scale rule forbids. On this bench a couple whose only number is lexical overlap is refused `COUPLE_IS_LEXICAL`: no numeric coupling is fitted here, so no couple is written |
 | `question` | a question one field puts to another along a declared path — a pin that asks, and claims nothing |
 
 ## Child pin schema
@@ -33,6 +33,13 @@ overwrites a parent and never writes into a parent's field across a sector.
 }
 ```
 
+An `overlap`, `match` or `couple` child **may carry four more keys** — the
+reading record of [ANALYSIS.md](ANALYSIS.md): `mode`, `intermediary_status`,
+`identifiability`, `comparison`. They record an operator claim; the bench
+checks their shape and runs nothing. A `question` child **must not require
+them**: a question pin is legal with none of the four, and none is defaulted
+in.
+
 When the parents sit in two or more fields, exactly one of `path[]` (ordered
 bridges, consecutive ones sharing a field, running from the first parent's
 field to the last) or `clique[]` (a set of live bridges covering every pair of
@@ -52,6 +59,8 @@ vocabulary already and need no bridge.
 | `NEED_PARENTS` | the operator bench was asked to act on fewer than two works |
 | `BAD_KIND` | `kind` is not one of the four jobs |
 | `UNKNOWN_FIELD` | a parent names a field not in the catalogue |
+| `MODE_REQUIRED` · `STATUS_REQUIRED` · `CALIBRATION_CANNOT_INCREMENT` · `IDENTIFIABILITY_REQUIRED` · `COMPARISON_BLOCKED` · `COMPARISON_REQUIRED` · `COMPARISON_FORBIDDEN` · `THRESHOLD_NOT_LOCKED` | the reading record is missing or contradicts itself ([ANALYSIS.md](ANALYSIS.md)); a `question` never raises them |
+| `COUPLE_IS_LEXICAL` | a `couple` whose only number is Jaccard: the bench can say "no numeric coupling was fitted" only by refusing, so it refuses, record or no record |
 
 A refused job writes nothing. Refusals are the product's law: the same checks
 run in the web instrument (`web/src/lib/programme.ts`) and are tested.

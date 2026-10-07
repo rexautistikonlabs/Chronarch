@@ -8,7 +8,7 @@
  *  Nothing here calls a model or fetches anything: the bench builds a child
  *  pin from the selection, finds the declared bridges between the parents'
  *  fields, and lets validateChild accept or refuse it. */
-import { validateChild, type Catalogue, type ChildPin, type JobKind, type LicenseGrant, type ProgrammeFile } from "./programme";
+import { RECORDED_KINDS, validateChild, type Catalogue, type ChildPin, type JobKind, type LicenseGrant, type ProgrammeFile, type ReadingRecord } from "./programme";
 import { comparePair, snippet, type PairMetrics } from "./metrics";
 import { FULLTEXT_LICENSES as FULLTEXT_OK, hasFullText, type Work } from "./works";
 
@@ -17,7 +17,7 @@ export type ActionKind = "converge" | "compare" | "analyze";
 export const ACTIONS: readonly { key: ActionKind; label: string; help: string }[] = [
   { key: "converge", label: "Converge", help: "shared identifiers / citations between selected works." },
   { key: "compare", label: "Compare", help: "agreement of two bodies." },
-  { key: "analyze", label: "Analyze", help: "couple models, or open a question if a parent is only a stub." },
+  { key: "analyze", label: "Analyze", help: "open a question if a parent is only a stub; two bodies refuse COUPLE_IS_LEXICAL — no numeric coupling is fitted here." },
 ];
 
 export interface ParentView {
@@ -92,7 +92,15 @@ export function kindFor(action: ActionKind, parents: Work[]): JobKind {
 
 let seq = 0;
 
-export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, files: ProgrammeFile[], works: Map<string, Work>): BenchResult {
+/** The one line a couple must be able to say, and the bench cannot: it fitted
+ *  nothing. Its only numeric result is lexical token overlap (Jaccard), so a
+ *  couple is refused rather than promoted from a lexical note. */
+export const COUPLE_IS_LEXICAL_DETAIL = "no numeric coupling was fitted: the bench's only numeric result is lexical token overlap (Jaccard), and a lexical note is not promoted to a couple — Compare (match) is the lexical reading";
+
+/** `record`: the operator's reading record (specs/ANALYSIS.md). It is copied
+ *  onto an overlap, match or couple child and checked by validateChild; a
+ *  question child carries none of it, whatever was given. */
+export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, files: ProgrammeFile[], works: Map<string, Work>, record: ReadingRecord | null = null): BenchResult {
   const views = selected.map(parentView);
   const refuse = (code: string, detail: string): BenchRefused => ({ ok: false, action, code, detail, parents: views });
   if (selected.length < 2) return refuse("NEED_PARENTS", "select at least two works; a child needs parents");
@@ -104,6 +112,8 @@ export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, 
       if (!hasFullText(w)) return refuse("STUB_NO_FULLTEXT", `a ${kind} job needs a body; work ${w.id} is a citation only (a question may cite it)`);
     }
   }
+  // A couple whose only number is Jaccard is a lexical note wearing the wrong kind: refused, record or no record.
+  if (kind === "couple") return refuse("COUPLE_IS_LEXICAL", COUPLE_IS_LEXICAL_DETAIL);
   const parents = selected.map((w) => ({ pin: `pin:${w.id}`, field: w.field ?? "", work: w.id }));
   for (const p of parents) {
     if (!p.field) return refuse("UNKNOWN_FIELD", `work ${p.work} is not shelved in a field; give it one before it parents a child`);
@@ -143,6 +153,10 @@ export function runAction(action: ActionKind, selected: Work[], cat: Catalogue, 
     sector: "synthesis",
     subject: "cohort-level literature",
     writes_to: null,
+    // the operator's claim, as given — no default fills a missing field; a question carries none
+    ...(RECORDED_KINDS.has(kind) && record
+      ? { mode: record.mode ?? null, intermediary_status: record.intermediary_status ?? null, identifiability: record.identifiability ?? null, comparison: record.comparison ?? null }
+      : {}),
   };
   if (noBridge !== null) return { ...refuse("NO_BRIDGE", `no path ${noBridge[0]} — ${noBridge[1]}`), missing: noBridge };
   try {
@@ -182,10 +196,10 @@ export interface Availability {
   missing: [string, string] | null;
 }
 
-export function availability(selected: Work[], cat: Catalogue, files: ProgrammeFile[], works: Map<string, Work>): Availability[] {
+export function availability(selected: Work[], cat: Catalogue, files: ProgrammeFile[], works: Map<string, Work>, record: ReadingRecord | null = null): Availability[] {
   const before = seq;
   const out = ACTIONS.map((a) => {
-    const r = runAction(a.key, selected, cat, files, works);
+    const r = runAction(a.key, selected, cat, files, works, record);
     if (r.ok) return { action: a.key, enabled: true, code: null, reason: null, missing: null };
     return { action: a.key, enabled: false, code: r.code, reason: r.detail, missing: r.missing ?? null };
   });

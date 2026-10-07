@@ -4,6 +4,7 @@ import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { loadClassicsUI } from "./pack-ui";
+import { recordReading } from "./bench-ui";
 import { renderAt } from "./render";
 
 describe("operator bench", () => {
@@ -48,6 +49,11 @@ describe("operator bench", () => {
     expect(screen.queryByTestId("result-status")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
+    // the record is the operator's: with none of it filled, Converge is disabled MODE_REQUIRED and nothing runs
+    expect(screen.getByTestId("action-converge")).toHaveAttribute("data-code", "MODE_REQUIRED");
+    fireEvent.click(screen.getByTestId("action-converge"));
+    expect(screen.queryByTestId("result-status")).not.toBeInTheDocument();
+    recordReading();
     fireEvent.click(screen.getByTestId("action-converge"));
     expect(status()).toHaveTextContent(/ok · converge · kind overlap · ok/);
     const card = screen.getByTestId("result-card");
@@ -60,6 +66,11 @@ describe("operator bench", () => {
     expect(screen.getByTestId("note-findings")).toHaveTextContent(/\[work-faraday-ere-v1, work-maxwell-elem, metric:jaccard\]/);
     expect(screen.getByTestId("note-is-not")).toHaveTextContent(/not an individual score/);
     expect(screen.getByTestId("note-is-not")).toHaveTextContent(/not a fitted model/);
+    expect(screen.getByTestId("note-is-not")).toHaveTextContent(/not a nested model comparison/);
+    // the reading record renders as a status string under the fixed caption — never a grade
+    expect(screen.getByTestId("note-record")).toHaveAttribute("data-status", "recovered_known");
+    expect(screen.getByTestId("note-record")).toHaveTextContent("operator record, not a bench result.");
+    expect(screen.getByTestId("record-status-value")).toHaveTextContent("recovered_known");
     expect(screen.getByTestId("result-json")).not.toHaveAttribute("open");
     const json = JSON.parse(screen.getByTestId("result-child").textContent ?? "{}");
     expect(json.child.kind).toBe("overlap");
@@ -94,14 +105,22 @@ describe("operator bench", () => {
     expect(screen.getByTestId("results-list")).toHaveTextContent(/question · —/);
   });
 
-  it("a couple of two bodies carries the lexical-overlap caption", () => {
+  it("Analyze on two bodies is refused COUPLE_IS_LEXICAL, record or no record: no numeric coupling is fitted here, and the lexical reading is Compare", () => {
     renderAt("/tech");
     loadClassicsUI();
     fireEvent.click(screen.getByTestId("select-work-faraday-ere-v1"));
     fireEvent.click(screen.getByTestId("select-work-maxwell-elem"));
+    expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-enabled", "false");
+    expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-code", "COUPLE_IS_LEXICAL");
+    recordReading();
+    expect(screen.getByTestId("action-analyze")).toHaveAttribute("data-code", "COUPLE_IS_LEXICAL");
+    expect(screen.getByTestId("why-analyze")).toHaveTextContent("COUPLE_IS_LEXICAL");
     fireEvent.click(screen.getByTestId("action-analyze"));
-    expect(screen.getByTestId("result-status")).toHaveTextContent(/kind couple/);
-    expect(screen.getByTestId("couple-caption")).toHaveTextContent("lexical overlap only — not a fitted model.");
+    expect(screen.queryByTestId("result-status")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("couple-caption")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("action-compare"));
+    expect(screen.getByTestId("result-status")).toHaveTextContent(/ok · compare · kind match · ok/);
+    expect(screen.getByTestId("result-card")).toHaveTextContent("lexical overlap only.");
     expect(screen.getByTestId("jaccard")).toHaveTextContent(/\d+%/);
   });
 
@@ -110,6 +129,6 @@ describe("operator bench", () => {
     const actions = screen.getByTestId("bench-actions");
     expect(actions).toHaveTextContent("shared identifiers / citations between selected works.");
     expect(actions).toHaveTextContent("agreement of two bodies.");
-    expect(actions).toHaveTextContent("couple models, or open a question if a parent is only a stub.");
+    expect(actions).toHaveTextContent("open a question if a parent is only a stub; two bodies refuse COUPLE_IS_LEXICAL — no numeric coupling is fitted here.");
   });
 });

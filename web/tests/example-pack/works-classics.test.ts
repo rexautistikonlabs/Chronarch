@@ -14,6 +14,7 @@ import { runAction } from "../../src/lib/bench";
 import { comparePair } from "../../src/lib/metrics";
 import { catalogueOf, type ProgrammeFile } from "../../src/lib/programme";
 import { worksMap } from "../../src/lib/works";
+import { CALIBRATION as R } from "../record";
 
 const FILES = [zero as ProgrammeFile, toy as ProgrammeFile, classics as ProgrammeFile];
 const cat = catalogueOf(FILES);
@@ -53,7 +54,7 @@ describe("the six base rows are the brief's strings", () => {
 
 describe("Compare across the classics bridges", () => {
   it("Darwin + Mendel (natural-history — heredity): a match note with both excerpts and the pinned Jaccard", () => {
-    const r = runAction("compare", [map.get("work-darwin-1859")!, map.get("work-mendel-1866-de")!], cat, FILES, map);
+    const r = runAction("compare", [map.get("work-darwin-1859")!, map.get("work-mendel-1866-de")!], cat, FILES, map, R);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.child.kind).toBe("match");
@@ -71,7 +72,7 @@ describe("Compare across the classics bridges", () => {
   });
 
   it("Faraday + Maxwell (electricity — electromagnetism): a match note with both excerpts", () => {
-    const r = runAction("compare", [map.get("work-faraday-ere-v1")!, map.get("work-maxwell-elem")!], cat, FILES, map);
+    const r = runAction("compare", [map.get("work-faraday-ere-v1")!, map.get("work-maxwell-elem")!], cat, FILES, map, R);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.child.path).toEqual(["bridge-electricity-electromagnetism"]);
@@ -84,13 +85,13 @@ describe("Compare across the classics bridges", () => {
   });
 
   it("Darwin + the arXiv stub → STUB_NO_FULLTEXT (a body is missing before any bridge is asked for)", () => {
-    const r = runAction("compare", [map.get("work-darwin-1859")!, map.get("work-arxiv-style-example")!], cat, FILES, map);
+    const r = runAction("compare", [map.get("work-darwin-1859")!, map.get("work-arxiv-style-example")!], cat, FILES, map, R);
     expect(r).toMatchObject({ ok: false, code: "STUB_NO_FULLTEXT" });
   });
 
   it("NIST TN 1297 stands alone: metrology has no bridge, and a one-field job needs none", () => {
     expect([...cat.bridges.values()].some((b) => b.left === "metrology" || b.right === "metrology")).toBe(false);
-    const alone = runAction("compare", [map.get("work-nist-tn1297")!, map.get("work-darwin-1859")!], cat, FILES, map);
+    const alone = runAction("compare", [map.get("work-nist-tn1297")!, map.get("work-darwin-1859")!], cat, FILES, map, R);
     expect(alone).toMatchObject({ ok: false, code: "NO_BRIDGE" });
   });
 });

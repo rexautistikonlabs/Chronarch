@@ -44,6 +44,15 @@ const REFUSE_CODES: readonly [string, string][] = [
   ["BAD_KIND", "a job kind outside overlap | match | couple | question"],
   ["UNKNOWN_FIELD", "a parent names a field not in the catalogue"],
   ["UNKNOWN_WORK", "a parent cites a work not in the works catalogue"],
+  ["MODE_REQUIRED", "an overlap, match or couple reading without a mode (calibration or incremental)"],
+  ["STATUS_REQUIRED", "those kinds without an intermediary_status"],
+  ["CALIBRATION_CANNOT_INCREMENT", "mode calibration with intermediary_status incremental_value"],
+  ["IDENTIFIABILITY_REQUIRED", "those kinds without a contrast object or \"not_identified\""],
+  ["COMPARISON_BLOCKED", "identifiability is not_identified and a comparison block is present"],
+  ["COMPARISON_REQUIRED", "incremental_value without a complete comparison block"],
+  ["COMPARISON_FORBIDDEN", "a comparison block on any status other than incremental_value"],
+  ["THRESHOLD_NOT_LOCKED", "threshold_fixed_before_run is not true — a refusal, not a warning"],
+  ["COUPLE_IS_LEXICAL", "a couple whose only number is Jaccard: no numeric coupling was fitted, and a lexical note is not promoted"],
 ];
 
 const EXAMPLE = `{"ok": true, "result": {"identity": "chronarch-pulse", "height": 3, "head_hash": "<64 hex>", "ring_count": 4, "scar_count": 0, "pins_ok": true, "i3": null, "credits_by_reason": {"space": 1}}}`;
